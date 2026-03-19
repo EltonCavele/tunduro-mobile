@@ -16,9 +16,7 @@ import {
   shiftDateKey,
 } from 'lib/calendar-bookings';
 
-const reservationsByDate = groupReservationsByDate(
-  adaptBookingsResponse(mockBookingsResponse)
-);
+const reservationsByDate = groupReservationsByDate(adaptBookingsResponse(mockBookingsResponse));
 
 export function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(getTodayDateKey());
@@ -27,7 +25,7 @@ export function CalendarScreen() {
   const markedDates = buildMarkedDates(reservationsByDate, selectedDate);
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F6F4EF]">
+    <SafeAreaView className="flex-1 ">
       <View className="px-5 pb-5 pt-3">
         <CalendarHeader />
 
@@ -48,8 +46,7 @@ export function CalendarScreen() {
       <ScrollView
         className="flex-1 px-5"
         contentContainerClassName="pb-10"
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <ReservationsTimeline reservations={reservations} />
       </ScrollView>
     </SafeAreaView>

@@ -29,10 +29,10 @@ export function DayScheduleHeader({
   return (
     <View className="mt-6 flex-row items-end justify-between">
       <View className="flex-1 pr-4">
-        <Text className="text-[30px] font-semibold tracking-[-0.6px] text-[#171717]">
+        <Text className="text-[24px] font-semibold tracking-[-0.4px] text-[#171717]">
           {title}
         </Text>
-        <Text className="mt-1 text-[15px] text-[#7C7C7C]">
+        <Text className="mt-1 text-[13px] text-[#7C7C7C]">
           {formatReservationCount(reservationCount)}
         </Text>
       </View>

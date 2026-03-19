@@ -15,8 +15,7 @@ function HeaderAction({
     <Pressable
       accessibilityRole="button"
       className="h-12 w-12 items-center justify-center rounded-full bg-white"
-      onPress={() => {}}
-    >
+      onPress={() => {}}>
       <Icon size={20} stroke="#1B1B1B" strokeWidth={2.2} />
     </Pressable>
   );
@@ -25,7 +24,7 @@ function HeaderAction({
 export function CalendarHeader() {
   return (
     <View className="flex-row items-center justify-between">
-      <Text className="text-[28px] font-semibold tracking-[-0.6px] text-[#141414]">
+      <Text className="text-[24px] font-semibold tracking-[-0.4px] text-[#141414]">
         Agenda de jogos
       </Text>
 

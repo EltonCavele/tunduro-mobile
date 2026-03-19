@@ -17,10 +17,10 @@ export function ReservationsTimeline({
           <CalendarDays size={24} stroke="#1F3125" strokeWidth={2.2} />
         </View>
 
-        <Text className="mt-5 text-[21px] font-semibold text-[#171717]">
+        <Text className="mt-5 text-[18px] font-semibold text-[#171717]">
           Sem reservas nesta data
         </Text>
-        <Text className="mt-2 text-center text-[15px] leading-6 text-[#787878]">
+        <Text className="mt-2 text-center text-[13px] leading-5 text-[#787878]">
           Escolha outro dia no calendário para ver os jogos reservados.
         </Text>
       </View>
@@ -32,7 +32,7 @@ export function ReservationsTimeline({
       {reservations.map((reservation) => (
         <View key={reservation.id} className="mb-6 flex-row items-start">
           <View className="w-[78px] pr-3 pt-1">
-            <Text className="text-[16px] font-semibold text-[#333333]">
+            <Text className="text-[14px] font-semibold text-[#333333]">
               {reservation.startLabel}
             </Text>
           </View>

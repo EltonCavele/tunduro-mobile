@@ -40,26 +40,19 @@ function WeekDayCell({ date, marking, onPress }: WeekDayCellProps) {
   const weekDayLabel = WEEKDAY_LABELS[getWeekDayIndex(date.dateString)];
 
   return (
-    <Pressable
-      className="items-center"
-      onPress={() => onPress?.(date)}
-      style={{ width: 44 }}
-    >
+    <Pressable className="items-center" onPress={() => onPress?.(date)} style={{ width: 44 }}>
       <Text
-        className="text-[12px] font-medium"
-        style={{ color: isSelected ? '#FF7A33' : '#8B8B8B' }}
-      >
+        className="text-[10px] font-medium"
+        style={{ color: isSelected ? '#FF7A33' : '#8B8B8B' }}>
         {weekDayLabel}
       </Text>
 
       <View
         className="mt-2 h-11 w-11 items-center justify-center rounded-full"
-        style={{ backgroundColor: isSelected ? '#FF7A33' : '#EAE8E3' }}
-      >
+        style={{ backgroundColor: isSelected ? '#FF7A33' : '#EAE8E3' }}>
         <Text
-          className="text-[16px] font-semibold"
-          style={{ color: isSelected ? '#FFFFFF' : '#1C1C1C' }}
-        >
+          className="text-[14px] font-semibold"
+          style={{ color: isSelected ? '#FFFFFF' : '#1C1C1C' }}>
           {String(date.day).padStart(2, '0')}
         </Text>
       </View>
@@ -93,8 +86,8 @@ export function CalendarWeekStrip({
         onDayPress={(date) => onSelectDate(date.dateString)}
         testID="calendar-week"
         theme={{
-          backgroundColor: '#F6F4EF',
-          calendarBackground: '#F6F4EF',
+          backgroundColor: '#fff',
+          calendarBackground: '#fff',
         }}
       />
     </View>

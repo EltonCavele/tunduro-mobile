@@ -15,7 +15,7 @@ function AvatarStack({ count }: { count: number }) {
           className="-ml-2 h-9 w-9 items-center justify-center rounded-full border-2 border-white"
           style={{ backgroundColor: AVATAR_COLORS[index % AVATAR_COLORS.length] }}
         >
-          <Text className="text-[11px] font-semibold text-white">
+          <Text className="text-[10px] font-semibold text-white">
             {index + 1}
           </Text>
         </View>
@@ -36,13 +36,13 @@ export function ReservationCard({
     >
       <View className="flex-row items-start justify-between gap-4">
         <View className="flex-1">
-          <Text className="text-[18px] font-semibold text-white">
+          <Text className="text-[16px] font-semibold text-white">
             {reservation.title}
           </Text>
-          <Text className="mt-1 text-[14px] font-medium text-white/85">
+          <Text className="mt-1 text-[12px] font-medium text-white/85">
             {reservation.timeRangeLabel}
           </Text>
-          <Text className="mt-3 text-[12px] uppercase tracking-[0.8px] text-white/80">
+          <Text className="mt-3 text-[10px] uppercase tracking-[0.6px] text-white/80">
             {reservation.courtLabel}
           </Text>
         </View>
@@ -51,7 +51,7 @@ export function ReservationCard({
           <AvatarStack count={reservation.participantCount} />
         ) : (
           <View className="rounded-full bg-white/15 px-3 py-1.5">
-            <Text className="text-[11px] font-semibold text-white">
+            <Text className="text-[10px] font-semibold text-white">
               Sem convidados
             </Text>
           </View>
