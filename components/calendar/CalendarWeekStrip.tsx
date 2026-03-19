@@ -1,9 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
-import {
-  CalendarProvider,
-  type DateData,
-  WeekCalendar,
-} from 'react-native-calendars';
+import { type DateData } from 'react-native-calendars';
+import Week from 'react-native-calendars/src/expandableCalendar/week';
 
 const WEEKDAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
@@ -88,22 +85,18 @@ export function CalendarWeekStrip({
 }: CalendarWeekStripProps) {
   return (
     <View className="mt-6">
-      <CalendarProvider date={selectedDate} onDateChanged={onSelectDate}>
-        <WeekCalendar
-          allowShadow={false}
-          calendarHeight={82}
-          current={selectedDate}
-          dayComponent={WeekDayCell}
-          firstDay={0}
-          hideDayNames
-          markedDates={markedDates}
-          onDayPress={(date) => onSelectDate(date.dateString)}
-          theme={{
-            backgroundColor: '#F6F4EF',
-            calendarBackground: '#F6F4EF',
-          }}
-        />
-      </CalendarProvider>
+      <Week
+        current={selectedDate}
+        dayComponent={WeekDayCell}
+        firstDay={0}
+        markedDates={markedDates}
+        onDayPress={(date) => onSelectDate(date.dateString)}
+        testID="calendar-week"
+        theme={{
+          backgroundColor: '#F6F4EF',
+          calendarBackground: '#F6F4EF',
+        }}
+      />
     </View>
   );
 }
