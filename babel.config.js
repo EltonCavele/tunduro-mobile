@@ -1,15 +1,19 @@
+function resolveExpoPreset() {
+  try {
+    return require.resolve("babel-preset-expo");
+  } catch {
+    return require.resolve("expo/node_modules/babel-preset-expo");
+  }
+}
+
 module.exports = function (api) {
   api.cache(true);
-  let plugins = [];
-
-  plugins.push("react-native-worklets/plugin");
 
   return {
     presets: [
-      ["babel-preset-expo", { jsxImportSource: "nativewind" }],
+      [resolveExpoPreset(), { jsxImportSource: "nativewind" }],
       "nativewind/babel",
     ],
-
-    plugins,
+    plugins: ["react-native-worklets/plugin"],
   };
 };
