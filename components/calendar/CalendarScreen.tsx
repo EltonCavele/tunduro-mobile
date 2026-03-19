@@ -2,6 +2,7 @@ import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 
+import { AddReservationButton } from './AddReservationButton';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarWeekStrip } from './CalendarWeekStrip';
 import { DayScheduleHeader } from './DayScheduleHeader';
@@ -12,6 +13,7 @@ import {
   formatScheduleHeading,
   getTodayDateKey,
   groupReservationsByDate,
+  isPastDateKey,
   mockBookingsResponse,
   shiftDateKey,
 } from 'lib/calendar-bookings';
@@ -23,6 +25,7 @@ export function CalendarScreen() {
 
   const reservations = reservationsByDate[selectedDate] ?? [];
   const markedDates = buildMarkedDates(reservationsByDate, selectedDate);
+  const showAddReservationButton = !isPastDateKey(selectedDate);
 
   return (
     <SafeAreaView className="flex-1 ">
@@ -41,6 +44,8 @@ export function CalendarScreen() {
           reservationCount={reservations.length}
           title={formatScheduleHeading(selectedDate)}
         />
+
+        {showAddReservationButton ? <AddReservationButton /> : null}
       </View>
 
       <ScrollView

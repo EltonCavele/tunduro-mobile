@@ -278,6 +278,10 @@ export function getTodayDateKey() {
   return formatDateKey(new Date());
 }
 
+export function isPastDateKey(dateKey: string) {
+  return dateKey < getTodayDateKey();
+}
+
 export function shiftDateKey(dateKey: string, dayOffset: number) {
   const date = parseDateKey(dateKey);
 
