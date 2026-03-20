@@ -1,8 +1,6 @@
-import { Pressable, Text, View } from 'react-native';
-import { type DateData } from 'react-native-calendars';
-import Week from 'react-native-calendars/src/expandableCalendar/week';
-
-const WEEKDAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { View } from 'react-native';
+import { ExpandableCalendar } from 'react-native-calendars';
 
 type MarkedDay = {
   dotColor?: string;
@@ -18,58 +16,33 @@ interface CalendarWeekStripProps {
   selectedDate: string;
 }
 
-type WeekDayCellProps = {
-  date?: DateData;
-  marking?: MarkedDay;
-  onPress?: (date?: DateData) => void;
-};
-
-function getWeekDayIndex(dateKey: string) {
-  const [year, month, day] = dateKey.split('-').map(Number);
-
-  return new Date(year, month - 1, day).getDay();
-}
-
-function WeekDayCell({ date, marking, onPress }: WeekDayCellProps) {
-  if (!date) {
-    return null;
-  }
-
-  const isSelected = Boolean(marking?.selected);
-  const isMarked = Boolean(marking?.marked);
-  const weekDayLabel = WEEKDAY_LABELS[getWeekDayIndex(date.dateString)];
-
-  return (
-    <Pressable className="items-center" onPress={() => onPress?.(date)} style={{ width: 44 }}>
-      <Text
-        className="text-[10px] font-medium"
-        style={{ color: isSelected ? '#FF7A33' : '#8B8B8B' }}>
-        {weekDayLabel}
-      </Text>
-
-      <View
-        className="mt-2 h-11 w-11 items-center justify-center rounded-full"
-        style={{ backgroundColor: isSelected ? '#FF7A33' : '#EAE8E3' }}>
-        <Text
-          className="text-[14px] font-semibold"
-          style={{ color: isSelected ? '#FFFFFF' : '#1C1C1C' }}>
-          {String(date.day).padStart(2, '0')}
-        </Text>
-      </View>
-
-      <View
-        className="mt-1.5 h-1.5 w-1.5 rounded-full"
-        style={{
-          backgroundColor: isMarked
-            ? isSelected
-              ? '#FFFFFF'
-              : marking?.dotColor || '#1F3125'
-            : 'transparent',
-        }}
-      />
-    </Pressable>
-  );
-}
+const CALENDAR_THEME = {
+  arrowColor: '#1C1C1C',
+  backgroundColor: '#FFFFFF',
+  calendarBackground: '#FFFFFF',
+  dayTextColor: '#1C1C1C',
+  monthTextColor: '#171717',
+  selectedDayBackgroundColor: '#FF7A33',
+  selectedDayTextColor: '#FFFFFF',
+  textDayFontSize: 13,
+  textDayFontWeight: '600',
+  textDayHeaderFontSize: 10,
+  textDayHeaderFontWeight: '500',
+  textMonthFontSize: 15,
+  textMonthFontWeight: '600',
+  textSectionTitleColor: '#8B8B8B',
+  todayTextColor: '#FF7A33',
+  stylesheet: {
+    calendar: {
+      header: {
+        week: {
+          marginBottom: 6,
+          marginTop: 8,
+        },
+      },
+    },
+  },
+} as const;
 
 export function CalendarWeekStrip({
   markedDates,
@@ -77,18 +50,28 @@ export function CalendarWeekStrip({
   selectedDate,
 }: CalendarWeekStripProps) {
   return (
-    <View className="mt-6">
-      <Week
+    <View className="mt-6 overflow-hidden rounded-[26px] bg-white">
+      <ExpandableCalendar
+        allowShadow={false}
+        closeOnDayPress={false}
         current={selectedDate}
-        dayComponent={WeekDayCell}
+        disableWeekScroll={false}
         firstDay={0}
+        futureScrollRange={24}
+        hideKnob={false}
+        initialPosition={ExpandableCalendar.positions.CLOSED}
         markedDates={markedDates}
         onDayPress={(date) => onSelectDate(date.dateString)}
-        testID="calendar-week"
-        theme={{
-          backgroundColor: '#fff',
-          calendarBackground: '#fff',
-        }}
+        pastScrollRange={24}
+        renderArrow={(direction) =>
+          direction === 'left' ? (
+            <ChevronLeft size={18} stroke="#1C1C1C" strokeWidth={2.4} />
+          ) : (
+            <ChevronRight size={18} stroke="#1C1C1C" strokeWidth={2.4} />
+          )
+        }
+        testID="calendar-expandable"
+        theme={CALENDAR_THEME}
       />
     </View>
   );
