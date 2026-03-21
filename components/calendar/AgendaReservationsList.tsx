@@ -5,38 +5,13 @@ import type { CalendarReservation } from 'lib/calendar-bookings';
 
 function EmptyReservationsState() {
   return (
-    <View
-      style={{
-        marginTop: 24,
-        alignItems: 'center',
-        borderRadius: 28,
-        backgroundColor: '#FFFFFF',
-        paddingHorizontal: 24,
-        paddingVertical: 40,
-      }}>
-      <View
-        style={{
-          height: 56,
-          width: 56,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: 999,
-          backgroundColor: '#EEF4EF',
-        }}>
+    <View className="mt-6 items-center rounded-[28px] bg-white px-6 py-10">
+      <View className="h-14 w-14 items-center justify-center rounded-full bg-[#EEF4EF]">
         <CalendarDays size={24} stroke="#1F3125" strokeWidth={2.2} />
       </View>
 
-      <Text style={{ marginTop: 20, fontSize: 18, fontWeight: '600', color: '#171717' }}>
-        Sem reservas nesta data
-      </Text>
-      <Text
-        style={{
-          marginTop: 8,
-          textAlign: 'center',
-          fontSize: 13,
-          lineHeight: 20,
-          color: '#787878',
-        }}>
+      <Text className="mt-5 text-[18px] font-semibold text-[#171717]">Sem reservas nesta data</Text>
+      <Text className="mt-2 text-center text-[13px] leading-5 text-[#787878]">
         Escolha outro dia no calendário para ver os jogos reservados.
       </Text>
     </View>
@@ -99,27 +74,22 @@ function ReservationTimelineRow({ reservation }: { reservation: CalendarReservat
       : reservation.courtLabel;
 
   return (
-    <View style={{ marginBottom: 28, flexDirection: 'row', alignItems: 'flex-start' }}>
-      <View style={{ width: 84, paddingRight: 12, paddingTop: 2 }}>
-        <Text style={{ fontSize: 15, fontWeight: '500', color: '#1F1F1F' }}>
-          {reservation.startLabel}
-        </Text>
+    <View className="mb-7 flex-row items-start">
+      <View className="w-[84px] pr-3 pt-0.5">
+        <Text className="text-[15px] font-light  text-[#1F1F1F] ">{reservation.startLabel}</Text>
         {durationLabel ? (
-          <Text style={{ marginTop: 4, fontSize: 13, color: '#7A7A7A' }}>{durationLabel}</Text>
+          <Text className="mt-1 text-sm  text-[#7A7A7A]">{durationLabel}</Text>
         ) : null}
       </View>
 
-      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'flex-start' }}>
+      <View className="flex-1 flex-row items-start">
         <View
-          style={{
-            marginRight: 16,
-            marginTop: 4,
-            height: 72,
-            width: 8,
-            borderRadius: 999,
-            backgroundColor: softAccent,
-            overflow: 'hidden',
-          }}>
+          className="mr-4 mt-1 h-[72px] w-2 overflow-hidden rounded-full"
+          style={
+            {
+              // backgroundColor: softAccent,
+            }
+          }>
           <View
             style={{
               position: 'absolute',
@@ -133,55 +103,29 @@ function ReservationTimelineRow({ reservation }: { reservation: CalendarReservat
           />
         </View>
 
-        <View style={{ flex: 1, paddingRight: 8 }}>
-          <Text
-            style={{
-              fontSize: 17,
-              lineHeight: 24,
-              fontWeight: '500',
-              color: '#212121',
-            }}>
-            {reservation.title}
-          </Text>
-
-          <Text
-            style={{
-              marginTop: 6,
-              fontSize: 14,
-              lineHeight: 20,
-              color: '#7A7A7A',
-            }}>
-            {secondaryLabel}
-          </Text>
-
-          <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
+        <View className="flex-1 pr-2">
+          <View className="flex flex-row items-center justify-between gap-2">
+            <Text className="text-lg font-semibold leading-6 text-[#212121]">
+              {reservation.title}
+            </Text>
             <View
+              className="rounded-full px-[9px] py-1"
               style={{
-                borderRadius: 999,
                 backgroundColor: softAccent,
-                paddingHorizontal: 9,
-                paddingVertical: 4,
               }}>
               <Text
+                className="text-[10px] font-bold uppercase"
                 style={{
-                  fontSize: 10,
-                  fontWeight: '700',
                   color: reservation.accentColor,
-                  textTransform: 'uppercase',
                 }}>
                 {getStatusLabel(reservation.status)}
               </Text>
             </View>
-
-            <Text
-              style={{
-                marginLeft: 10,
-                fontSize: 12,
-                color: '#8B8B8B',
-              }}>
-              {reservation.timeRangeLabel}
-            </Text>
           </View>
+
+          <Text className="mt-1.5 text-[14px] leading-5 text-[#7A7A7A]">{secondaryLabel}</Text>
+
+          <Text className="text-[12px] text-[#8B8B8B]">{reservation.timeRangeLabel}</Text>
         </View>
       </View>
     </View>
@@ -191,13 +135,13 @@ function ReservationTimelineRow({ reservation }: { reservation: CalendarReservat
 export function AgendaReservationsList({ reservations }: { reservations: CalendarReservation[] }) {
   return (
     <FlatList
-      contentContainerStyle={{ paddingBottom: 40, paddingHorizontal: 20 }}
+      className="flex-1"
+      contentContainerClassName="px-5 py-10"
       data={reservations}
       keyExtractor={(item) => item.id}
       ListEmptyComponent={<EmptyReservationsState />}
       renderItem={({ item }) => <ReservationTimelineRow reservation={item} />}
       showsVerticalScrollIndicator={false}
-      style={{ flex: 1 }}
     />
   );
 }
