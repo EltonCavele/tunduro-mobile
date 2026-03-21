@@ -1,49 +1,72 @@
-import { useRouter } from 'expo-router';
-import { UserRoundPlus } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from 'react';
 
-export default function CriarContaScreen() {
+import { useRouter } from 'expo-router';
+import { Pressable, Text, View } from 'react-native';
+
+import { AuthButton } from 'components/auth/AuthButton';
+import { AuthMinimalField } from 'components/auth/AuthMinimalField';
+import { AuthMinimalScreen } from 'components/auth/AuthMinimalScreen';
+
+export default function SignInScreen() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F6F5F1]">
-      <View className="flex-1 px-6 py-6">
-        <View className="rounded-[28px] bg-white p-6">
-          <View className="h-14 w-14 items-center justify-center rounded-2xl bg-[#EEF4EF]">
-            <UserRoundPlus size={24} stroke="#1F3125" strokeWidth={2.2} />
-          </View>
-
-          <Text className="mt-6 text-[28px] font-bold text-[#141414]">
-            Criar conta
+    <AuthMinimalScreen
+      footer={
+        <Pressable
+          accessibilityRole="button"
+          className="items-center py-2"
+          onPress={() => router.push('/auth/sign-up')}>
+          <Text className="text-[17px] font-normal text-[#181818]">
+            Nao tenho uma conta
           </Text>
-          <Text className="mt-3 text-[16px] leading-6 text-[#666666]">
-            A tela de cadastro ainda nao foi implementada neste projeto. Este
-            placeholder deixa o fluxo de entrada navegavel desde a primeira
-            sessao.
-          </Text>
-        </View>
+        </Pressable>
+      }
+      title="Entrar">
+      <View>
+        <AuthMinimalField
+          autoCapitalize="none"
+          keyboardType="email-address"
+          label="E-mail ou numero de telefone"
+          onChangeText={setEmail}
+          placeholder="ex. seu@email.com"
+          textContentType="emailAddress"
+          value={email}
+        />
 
-        <View className="mt-6 gap-3">
-          <Pressable
-            accessibilityRole="button"
-            className="h-14 items-center justify-center rounded-full bg-[#1F3125]"
-            onPress={() => router.replace('/(tabs)/inicio')}>
-            <Text className="text-[16px] font-semibold text-white">
-              Entrar no app
-            </Text>
-          </Pressable>
-
-          <Pressable
-            accessibilityRole="button"
-            className="h-14 items-center justify-center rounded-full bg-white"
-            onPress={() => router.back()}>
-            <Text className="text-[16px] font-semibold text-[#121212]">
-              Voltar
-            </Text>
-          </Pressable>
-        </View>
+        <AuthMinimalField
+          label="Palavra-passe"
+          onChangeText={setPassword}
+          placeholder="Introduza a sua palavra-passe"
+          secureTextEntry
+          textContentType="password"
+          value={password}
+        />
       </View>
-    </SafeAreaView>
+
+      <Pressable
+        accessibilityRole="button"
+        className="-mt-1 mb-5 self-end py-1"
+        onPress={() =>
+          router.push({
+            pathname: '/auth/recover-password',
+            params: email ? { email } : undefined,
+          })
+        }>
+        <Text className="text-[14px] font-medium text-[#1F3125]">
+          Esqueceu a palavra-passe?
+        </Text>
+      </Pressable>
+
+      <View>
+        <AuthButton
+          className="h-[52px]"
+          label="Entrar"
+          onPress={() => router.replace('/(tabs)/inicio')}
+        />
+      </View>
+    </AuthMinimalScreen>
   );
 }

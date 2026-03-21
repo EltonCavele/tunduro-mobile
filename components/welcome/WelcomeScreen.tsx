@@ -17,8 +17,8 @@ export function WelcomeScreen() {
         <WelcomeHero />
         <View className="-mt-5">
           <WelcomeContent
-            onCreateAccount={() => router.push('/criar-conta')}
-            onEnter={() => router.replace('/(tabs)/inicio')}
+            onCreateAccount={() => router.push('/auth/sign-up')}
+            onEnter={() => router.push('/auth/sign-in')}
           />
         </View>
       </View>
