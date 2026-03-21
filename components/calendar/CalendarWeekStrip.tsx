@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { Agenda, type AgendaEntry } from 'react-native-calendars';
 
 import type { CalendarReservation } from 'lib/calendar-bookings';
 
-import { ReservationsTimeline } from './ReservationsTimeline';
+import { AgendaReservationsList } from './AgendaReservationsList';
 
 type MarkedDay = {
   dotColor?: string;
@@ -20,6 +20,12 @@ interface CalendarWeekStripProps {
   onSelectDate: (date: string) => void;
   reservationsByDate: Record<string, CalendarReservation[]>;
   selectedDate: string;
+}
+
+interface AgendaSelectedDayLike {
+  getDate: () => number;
+  getFullYear: () => number;
+  getMonth: () => number;
 }
 
 const CALENDAR_THEME = {
@@ -40,21 +46,9 @@ const CALENDAR_THEME = {
   textMonthFontWeight: '600',
   textSectionTitleColor: '#8B8B8B',
   todayTextColor: '#FF7A33',
-  'stylesheet.agenda.list': {
-    day: {
-      marginTop: 0,
-      width: 0,
-    },
-    dayNum: {
-      fontSize: 0,
-    },
-    dayText: {
-      fontSize: 0,
-      marginTop: 0,
-    },
-  },
   'stylesheet.agenda.main': {
     reservations: {
+      flex: 1,
       backgroundColor: '#FFFFFF',
       marginTop: 96,
     },
@@ -92,6 +86,23 @@ function buildAgendaItems(
   return items;
 }
 
+function padNumber(value: number) {
+  return String(value).padStart(2, '0');
+}
+
+function getDateKeyFromAgendaSelectedDay(
+  selectedDay: AgendaSelectedDayLike | undefined,
+  fallbackDateKey: string
+) {
+  if (!selectedDay) {
+    return fallbackDateKey;
+  }
+
+  return `${selectedDay.getFullYear()}-${padNumber(selectedDay.getMonth() + 1)}-${padNumber(
+    selectedDay.getDate()
+  )}`;
+}
+
 export function CalendarWeekStrip({
   markedDates,
   onSelectDate,
@@ -102,7 +113,6 @@ export function CalendarWeekStrip({
     () => buildAgendaItems(reservationsByDate, selectedDate),
     [reservationsByDate, selectedDate]
   );
-  const selectedReservations = reservationsByDate[selectedDate] ?? [];
 
   function handleSelectDate(dateString: string) {
     if (dateString !== selectedDate) {
@@ -116,6 +126,7 @@ export function CalendarWeekStrip({
         firstDay={0}
         futureScrollRange={24}
         hideKnob={false}
+        showClosingKnob={true}
         items={agendaItems}
         markedDates={markedDates}
         onDayPress={(date) => handleSelectDate(date.dateString)}
@@ -127,14 +138,15 @@ export function CalendarWeekStrip({
             <ChevronRight size={18} stroke="#1C1C1C" strokeWidth={2.4} />
           )
         }
-        renderList={() => (
-          <ScrollView
-            className="flex-1 px-5"
-            contentContainerClassName="pb-10"
-            showsVerticalScrollIndicator={false}>
-            <ReservationsTimeline reservations={selectedReservations} />
-          </ScrollView>
-        )}
+        renderList={(listProps) => {
+          const agendaSelectedDate = getDateKeyFromAgendaSelectedDay(
+            listProps.selectedDay as AgendaSelectedDayLike | undefined,
+            selectedDate
+          );
+          const reservations = reservationsByDate[agendaSelectedDate] ?? [];
+
+          return <AgendaReservationsList key={agendaSelectedDate} reservations={reservations} />;
+        }}
         selected={selectedDate}
         showScrollIndicator={false}
         testID="calendar-agenda"
