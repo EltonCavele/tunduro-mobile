@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "expo": "^54.0.0",
+    "expo-linear-gradient": "~15.0.8",
+    "expo-mesh-gradient": "~0.4.8",
     "expo-router": "~6.0.23",
     "expo-status-bar": "~3.0.8",
     "lucide-react-native": "^0.577.0",
