@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { LayoutGrid, CalendarDays, UserRound, Bookmark } from 'lucide-react-native';
+import { LayoutGrid, UserRound, Bookmark, Club } from 'lucide-react-native';
 
 import { TabBarIcon } from 'components/navigation/TabBarIcon';
 
@@ -28,17 +28,9 @@ export default function TabsLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
-        name="calendario"
-        options={{
-          title: 'Calendario',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon color={color} focused={focused} icon={CalendarDays} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="reservas"
+        name="reserve"
         options={{
           title: 'Reservas',
           tabBarIcon: ({ color, focused }) => (
@@ -46,6 +38,17 @@ export default function TabsLayout() {
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="courts"
+        options={{
+          title: 'Campos',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon color={color} focused={focused} icon={Club} />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="perfil"
         options={{
