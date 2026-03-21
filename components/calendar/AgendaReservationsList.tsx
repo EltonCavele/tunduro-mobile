@@ -133,10 +133,11 @@ function ReservationTimelineRow({ reservation }: { reservation: CalendarReservat
 }
 
 export function AgendaReservationsList({ reservations }: { reservations: CalendarReservation[] }) {
+  console.log(JSON.stringify(reservations, null, 3));
   return (
     <FlatList
       className="flex-1"
-      contentContainerClassName="px-5 py-10"
+      contentContainerClassName="px-5 pt-10"
       data={reservations}
       keyExtractor={(item) => item.id}
       ListEmptyComponent={<EmptyReservationsState />}

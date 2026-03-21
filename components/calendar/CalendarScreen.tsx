@@ -27,7 +27,7 @@ export function CalendarScreen() {
   const showAddReservationButton = !isPastDateKey(selectedDate);
 
   return (
-    <SafeAreaView className="flex-1 ">
+    <SafeAreaView className="flex-1">
       <View className="px-5 pb-5 pt-3">
         <CalendarHeader />
 

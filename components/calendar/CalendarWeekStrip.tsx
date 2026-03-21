@@ -121,7 +121,7 @@ export function CalendarWeekStrip({
   }
 
   return (
-    <View className="mt-2 flex-1 overflow-hidden rounded-t-[26px] bg-white">
+    <View className=" flex-1 rounded-t-[26px]">
       <Agenda
         firstDay={0}
         futureScrollRange={24}

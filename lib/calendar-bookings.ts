@@ -109,9 +109,7 @@ function padNumber(value: number) {
 }
 
 function formatDateKey(date: Date) {
-  return `${date.getFullYear()}-${padNumber(date.getMonth() + 1)}-${padNumber(
-    date.getDate()
-  )}`;
+  return `${date.getFullYear()}-${padNumber(date.getMonth() + 1)}-${padNumber(date.getDate())}`;
 }
 
 function parseDateKey(dateKey: string) {
@@ -258,7 +256,7 @@ export const mockBookingsResponse: BookingListResponse = {
         durationMinutes: 60,
         id: 'booking-005',
         participantIds: ['user-organizer', 'user-008'],
-        status: 'UNKNOWN',
+        status: 'CONFIRMED',
         time: [16, 0],
       }),
     ],
@@ -345,8 +343,9 @@ export function buildMarkedDates(
 
   Object.entries(groupedReservations).forEach(([dateKey, reservations]) => {
     const accentColor =
-      reservations.find((reservation) => reservation.status === 'CONFIRMED')
-        ?.accentColor || reservations[0]?.accentColor || '#1F3125';
+      reservations.find((reservation) => reservation.status === 'CONFIRMED')?.accentColor ||
+      reservations[0]?.accentColor ||
+      '#1F3125';
 
     markedDates[dateKey] = {
       dotColor: accentColor,
