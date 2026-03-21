@@ -1,7 +1,7 @@
 import { FlatList, Text, View } from 'react-native';
 import { CalendarDays } from 'lucide-react-native';
 
-import type { CalendarReservation } from 'lib/calendar-bookings';
+import { type CalendarReservation, BookingStatus } from 'lib/calendar-bookings';
 
 function EmptyReservationsState() {
   return (
@@ -34,11 +34,15 @@ function hexToRgba(hexColor: string, alpha: number) {
 
 function getStatusLabel(status: string) {
   switch (status) {
-    case 'PENDING':
+    case BookingStatus.PENDING:
       return 'Pendente';
-    case 'CONFIRMED':
+    case BookingStatus.CONFIRMED:
       return 'Confirmado';
-    case 'COMPLETED':
+    case BookingStatus.CANCELLED:
+      return 'Cancelado';
+    case BookingStatus.NO_SHOW:
+      return 'Nao compareceu';
+    case BookingStatus.COMPLETED:
       return 'Concluido';
     default:
       return status;

@@ -1,3 +1,11 @@
+export enum BookingStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  CANCELLED = 'CANCELLED',
+  NO_SHOW = 'NO_SHOW',
+  COMPLETED = 'COMPLETED',
+}
+
 export interface BookingParticipant {
   isOrganizer: boolean;
   status: string;
@@ -14,9 +22,9 @@ export interface BookingInvitation {
 
 export interface BookingStatusHistoryItem {
   createdAt: string;
-  fromStatus: string;
+  fromStatus: BookingStatus;
   reason: string | null;
-  toStatus: string;
+  toStatus: BookingStatus;
 }
 
 export interface BookingPayment {
@@ -45,7 +53,7 @@ export interface BookingItem {
   payments: BookingPayment[];
   seriesId: string | null;
   startAt: string;
-  status: string;
+  status: BookingStatus;
   statusHistory: BookingStatusHistoryItem[];
   totalPrice: number;
   updatedAt: string;
@@ -75,7 +83,7 @@ export interface CalendarReservation {
   participantCount: number;
   startAt: string;
   startLabel: string;
-  status: string;
+  status: BookingStatus;
   timeRangeLabel: string;
   title: string;
 }
@@ -88,10 +96,12 @@ type MarkedDay = {
   selectedTextColor?: string;
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  COMPLETED: '#45C78B',
-  CONFIRMED: '#7C9EE6',
-  PENDING: '#FF7426',
+const STATUS_COLORS: Record<BookingStatus, string> = {
+  [BookingStatus.CANCELLED]: '#E45B5B',
+  [BookingStatus.COMPLETED]: '#45C78B',
+  [BookingStatus.CONFIRMED]: '#7C9EE6',
+  [BookingStatus.NO_SHOW]: '#8C8C8C',
+  [BookingStatus.PENDING]: '#FF7426',
 };
 
 const WEEKDAY_NAMES = [
@@ -142,14 +152,14 @@ function deriveCourtLabel(courtId: string) {
   return `Quadra ${suffix}`;
 }
 
-function getReservationColor(status: string) {
-  return STATUS_COLORS[status] || '#6B7280';
+function getReservationColor(status: BookingStatus) {
+  return STATUS_COLORS[status];
 }
 
 function createParticipant(userId: string, isOrganizer = false): BookingParticipant {
   return {
     isOrganizer,
-    status: isOrganizer ? 'CONFIRMED' : 'INVITED',
+    status: isOrganizer ? BookingStatus.CONFIRMED : 'INVITED',
     userId,
   };
 }
@@ -160,7 +170,7 @@ function createMockBooking(params: {
   durationMinutes: number;
   id: string;
   participantIds: string[];
-  status: string;
+  status: BookingStatus;
   time: [number, number];
 }) {
   const [hour, minute] = params.time;
@@ -191,7 +201,11 @@ function createMockBooking(params: {
         id: `payment-${params.id}`,
         processedAt: null,
         reference: `REF-${params.id}`,
-        status: params.status === 'CONFIRMED' ? 'PAID' : 'PENDING',
+        status:
+          params.status === BookingStatus.CONFIRMED ||
+          params.status === BookingStatus.COMPLETED
+            ? 'PAID'
+            : 'PENDING',
         type: 'BOOKING',
       },
     ],
@@ -220,7 +234,7 @@ export const mockBookingsResponse: BookingListResponse = {
         durationMinutes: 60,
         id: 'booking-001',
         participantIds: ['user-organizer', 'user-002', 'user-003'],
-        status: 'PENDING',
+        status: BookingStatus.PENDING,
         time: [9, 0],
       }),
       createMockBooking({
@@ -229,7 +243,7 @@ export const mockBookingsResponse: BookingListResponse = {
         durationMinutes: 60,
         id: 'booking-002',
         participantIds: ['user-organizer', 'user-004', 'user-005', 'user-006'],
-        status: 'CONFIRMED',
+        status: BookingStatus.CONFIRMED,
         time: [10, 30],
       }),
       createMockBooking({
@@ -238,7 +252,7 @@ export const mockBookingsResponse: BookingListResponse = {
         durationMinutes: 90,
         id: 'booking-003',
         participantIds: [],
-        status: 'COMPLETED',
+        status: BookingStatus.COMPLETED,
         time: [18, 0],
       }),
       createMockBooking({
@@ -247,7 +261,7 @@ export const mockBookingsResponse: BookingListResponse = {
         durationMinutes: 60,
         id: 'booking-004',
         participantIds: ['user-organizer', 'user-007'],
-        status: 'CONFIRMED',
+        status: BookingStatus.CANCELLED,
         time: [8, 0],
       }),
       createMockBooking({
@@ -256,7 +270,7 @@ export const mockBookingsResponse: BookingListResponse = {
         durationMinutes: 60,
         id: 'booking-005',
         participantIds: ['user-organizer', 'user-008'],
-        status: 'CONFIRMED',
+        status: BookingStatus.NO_SHOW,
         time: [16, 0],
       }),
     ],
@@ -343,7 +357,8 @@ export function buildMarkedDates(
 
   Object.entries(groupedReservations).forEach(([dateKey, reservations]) => {
     const accentColor =
-      reservations.find((reservation) => reservation.status === 'CONFIRMED')?.accentColor ||
+      reservations.find((reservation) => reservation.status === BookingStatus.CONFIRMED)
+        ?.accentColor ||
       reservations[0]?.accentColor ||
       '#1F3125';
 

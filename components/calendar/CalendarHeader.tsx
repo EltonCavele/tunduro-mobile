@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import { PencilLine, Search } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
+import { formatScheduleHeading } from 'lib/calendar-bookings';
 
 function HeaderAction({
   icon: Icon,
@@ -21,11 +22,11 @@ function HeaderAction({
   );
 }
 
-export function CalendarHeader() {
+export function CalendarHeader({ selectedDate }: { selectedDate: string }) {
   return (
     <View className="flex-row items-center justify-between">
       <Text className="text-[24px] font-semibold tracking-[-0.4px] text-[#141414]">
-        Agenda de jogos
+        {selectedDate ? formatScheduleHeading(selectedDate) : 'Agenda de jogos'}
       </Text>
 
       <View className="flex-row gap-3">

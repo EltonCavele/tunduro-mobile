@@ -131,13 +131,6 @@ export function CalendarWeekStrip({
         markedDates={markedDates}
         onDayPress={(date) => handleSelectDate(date.dateString)}
         pastScrollRange={24}
-        renderArrow={(direction) =>
-          direction === 'left' ? (
-            <ChevronLeft size={18} stroke="#1C1C1C" strokeWidth={2.4} />
-          ) : (
-            <ChevronRight size={18} stroke="#1C1C1C" strokeWidth={2.4} />
-          )
-        }
         renderList={(listProps) => {
           const agendaSelectedDate = getDateKeyFromAgendaSelectedDay(
             listProps.selectedDay as AgendaSelectedDayLike | undefined,
