@@ -104,7 +104,7 @@ export function CalendarScreen() {
           pointerEvents="box-none"
           className="absolute right-5"
           style={{ bottom: Math.max(insets.bottom, 16) + 20 }}>
-          <AddReservationButton />
+          <AddReservationButton selectedDate={selectedDate} />
         </View>
       ) : null}
     </SafeAreaView>

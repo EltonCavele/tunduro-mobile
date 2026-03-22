@@ -9,6 +9,13 @@ interface GetMyBookingsPageParams {
 
 const DEFAULT_BOOKINGS_PAGE_SIZE = 100;
 
+export interface CreateBookingPayload {
+  courtId: string;
+  endAt: string;
+  participantUserIds?: string[];
+  startAt: string;
+}
+
 export function getMyBookingsPage(params?: GetMyBookingsPageParams) {
   const page = params?.page ?? 1;
   const pageSize = params?.pageSize ?? DEFAULT_BOOKINGS_PAGE_SIZE;
@@ -43,4 +50,8 @@ export async function getAllMyBookings() {
   }
 
   return Array.from(uniqueBookings.values());
+}
+
+export function createBooking(payload: CreateBookingPayload) {
+  return unwrapResponse<BookingItem>(api.post('/v1/bookings', payload));
 }

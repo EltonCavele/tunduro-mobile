@@ -11,7 +11,12 @@ import {
   subscribeAuthStorage,
 } from '../lib/auth-storage';
 import type { AuthResponse, AuthTokens, UserProfile } from 'lib/auth.types';
-import { authQueryKeys, bookingQueryKeys } from 'lib/query-keys';
+import {
+  authQueryKeys,
+  bookingQueryKeys,
+  courtQueryKeys,
+  userDirectoryQueryKeys,
+} from 'lib/query-keys';
 
 interface AuthSessionContextValue {
   tokens: AuthTokens | null;
@@ -47,6 +52,12 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         });
         queryClient.removeQueries({
           queryKey: bookingQueryKeys.all,
+        });
+        queryClient.removeQueries({
+          queryKey: courtQueryKeys.all,
+        });
+        queryClient.removeQueries({
+          queryKey: userDirectoryQueryKeys.all,
         });
       }
     });
@@ -85,6 +96,12 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       queryClient.removeQueries({
         queryKey: bookingQueryKeys.all,
       });
+      queryClient.removeQueries({
+        queryKey: courtQueryKeys.all,
+      });
+      queryClient.removeQueries({
+        queryKey: userDirectoryQueryKeys.all,
+      });
       queryClient.setQueryData(authQueryKeys.profile, response.user);
     },
     [queryClient]
@@ -98,6 +115,12 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     });
     queryClient.removeQueries({
       queryKey: bookingQueryKeys.all,
+    });
+    queryClient.removeQueries({
+      queryKey: courtQueryKeys.all,
+    });
+    queryClient.removeQueries({
+      queryKey: userDirectoryQueryKeys.all,
     });
   }, [queryClient]);
 
