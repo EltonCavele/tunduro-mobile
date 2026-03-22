@@ -1,30 +1,93 @@
-import { View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState } from 'react';
 
 import { AddReservationButton } from './AddReservationButton';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarWeekStrip } from './CalendarWeekStrip';
 import {
-  adaptBookingsResponse,
+  adaptBookingsToCalendarReservations,
   buildMarkedDates,
   getTodayDateKey,
   groupReservationsByDate,
   isPastDateKey,
-  mockBookingsResponse,
 } from 'lib/calendar-bookings';
+import { getErrorMessage } from 'lib/error-utils';
+import { useMyBookingsQuery } from 'hooks/useMyBookingsQuery';
 
-const reservationsByDate = groupReservationsByDate(adaptBookingsResponse(mockBookingsResponse));
+function CalendarLoadingState() {
+  return (
+    <View className="flex-1 items-center justify-center px-6">
+      <ActivityIndicator color="#FF7A33" size="large" />
+      <Text className="mt-4 text-center text-[14px] text-[#6F6F6F]">
+        A carregar as tuas reservas.
+      </Text>
+    </View>
+  );
+}
+
+function CalendarErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <View className="flex-1 items-center justify-center px-6">
+      <View className="w-full max-w-[320px] rounded-[28px] bg-white px-6 py-8">
+        <Text className="text-center text-[18px] font-semibold text-[#171717]">
+          Nao foi possivel carregar as reservas
+        </Text>
+        <Text className="mt-3 text-center text-[13px] leading-5 text-[#787878]">{message}</Text>
+
+        <Pressable
+          accessibilityRole="button"
+          className="mt-6 items-center rounded-full bg-[#1F3125] px-5 py-3"
+          onPress={onRetry}>
+          <Text className="text-[14px] font-semibold text-white">Tentar novamente</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
 
 export function CalendarScreen() {
   const insets = useSafeAreaInsets();
   const [selectedDate, setSelectedDate] = useState(getTodayDateKey());
+  const { data: bookings = [], error, isError, isLoading, refetch } = useMyBookingsQuery();
+
+  const reservationsByDate = useMemo(
+    () => groupReservationsByDate(adaptBookingsToCalendarReservations(bookings)),
+    [bookings]
+  );
 
   const markedDates = buildMarkedDates(reservationsByDate, selectedDate);
   const showAddReservationButton = !isPastDateKey(selectedDate);
+  const errorMessage = getErrorMessage(error, 'Tenta novamente dentro de alguns instantes.');
+
+  console.log(error, 'error');
+
+  if (isLoading) {
+    return (
+      <SafeAreaView edges={['right', 'left']} className="flex-1">
+        <View className="px-5 pb-5 pt-3">
+          <CalendarHeader selectedDate={selectedDate} />
+        </View>
+
+        <CalendarLoadingState />
+      </SafeAreaView>
+    );
+  }
+
+  if (isError && bookings.length === 0) {
+    return (
+      <SafeAreaView edges={['right', 'left']} className="flex-1">
+        <View className="px-5 pb-5 pt-3">
+          <CalendarHeader selectedDate={selectedDate} />
+        </View>
+
+        <CalendarErrorState message={errorMessage} onRetry={() => void refetch()} />
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView edges={['right', 'left']} className="flex-1">
       <View className="px-5 pb-5 pt-3">
         <CalendarHeader selectedDate={selectedDate} />
       </View>

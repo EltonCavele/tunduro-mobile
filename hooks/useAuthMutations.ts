@@ -15,7 +15,7 @@ export function useSignInMutation() {
       await applyAuthResponse(response);
     },
     onError: (error) => {
-      console.log(JSON.stringify(error, null, 3));
+      console.log(error);
     },
   });
 }

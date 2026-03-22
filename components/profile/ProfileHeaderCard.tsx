@@ -1,11 +1,16 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { BadgeCheck, Mail, Phone } from 'lucide-react-native';
-import { ImageBackground, Text, View } from 'react-native';
+import { MapPin, Pencil, Phone } from 'lucide-react-native';
+import { Image, ImageBackground, Text, View } from 'react-native';
 
 import type { UserProfile } from 'lib/auth.types';
-import { getUserDisplayName, getUserInitials } from 'lib/auth-utils';
+import {
+  formatPhoneNumber,
+  getUserDisplayName,
+  getUserHandle,
+  getUserInitials,
+} from 'lib/auth-utils';
 
-const START_PAGE_IMAGE = require('../../assets/imgs/startpage.png');
+const START_PAGE_IMAGE = require('../../assets/imgs/tennis.jpg');
 
 interface ProfileHeaderCardProps {
   user: UserProfile;
@@ -13,57 +18,58 @@ interface ProfileHeaderCardProps {
 
 export function ProfileHeaderCard({ user }: ProfileHeaderCardProps) {
   const displayName = getUserDisplayName(user);
+  const handle = getUserHandle(user);
   const initials = getUserInitials(user);
+  const contactPhone = formatPhoneNumber(user.phone);
+  const locationLabel = user.favoriteCourt || 'Maputo';
 
   return (
     <View className="bg-white">
       <ImageBackground
-        className="h-[88px] w-full overflow-hidden rounded-[4px]"
+        className="h-[170px] w-full"
         resizeMode="cover"
-        source={START_PAGE_IMAGE}>
-        <LinearGradient
-          className="flex-1 px-3 pb-2 pt-2"
-          colors={['rgba(0,0,0,0.15)', 'rgba(0,0,0,0.5)']}>
-          <Text className="text-center text-[13px] font-medium text-white">Perfil</Text>
-        </LinearGradient>
-      </ImageBackground>
+        source={START_PAGE_IMAGE}></ImageBackground>
 
-      <View className="px-1 pb-1">
-        <View className="-mt-6 flex-row items-end justify-between pr-2">
-          <LinearGradient
-            className="h-[54px] w-[54px] items-center justify-center rounded-full border-[3px] border-white"
-            colors={['#C8F5A9', '#74D7B1', '#63A7EE']}
-            end={{ x: 1, y: 1 }}
-            start={{ x: 0, y: 0 }}>
-            <Text className="text-[18px] font-semibold text-white">{initials}</Text>
-          </LinearGradient>
+      <View className="px-4 pb-1">
+        <View className="-mt-11 flex-row items-end justify-between">
+          <View className="rounded-full border-[3px] border-white bg-white">
+            {user.avatarUrl ? (
+              <Image
+                className="h-[78px] w-[78px] rounded-full"
+                resizeMode="cover"
+                source={{ uri: user.avatarUrl }}
+              />
+            ) : (
+              <LinearGradient
+                className="h-[78px] w-[78px] items-center justify-center rounded-full"
+                colors={['#D8FFB2', '#77DDB7', '#5BA8F0']}
+                end={{ x: 1, y: 1 }}
+                start={{ x: 0, y: 0 }}>
+                <Text className="text-[22px] font-semibold text-white">{initials}</Text>
+              </LinearGradient>
+            )}
+          </View>
 
-          <View className="mb-1 flex-row items-center rounded-full bg-[#314335] px-3 py-1">
-            <BadgeCheck size={10} stroke="#FFFFFF" strokeWidth={2.2} />
-            <Text className="ml-1 text-[10px] font-medium text-white">
-              {user.isVerified ? 'Verificada' : 'Pendente'}
-            </Text>
+          <View className="mb-1 flex-row items-center rounded-2xl bg-[#233B2B] px-4 py-3">
+            <Pencil size={12} stroke="#FFFFFF" strokeWidth={2.1} />
+            <Text className="ml-1.5 text-[15px] font-medium text-white">Editar</Text>
           </View>
         </View>
 
-        <Text className="mt-2 text-[18px] font-semibold tracking-[-0.3px] text-[#111111]">
+        <Text className="mt-4 text-[16px] font-semibold tracking-[-0.2px] text-[#111111]">
           {displayName}
         </Text>
-        <Text className="mt-0.5 text-[11px] uppercase text-[#8A8A8A]">{user.role}</Text>
+        <Text className="mt-0.5 text-[12px] text-[#7E7E7E]">{handle}</Text>
 
-        <View className="mt-3 flex-row flex-wrap items-center">
+        <View className="mt-4 flex-row flex-wrap items-center">
           <View className="flex-row items-center">
-            <Mail size={12} stroke="#6F6F6F" strokeWidth={2} />
-            <Text className="ml-1.5 text-[12px] text-[#6F6F6F]">{user.email}</Text>
+            <MapPin size={14} stroke="#8B8B8B" strokeWidth={2} />
+            <Text className="ml-1.5 text-[12px] text-[#7C7C7C]">{locationLabel}</Text>
           </View>
 
-          <View className="mx-3 h-1 w-1 rounded-full bg-[#B7B7B7]" />
-
-          <View className="flex-row items-center">
-            <Phone size={12} stroke="#6F6F6F" strokeWidth={2} />
-            <Text className="ml-1.5 text-[12px] text-[#6F6F6F]">
-              {user.phone || 'Sem telefone'}
-            </Text>
+          <View className="ml-6 flex-row items-center">
+            <Phone size={14} stroke="#8B8B8B" strokeWidth={2} />
+            <Text className="ml-1.5 text-[12px] text-[#7C7C7C]">{contactPhone}</Text>
           </View>
         </View>
       </View>

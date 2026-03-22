@@ -1,3 +1,5 @@
+import type { ApiPaginatedData } from 'lib/api.types';
+
 export enum BookingStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
@@ -59,20 +61,7 @@ export interface BookingItem {
   updatedAt: string;
 }
 
-export interface BookingListResponse {
-  data: {
-    items: BookingItem[];
-    metadata: {
-      currentPage: number;
-      itemsPerPage: number;
-      totalItems: number;
-      totalPages: number;
-    };
-  };
-  message: string;
-  statusCode: number;
-  timestamp: string;
-}
+export type BookingListData = ApiPaginatedData<BookingItem>;
 
 export interface CalendarReservation {
   accentColor: string;
@@ -132,15 +121,6 @@ function formatTimeLabel(date: Date) {
   return `${padNumber(date.getHours())}:${padNumber(date.getMinutes())}`;
 }
 
-function createIsoAt(dayOffset: number, hour: number, minute: number) {
-  const date = parseDateKey(getTodayDateKey());
-
-  date.setDate(date.getDate() + dayOffset);
-  date.setHours(hour, minute, 0, 0);
-
-  return date.toISOString();
-}
-
 function deriveCourtLabel(courtId: string) {
   const normalizedCourtId = courtId.replace(/[^a-zA-Z0-9]/g, '');
   const suffix = normalizedCourtId.slice(-2).toUpperCase();
@@ -155,136 +135,6 @@ function deriveCourtLabel(courtId: string) {
 function getReservationColor(status: BookingStatus) {
   return STATUS_COLORS[status];
 }
-
-function createParticipant(userId: string, isOrganizer = false): BookingParticipant {
-  return {
-    isOrganizer,
-    status: isOrganizer ? BookingStatus.CONFIRMED : 'INVITED',
-    userId,
-  };
-}
-
-function createMockBooking(params: {
-  courtId: string;
-  dayOffset: number;
-  durationMinutes: number;
-  id: string;
-  participantIds: string[];
-  status: BookingStatus;
-  time: [number, number];
-}) {
-  const [hour, minute] = params.time;
-  const startAt = createIsoAt(params.dayOffset, hour, minute);
-  const endDate = new Date(startAt);
-
-  endDate.setMinutes(endDate.getMinutes() + params.durationMinutes);
-
-  return {
-    checkedInAt: null,
-    courtId: params.courtId,
-    createdAt: startAt,
-    currency: 'MZN',
-    durationMinutes: params.durationMinutes,
-    endAt: endDate.toISOString(),
-    id: params.id,
-    invitations: [],
-    organizerId: 'user-organizer',
-    paidAmount: 0,
-    participants: params.participantIds.map((userId, index) =>
-      createParticipant(userId, index === 0)
-    ),
-    paymentDueAt: null,
-    payments: [
-      {
-        amount: 0,
-        currency: 'MZN',
-        id: `payment-${params.id}`,
-        processedAt: null,
-        reference: `REF-${params.id}`,
-        status:
-          params.status === BookingStatus.CONFIRMED ||
-          params.status === BookingStatus.COMPLETED
-            ? 'PAID'
-            : 'PENDING',
-        type: 'BOOKING',
-      },
-    ],
-    seriesId: null,
-    startAt,
-    status: params.status,
-    statusHistory: [
-      {
-        createdAt: startAt,
-        fromStatus: params.status,
-        reason: null,
-        toStatus: params.status,
-      },
-    ],
-    totalPrice: 0,
-    updatedAt: startAt,
-  };
-}
-
-export const mockBookingsResponse: BookingListResponse = {
-  data: {
-    items: [
-      createMockBooking({
-        courtId: 'court-01',
-        dayOffset: 0,
-        durationMinutes: 60,
-        id: 'booking-001',
-        participantIds: ['user-organizer', 'user-002', 'user-003'],
-        status: BookingStatus.PENDING,
-        time: [9, 0],
-      }),
-      createMockBooking({
-        courtId: 'court-02',
-        dayOffset: 0,
-        durationMinutes: 60,
-        id: 'booking-002',
-        participantIds: ['user-organizer', 'user-004', 'user-005', 'user-006'],
-        status: BookingStatus.CONFIRMED,
-        time: [10, 30],
-      }),
-      createMockBooking({
-        courtId: '',
-        dayOffset: 0,
-        durationMinutes: 90,
-        id: 'booking-003',
-        participantIds: [],
-        status: BookingStatus.COMPLETED,
-        time: [18, 0],
-      }),
-      createMockBooking({
-        courtId: 'court-03',
-        dayOffset: 1,
-        durationMinutes: 60,
-        id: 'booking-004',
-        participantIds: ['user-organizer', 'user-007'],
-        status: BookingStatus.CANCELLED,
-        time: [8, 0],
-      }),
-      createMockBooking({
-        courtId: 'court-04',
-        dayOffset: 3,
-        durationMinutes: 60,
-        id: 'booking-005',
-        participantIds: ['user-organizer', 'user-008'],
-        status: BookingStatus.NO_SHOW,
-        time: [16, 0],
-      }),
-    ],
-    metadata: {
-      currentPage: 1,
-      itemsPerPage: 10,
-      totalItems: 5,
-      totalPages: 1,
-    },
-  },
-  message: 'booking.success.list',
-  statusCode: 200,
-  timestamp: new Date().toISOString(),
-};
 
 export function getTodayDateKey() {
   return formatDateKey(new Date());
@@ -308,8 +158,8 @@ export function formatScheduleHeading(dateKey: string) {
   return `${WEEKDAY_NAMES[date.getDay()]} ${date.getDate()}`;
 }
 
-export function adaptBookingsResponse(response: BookingListResponse) {
-  return response.data.items
+export function adaptBookingsToCalendarReservations(bookings: BookingItem[]) {
+  return bookings
     .map((item) => {
       const startDate = new Date(item.startAt);
       const endDate = new Date(item.endAt);
@@ -329,6 +179,10 @@ export function adaptBookingsResponse(response: BookingListResponse) {
       };
     })
     .sort((left, right) => left.startAt.localeCompare(right.startAt));
+}
+
+export function adaptBookingsResponse(response: BookingListData) {
+  return adaptBookingsToCalendarReservations(response.items);
 }
 
 export function groupReservationsByDate(reservations: CalendarReservation[]) {

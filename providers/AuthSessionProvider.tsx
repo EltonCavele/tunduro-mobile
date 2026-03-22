@@ -11,7 +11,7 @@ import {
   subscribeAuthStorage,
 } from '../lib/auth-storage';
 import type { AuthResponse, AuthTokens, UserProfile } from 'lib/auth.types';
-import { authQueryKeys } from 'lib/query-keys';
+import { authQueryKeys, bookingQueryKeys } from 'lib/query-keys';
 
 interface AuthSessionContextValue {
   tokens: AuthTokens | null;
@@ -44,6 +44,9 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       if (!nextTokens) {
         queryClient.removeQueries({
           queryKey: authQueryKeys.all,
+        });
+        queryClient.removeQueries({
+          queryKey: bookingQueryKeys.all,
         });
       }
     });
@@ -79,6 +82,9 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         refreshToken: response.refreshToken,
       });
 
+      queryClient.removeQueries({
+        queryKey: bookingQueryKeys.all,
+      });
       queryClient.setQueryData(authQueryKeys.profile, response.user);
     },
     [queryClient]
@@ -89,6 +95,9 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
 
     queryClient.removeQueries({
       queryKey: authQueryKeys.all,
+    });
+    queryClient.removeQueries({
+      queryKey: bookingQueryKeys.all,
     });
   }, [queryClient]);
 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { useRouter } from 'expo-router';
 import { BarChart3, LogOut, Star, Wallet } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
@@ -48,26 +48,31 @@ export function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 px-1 pb-6 pt-1">
-        <ProfileHeaderCard user={user} />
+    <SafeAreaView edges={['right', 'left']} className="flex-1 bg-white">
+      <ScrollView
+        bounces={false}
+        contentContainerStyle={{ paddingBottom: 32 }}
+        showsVerticalScrollIndicator={false}>
+        <View className="pb-6">
+          <ProfileHeaderCard user={user} />
 
-        <View className="mt-4 px-3">
-          <ProfileActionRow icon={Star} label="Minha subscricao" />
-          <ProfileActionRow icon={Wallet} label="Pagamentos" />
-          <ProfileActionRow icon={BarChart3} label="Estatisticas" />
-          <ProfileActionRow
-            icon={LogOut}
-            isLast
-            label={logoutMutation.isPending ? 'A sair...' : 'Sair da conta'}
-            onPress={handleLogout}
-          />
+          <View className="mt-5 px-6">
+            <ProfileActionRow icon={Star} label="Minha subscricao" />
+            <ProfileActionRow icon={Wallet} label="Pagamentos" />
+            <ProfileActionRow icon={BarChart3} label="Estatisticas" />
+            <ProfileActionRow
+              icon={LogOut}
+              isLast
+              label={logoutMutation.isPending ? 'A sair...' : 'Sair da conta'}
+              onPress={handleLogout}
+            />
 
-          {errorMessage ? (
-            <Text className="mt-3 text-[13px] text-[#D05B5B]">{errorMessage}</Text>
-          ) : null}
+            {errorMessage ? (
+              <Text className="mt-3 text-[13px] text-[#D05B5B]">{errorMessage}</Text>
+            ) : null}
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

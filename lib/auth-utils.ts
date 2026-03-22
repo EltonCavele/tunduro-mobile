@@ -79,3 +79,73 @@ export function getUserInitials(
 
   return initials || user?.email?.slice(0, 2).toUpperCase() || 'CT';
 }
+
+export function getUserHandle(user?: Pick<UserProfile, 'email'> | null) {
+  const emailPrefix = user?.email?.split('@')[0]?.trim();
+
+  if (emailPrefix) {
+    return `@${emailPrefix.toLowerCase()}`;
+  }
+
+  return '@utilizador';
+}
+
+export function formatPhoneNumber(phone?: string | null) {
+  if (!phone?.trim()) {
+    return 'Sem telefone';
+  }
+
+  return phone.trim();
+}
+
+export function formatRoleLabel(role?: UserProfile['role'] | null) {
+  switch (role) {
+    case 'ADMIN':
+      return 'Administrador';
+    case 'TRAINER':
+      return 'Treinador';
+    case 'USER':
+      return 'Jogador';
+    default:
+      return 'Utilizador';
+  }
+}
+
+export function formatGenderLabel(gender?: UserProfile['gender'] | null) {
+  switch (gender) {
+    case 'MALE':
+      return 'Masculino';
+    case 'FEMALE':
+      return 'Feminino';
+    case 'OTHER':
+      return 'Outro';
+    default:
+      return 'Nao definido';
+  }
+}
+
+export function formatJoinedDate(value?: string | null) {
+  if (!value) {
+    return 'Nao definido';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return 'Nao definido';
+  }
+
+  return new Intl.DateTimeFormat('pt-PT', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(date);
+}
+
+export function formatPreferredSlots(slots?: string[] | null) {
+  if (!slots || slots.length === 0) {
+    return 'Sem horarios definidos';
+  }
+
+  return slots.join(' • ');
+}

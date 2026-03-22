@@ -62,6 +62,12 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="reserve"
         options={{
+          headerShown: true,
+          headerStyle: {
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
           title: 'Reservas',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon color={color} focused={focused} icon={Bookmark} />
@@ -72,6 +78,12 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="courts"
         options={{
+          headerShown: true,
+          headerStyle: {
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
           title: 'Campos',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon color={color} focused={focused} icon={Club} />
@@ -82,6 +94,12 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="perfil"
         options={{
+          headerShown: true,
+          headerStyle: {
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
           title: 'Perfil',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon color={color} focused={focused} icon={UserRound} />

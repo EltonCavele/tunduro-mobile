@@ -17,15 +17,14 @@ export function ProfileActionRow({
   return (
     <Pressable
       accessibilityRole="button"
-      className={`flex-row items-center py-4 ${
-        isLast ? '' : 'border-b border-[#EAEAEA]'
-      }`}
+      className={`flex-row items-center py-7 ${isLast ? 'border-b border-[#E7E7E7]' : 'border-b border-[#E7E7E7]'}`}
       onPress={onPress}>
-      <View className="mr-3 w-5 items-center">
-        <Icon size={16} stroke="#202020" strokeWidth={2} />
+      <View className="mr-4 w-6 items-center">
+        <Icon size={20} stroke="#202020" strokeWidth={2} />
       </View>
 
-      <Text className="flex-1 text-[14px] font-medium text-[#1A1A1A]">
+      <Text
+        className={`flex-1 text-xl font-normal text-[#151515] ${isLast ? ' !text-red-500' : ''}`}>
         {label}
       </Text>
     </Pressable>

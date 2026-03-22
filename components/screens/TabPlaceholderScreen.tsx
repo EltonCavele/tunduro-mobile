@@ -18,7 +18,7 @@ export function TabPlaceholderScreen({
   title,
 }: TabPlaceholderScreenProps) {
   return (
-    <SafeAreaView className="flex-1 bg-[#F6F5F1]">
+    <SafeAreaView edges={['right', 'left']} className="flex-1 bg-[#F6F5F1]">
       <View className="flex-1 px-6 py-6">
         <View className="rounded-[28px] bg-white p-6">
           <View className="h-14 w-14 items-center justify-center rounded-2xl bg-[#EEF4EF]">
