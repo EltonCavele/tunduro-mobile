@@ -7,13 +7,40 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from 'components/auth/AuthButton';
 import { AuthMinimalField } from 'components/auth/AuthMinimalField';
+import { useForgotPasswordMutation } from 'hooks/useAuthMutations';
+import { getErrorMessage } from 'lib/error-utils';
 
 export default function RecoverPasswordScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ email?: string }>();
-  const [email, setEmail] = useState(
-    typeof params.email === 'string' ? params.email : '',
+  const forgotPasswordMutation = useForgotPasswordMutation();
+  const params = useLocalSearchParams<{ identifier?: string }>();
+  const [identifier, setIdentifier] = useState(
+    typeof params.identifier === 'string' ? params.identifier : ''
   );
+  const [errorMessage, setErrorMessage] = useState('');
+
+  async function handleRecoverPassword() {
+    const trimmedIdentifier = identifier.trim();
+
+    if (!trimmedIdentifier) {
+      setErrorMessage('Introduza o e-mail ou numero de telefone.');
+      return;
+    }
+
+    try {
+      setErrorMessage('');
+      await forgotPasswordMutation.mutateAsync({
+        identifier: trimmedIdentifier,
+      });
+
+      router.push({
+        pathname: '/auth/confirm-reset',
+        params: { identifier: trimmedIdentifier },
+      });
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error, 'Nao foi possivel enviar o codigo.'));
+    }
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -37,23 +64,24 @@ export default function RecoverPasswordScreen() {
               keyboardType="email-address"
               label="E-mail ou numero de telefone"
               labelClassName="mb-2 text-[13px] font-medium text-[#404040]"
-              onChangeText={setEmail}
+              onChangeText={setIdentifier}
               placeholder="ex. seu@email.com"
               textContentType="emailAddress"
-              value={email}
+              value={identifier}
             />
+
+            {errorMessage ? (
+              <Text className="mt-4 text-[13px] text-[#D05B5B]">{errorMessage}</Text>
+            ) : null}
           </View>
 
           <View className="mt-auto">
             <AuthButton
               className="h-[48px] rounded-full"
+              isLoading={forgotPasswordMutation.isPending}
               label="Continuar"
-              onPress={() =>
-                router.push({
-                  pathname: '/auth/confirm-reset',
-                  params: email ? { email } : undefined,
-                })
-              }
+              loadingLabel="A enviar..."
+              onPress={handleRecoverPassword}
               textClassName="text-[15px] font-medium"
             />
           </View>

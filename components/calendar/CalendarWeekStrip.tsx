@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { View } from 'react-native';
 import { Agenda, type AgendaEntry } from 'react-native-calendars';
 

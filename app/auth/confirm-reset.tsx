@@ -7,16 +7,56 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from 'components/auth/AuthButton';
 import { AuthOtpInput } from 'components/auth/AuthOtpInput';
+import { useForgotPasswordMutation } from 'hooks/useAuthMutations';
+import { maskIdentifier } from 'lib/auth-utils';
+import { getErrorMessage } from 'lib/error-utils';
 
 export default function ConfirmResetScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ email?: string }>();
+  const forgotPasswordMutation = useForgotPasswordMutation();
+  const params = useLocalSearchParams<{ identifier?: string }>();
   const [code, setCode] = useState('');
-  const email =
-    typeof params.email === 'string' && params.email.length > 0
-      ? params.email
-      : 'seuemail@clubetm.co.mz';
-  const maskedEmail = email.replace(/^(.{3}).+(@.*)$/, '$1***$2');
+  const [errorMessage, setErrorMessage] = useState('');
+  const identifier =
+    typeof params.identifier === 'string' && params.identifier.length > 0 ? params.identifier : '';
+  const maskedIdentifier = maskIdentifier(identifier) || 'o seu contacto';
+
+  async function handleResendCode() {
+    if (!identifier) {
+      setErrorMessage('Identificador em falta.');
+      return;
+    }
+
+    try {
+      setErrorMessage('');
+      await forgotPasswordMutation.mutateAsync({
+        identifier,
+      });
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error, 'Nao foi possivel reenviar o codigo.'));
+    }
+  }
+
+  function handleContinue() {
+    if (!identifier) {
+      setErrorMessage('Identificador em falta.');
+      return;
+    }
+
+    if (code.length < 6) {
+      setErrorMessage('Introduza o codigo completo de 6 digitos.');
+      return;
+    }
+
+    setErrorMessage('');
+    router.push({
+      pathname: '/auth/reset-password',
+      params: {
+        identifier,
+        otp: code,
+      },
+    });
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -33,7 +73,7 @@ export default function ConfirmResetScreen() {
 
             <View className="mt-8 items-center">
               <Text className="text-center text-[11px] leading-4 text-[#909090]">
-                Enviamos um codigo para {maskedEmail}
+                Enviamos um codigo para {maskedIdentifier}
               </Text>
             </View>
 
@@ -43,7 +83,7 @@ export default function ConfirmResetScreen() {
               emptyCellClassName="border-[#E6E6EA] bg-[#F2F2F5]"
               emptyCharacter=""
               filledCellClassName="border-[#82A8FF] bg-white"
-              length={5}
+              length={6}
               onChangeText={setCode}
               rowClassName="flex-row items-center gap-2"
               textClassName="text-[16px] font-semibold text-[#101010]"
@@ -51,30 +91,24 @@ export default function ConfirmResetScreen() {
             />
 
             <View className="mt-4 flex-row items-center justify-center">
-              <Text className="text-[11px] text-[#8E8E8E]">
-                Nao recebeu o codigo?
-              </Text>
-              <Pressable
-                accessibilityRole="button"
-                className="ml-1"
-                onPress={() => {}}>
+              <Text className="text-[11px] text-[#8E8E8E]">Nao recebeu o codigo?</Text>
+              <Pressable accessibilityRole="button" className="ml-1" onPress={handleResendCode}>
                 <Text className="text-[11px] font-semibold text-[#1F3125]">
-                  Reenviar
+                  {forgotPasswordMutation.isPending ? 'A reenviar...' : 'Reenviar'}
                 </Text>
               </Pressable>
             </View>
+
+            {errorMessage ? (
+              <Text className="mt-4 text-center text-[13px] text-[#D05B5B]">{errorMessage}</Text>
+            ) : null}
           </View>
 
           <AuthButton
             className="h-[48px] rounded-full"
-            disabled={code.length < 5}
+            disabled={code.length < 6}
             label="Continuar"
-            onPress={() =>
-              router.push({
-                pathname: '/auth/reset-password',
-                params: { email },
-              })
-            }
+            onPress={handleContinue}
             textClassName="text-[15px] font-medium"
           />
         </View>

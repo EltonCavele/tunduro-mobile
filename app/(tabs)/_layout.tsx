@@ -1,9 +1,39 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import { LayoutGrid, UserRound, Bookmark, Club } from 'lucide-react-native';
 
+import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { TabBarIcon } from 'components/navigation/TabBarIcon';
+import { useAuthStatus } from 'hooks/useAuthStatus';
+import { getPreferredIdentifier } from 'lib/auth-utils';
 
 export default function TabsLayout() {
+  const { hasSession, isLoading, isVerified, user } = useAuthStatus();
+
+  if (isLoading) {
+    return <AppScreenLoader message="A validar acesso..." />;
+  }
+
+  if (!hasSession) {
+    return <Redirect href="/auth/sign-in" />;
+  }
+
+  if (!isVerified) {
+    const identifier = getPreferredIdentifier(user);
+
+    return (
+      <Redirect
+        href={
+          identifier
+            ? {
+                pathname: '/auth/verify-account',
+                params: { identifier },
+              }
+            : '/auth/verify-account'
+        }
+      />
+    );
+  }
+
   return (
     <Tabs
       screenOptions={{
