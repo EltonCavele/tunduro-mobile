@@ -48,6 +48,10 @@ export async function getAllCourts() {
   return Array.from(uniqueCourts.values());
 }
 
+export function getCourt(courtId: string) {
+  return unwrapResponse<Court>(api.get(`/v1/courts/${courtId}`));
+}
+
 export function getCourtBookingsPage(courtId: string, params: CourtBookingsParams) {
   return unwrapResponse<ApiPaginatedData<CourtBooking>>(
     api.get(`/v1/courts/${courtId}/bookings`, {

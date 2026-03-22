@@ -121,7 +121,7 @@ function formatTimeLabel(date: Date) {
   return `${padNumber(date.getHours())}:${padNumber(date.getMinutes())}`;
 }
 
-function deriveCourtLabel(courtId: string) {
+export function deriveCourtLabel(courtId: string) {
   const normalizedCourtId = courtId.replace(/[^a-zA-Z0-9]/g, '');
   const suffix = normalizedCourtId.slice(-2).toUpperCase();
 
@@ -132,8 +132,25 @@ function deriveCourtLabel(courtId: string) {
   return `Quadra ${suffix}`;
 }
 
-function getReservationColor(status: BookingStatus) {
+export function getReservationColor(status: BookingStatus) {
   return STATUS_COLORS[status];
+}
+
+export function getBookingStatusLabel(status: string) {
+  switch (status) {
+    case BookingStatus.PENDING:
+      return 'Pendente';
+    case BookingStatus.CONFIRMED:
+      return 'Confirmado';
+    case BookingStatus.CANCELLED:
+      return 'Cancelado';
+    case BookingStatus.NO_SHOW:
+      return 'Nao compareceu';
+    case BookingStatus.COMPLETED:
+      return 'Concluido';
+    default:
+      return status;
+  }
 }
 
 export function getTodayDateKey() {

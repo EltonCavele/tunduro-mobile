@@ -9,6 +9,7 @@ import {
   FlatList,
   Image,
   KeyboardAvoidingView,
+  Linking,
   Modal,
   Platform,
   Pressable,
@@ -44,9 +45,10 @@ import { getErrorMessage } from 'lib/error-utils';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { useCourtDayBookingsQuery } from 'hooks/useCourtDayBookingsQuery';
 import { useCourtsQuery } from 'hooks/useCourtsQuery';
-import { useCreateBookingMutation } from 'hooks/useCreateBookingMutation';
+import { useStartBookingCheckoutMutation } from 'hooks/useCreateBookingMutation';
 import { useMyBookingsQuery } from 'hooks/useMyBookingsQuery';
 import { useUserSearchQuery } from 'hooks/useUserSearchQuery';
+import type { BookingCheckoutSession } from 'services/booking.service';
 
 const DEFAULT_COURT_IMAGE = require('../../assets/imgs/tennis.jpg');
 const SLOT_GRADIENTS = [
@@ -333,7 +335,7 @@ export function NewBookingScreen() {
   const { user } = useAuthStatus();
   const courtsQuery = useCourtsQuery();
   const myBookingsQuery = useMyBookingsQuery();
-  const createBookingMutation = useCreateBookingMutation();
+  const startBookingCheckoutMutation = useStartBookingCheckoutMutation();
   const [selectedCourtId, setSelectedCourtId] = useState('');
   const [selectedDate, setSelectedDate] = useState(initialDate);
   const [selectedGuests, setSelectedGuests] = useState<UserProfile[]>([]);
@@ -342,6 +344,8 @@ export function NewBookingScreen() {
   const [isGuestSheetOpen, setIsGuestSheetOpen] = useState(false);
   const [isDateSheetOpen, setIsDateSheetOpen] = useState(false);
   const [guestSearchQuery, setGuestSearchQuery] = useState('');
+  const [currentCheckoutSession, setCurrentCheckoutSession] =
+    useState<BookingCheckoutSession | null>(null);
   const [submissionError, setSubmissionError] = useState('');
   const deferredGuestSearchQuery = useDeferredValue(guestSearchQuery);
 
@@ -431,11 +435,15 @@ export function NewBookingScreen() {
     : '';
   const canSubmit =
     Boolean(selectedCourt && selectedWindow && user?.id) &&
-    !createBookingMutation.isPending &&
+    !startBookingCheckoutMutation.isPending &&
     !isAvailabilityLoading &&
     !courtDayBookingsQuery.isError &&
     !myBookingsQuery.isError &&
     selectedGuests.length <= maxGuestSlots;
+  const canReuseCheckoutSession = Boolean(
+    currentCheckoutSession?.checkoutUrl &&
+    ['OPEN', 'FINALIZING'].includes(currentCheckoutSession.status)
+  );
 
   useEffect(() => {
     if (selectedGuests.length <= maxGuestSlots) {
@@ -461,6 +469,9 @@ export function NewBookingScreen() {
     }
 
     setSubmissionError('');
+    if (currentCheckoutSession) {
+      setCurrentCheckoutSession(null);
+    }
     setSelectedSlotKeys((currentKeys) => {
       if (currentKeys.includes(slot.key)) {
         return currentKeys.filter((key) => key !== slot.key);
@@ -498,6 +509,9 @@ export function NewBookingScreen() {
 
   function handleToggleGuest(guest: UserProfile) {
     setSubmissionError('');
+    if (currentCheckoutSession) {
+      setCurrentCheckoutSession(null);
+    }
     setSelectedGuests((currentGuests) => {
       if (currentGuests.some((currentGuest) => currentGuest.id === guest.id)) {
         return currentGuests.filter((currentGuest) => currentGuest.id !== guest.id);
@@ -512,6 +526,18 @@ export function NewBookingScreen() {
   }
 
   async function handleCreateBooking() {
+    if (canReuseCheckoutSession && currentCheckoutSession?.checkoutUrl) {
+      try {
+        setSubmissionError('');
+        await Linking.openURL(currentCheckoutSession.checkoutUrl);
+      } catch (error) {
+        setSubmissionError(
+          getErrorMessage(error, 'Nao foi possivel abrir novamente o checkout do pagamento.')
+        );
+      }
+      return;
+    }
+
     if (!selectedCourt || !selectedWindow) {
       setSubmissionError('Selecione uma quadra e um horario para continuar.');
       return;
@@ -524,16 +550,24 @@ export function NewBookingScreen() {
 
     try {
       setSubmissionError('');
-      await createBookingMutation.mutateAsync({
+      const checkoutSession = await startBookingCheckoutMutation.mutateAsync({
         courtId: selectedCourt.id,
         endAt: selectedWindow.endAt,
         participantUserIds: selectedGuests.map((guest) => guest.id),
         startAt: selectedWindow.startAt,
       });
+      setCurrentCheckoutSession(checkoutSession);
 
-      router.back();
+      if (!checkoutSession.checkoutUrl) {
+        setSubmissionError('O checkout de pagamento nao devolveu um link valido.');
+        return;
+      }
+
+      await Linking.openURL(checkoutSession.checkoutUrl);
     } catch (error) {
-      setSubmissionError(getErrorMessage(error, 'Nao foi possivel concluir a reserva.'));
+      setSubmissionError(
+        getErrorMessage(error, 'Nao foi possivel iniciar o checkout do pagamento.')
+      );
     }
   }
 
@@ -544,6 +578,10 @@ export function NewBookingScreen() {
 
     if (submissionError) {
       setSubmissionError('');
+    }
+
+    if (currentCheckoutSession) {
+      setCurrentCheckoutSession(null);
     }
   }
 
@@ -594,11 +632,12 @@ export function NewBookingScreen() {
               <SelectedGuestChip
                 key={guest.id}
                 guest={guest}
-                onRemove={(guestId) =>
+                onRemove={(guestId) => {
+                  resetSelectionState();
                   setSelectedGuests((currentGuests) =>
                     currentGuests.filter((currentGuest) => currentGuest.id !== guestId)
-                  )
-                }
+                  );
+                }}
               />
             ))}
           </View>
@@ -701,7 +740,11 @@ export function NewBookingScreen() {
           disabled={!canSubmit}
           onPress={() => void handleCreateBooking()}>
           <Text className="text-[18px] font-semibold text-white">
-            {createBookingMutation.isPending ? 'A reservar...' : 'Reservar agora'}
+            {startBookingCheckoutMutation.isPending
+              ? 'A iniciar pagamento...'
+              : canReuseCheckoutSession
+                ? 'Continuar pagamento'
+                : 'Pagar e reservar'}
           </Text>
         </Pressable>
       </View>

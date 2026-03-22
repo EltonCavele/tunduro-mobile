@@ -16,6 +16,43 @@ export interface CreateBookingPayload {
   startAt: string;
 }
 
+export enum BookingCheckoutSessionStatus {
+  COMPLETED = 'COMPLETED',
+  EXPIRED = 'EXPIRED',
+  FINALIZING = 'FINALIZING',
+  OPEN = 'OPEN',
+  PAYMENT_FAILED = 'PAYMENT_FAILED',
+  REFUNDED = 'REFUNDED',
+  REFUND_PENDING = 'REFUND_PENDING',
+}
+
+export interface BookingCheckoutSession {
+  amount: number;
+  bookingId: string | null;
+  checkoutUrl: string | null;
+  completedAt: string | null;
+  courtId: string;
+  createdAt: string;
+  currency: string;
+  durationMinutes: number;
+  endAt: string;
+  expiresAt: string;
+  failureReason: string | null;
+  id: string;
+  paidAt: string | null;
+  paymentMethod: string | null;
+  reference: string;
+  refundedAt: string | null;
+  startAt: string;
+  status: BookingCheckoutSessionStatus;
+  updatedAt: string;
+}
+
+export interface CancelBookingPayload {
+  bookingId: string;
+  reason?: string;
+}
+
 export function getMyBookingsPage(params?: GetMyBookingsPageParams) {
   const page = params?.page ?? 1;
   const pageSize = params?.pageSize ?? DEFAULT_BOOKINGS_PAGE_SIZE;
@@ -52,6 +89,36 @@ export async function getAllMyBookings() {
   return Array.from(uniqueBookings.values());
 }
 
-export function createBooking(payload: CreateBookingPayload) {
-  return unwrapResponse<BookingItem>(api.post('/v1/bookings', payload));
+export function getBookingDetails(bookingId: string) {
+  return unwrapResponse<BookingItem>(api.get(`/v1/bookings/${bookingId}`));
+}
+
+export function startBookingCheckout(payload: CreateBookingPayload) {
+  return unwrapResponse<BookingCheckoutSession>(api.post('/v1/bookings/checkout', payload));
+}
+
+export function getBookingCheckoutSession(sessionId: string) {
+  return unwrapResponse<BookingCheckoutSession>(api.get(`/v1/bookings/checkout/${sessionId}`));
+}
+
+export function refreshBookingCheckoutSession(sessionId: string) {
+  return unwrapResponse<BookingCheckoutSession>(
+    api.post(`/v1/bookings/checkout/${sessionId}/refresh`)
+  );
+}
+
+export function confirmBookingPayment(bookingId: string) {
+  return unwrapResponse<BookingItem>(
+    api.post(`/v1/bookings/${bookingId}/payments/mock/confirm`, {
+      applyToSeries: false,
+    })
+  );
+}
+
+export function cancelBooking(payload: CancelBookingPayload) {
+  return unwrapResponse<BookingItem>(
+    api.post(`/v1/bookings/${payload.bookingId}/cancel`, {
+      reason: payload.reason?.trim() || undefined,
+    })
+  );
 }

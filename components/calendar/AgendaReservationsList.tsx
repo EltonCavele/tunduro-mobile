@@ -1,7 +1,8 @@
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, Pressable, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { CalendarDays } from 'lucide-react-native';
 
-import { type CalendarReservation, BookingStatus } from 'lib/calendar-bookings';
+import { type CalendarReservation, getBookingStatusLabel } from 'lib/calendar-bookings';
 
 function EmptyReservationsState() {
   return (
@@ -32,23 +33,6 @@ function hexToRgba(hexColor: string, alpha: number) {
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
-function getStatusLabel(status: string) {
-  switch (status) {
-    case BookingStatus.PENDING:
-      return 'Pendente';
-    case BookingStatus.CONFIRMED:
-      return 'Confirmado';
-    case BookingStatus.CANCELLED:
-      return 'Cancelado';
-    case BookingStatus.NO_SHOW:
-      return 'Nao compareceu';
-    case BookingStatus.COMPLETED:
-      return 'Concluido';
-    default:
-      return status;
-  }
-}
-
 function getDurationLabel(startLabel: string, endLabel: string) {
   const [startHour, startMinute] = startLabel.split(':').map(Number);
   const [endHour, endMinute] = endLabel.split(':').map(Number);
@@ -70,6 +54,7 @@ function getDurationLabel(startLabel: string, endLabel: string) {
 }
 
 function ReservationTimelineRow({ reservation }: { reservation: CalendarReservation }) {
+  const router = useRouter();
   const softAccent = hexToRgba(reservation.accentColor, 0.14);
   const durationLabel = getDurationLabel(reservation.startLabel, reservation.endLabel);
   const secondaryLabel =
@@ -78,7 +63,17 @@ function ReservationTimelineRow({ reservation }: { reservation: CalendarReservat
       : reservation.courtLabel;
 
   return (
-    <View className="mb-7 flex-row items-start">
+    <Pressable
+      accessibilityRole="button"
+      className="mb-7 flex-row items-start"
+      onPress={() =>
+        router.push({
+          pathname: '/bookings/[id]',
+          params: {
+            id: reservation.id,
+          },
+        })
+      }>
       <View className="w-[84px] pr-3 pt-0.5">
         <Text className="text-[15px] font-light  text-[#1F1F1F] ">{reservation.startLabel}</Text>
         {durationLabel ? (
@@ -122,7 +117,7 @@ function ReservationTimelineRow({ reservation }: { reservation: CalendarReservat
                 style={{
                   color: reservation.accentColor,
                 }}>
-                {getStatusLabel(reservation.status)}
+                {getBookingStatusLabel(reservation.status)}
               </Text>
             </View>
           </View>
@@ -132,7 +127,7 @@ function ReservationTimelineRow({ reservation }: { reservation: CalendarReservat
           <Text className="text-[12px] text-[#8B8B8B]">{reservation.timeRangeLabel}</Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

@@ -18,7 +18,9 @@ export default function RootLayout() {
           screenOptions={{
             headerShown: false,
           }}>
+          <Stack.Screen name="bookings/[id]" />
           <Stack.Screen name="bookings/new" options={{ presentation: 'fullScreenModal' }} />
+          <Stack.Screen name="payments/booking-return" />
         </Stack>
       </AppProviders>
     </SafeAreaProvider>

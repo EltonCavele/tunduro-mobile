@@ -1,14 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { bookingQueryKeys, courtQueryKeys } from 'lib/query-keys';
-import { createBooking } from 'services/booking.service';
+import { startBookingCheckout } from 'services/booking.service';
 
-export function useCreateBookingMutation() {
+export function useStartBookingCheckoutMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: bookingQueryKeys.create,
-    mutationFn: createBooking,
+    mutationFn: startBookingCheckout,
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
