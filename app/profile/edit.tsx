@@ -115,7 +115,6 @@ export default function EditProfileScreen() {
           headerTitle: 'Editar perfil',
           headerTitleAlign: 'center',
           headerBackButtonDisplayMode: 'default',
-          headerBackTitleVisible: false,
           headerBackTitle: '',
           headerBlurEffect: 'none',
           headerShadowVisible: false,

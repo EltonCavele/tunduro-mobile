@@ -12,20 +12,18 @@ export default function TabsLayout() {
   const router = useRouter();
   const { hasSession, isLoading, isVerified, user } = useAuthStatus();
   const identifier = getPreferredIdentifier(user);
-
-  if (isLoading) {
-    return <AppScreenLoader message="A validar acesso..." />;
-  }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
     if (!hasSession) {
-      router.navigate('/auth/sign-in');
+      router.replace('/auth/sign-in');
       return;
     }
 
     if (!isVerified) {
-      router.navigate(
+      router.replace(
         identifier
           ? {
               pathname: '/auth/verify-account',
@@ -34,7 +32,11 @@ export default function TabsLayout() {
           : '/auth/verify-account'
       );
     }
-  }, [hasSession, identifier, isVerified, router]);
+  }, [hasSession, identifier, isLoading, isVerified, router]);
+
+  if (isLoading) {
+    return <AppScreenLoader message="A validar acesso..." />;
+  }
 
   if (!hasSession || !isVerified) {
     return null;
