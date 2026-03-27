@@ -29,7 +29,7 @@ export function ProfileScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-center text-[14px] text-[#4C4C4C]">
+          <Text className="text-center text-[13px] text-[#4C4C4C]">
             Nao foi possivel carregar o perfil.
           </Text>
         </View>
@@ -67,7 +67,7 @@ export function ProfileScreen() {
             />
 
             {errorMessage ? (
-              <Text className="mt-3 text-[13px] text-[#D05B5B]">{errorMessage}</Text>
+              <Text className="mt-3 text-[12px] text-[#D05B5B]">{errorMessage}</Text>
             ) : null}
           </View>
         </View>

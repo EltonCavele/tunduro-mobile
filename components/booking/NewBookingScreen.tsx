@@ -1,28 +1,32 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 
-import { LinearGradient } from 'expo-linear-gradient';
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { CalendarDays, Check, ChevronDown, Clock3, Search, Users, X } from 'lucide-react-native';
+import { CalendarDays, Clock3, Search, Users, X } from 'lucide-react-native';
 import {
   ActivityIndicator,
-  FlatList,
-  Image,
-  KeyboardAvoidingView,
   Linking,
-  Modal,
-  Platform,
+  type ListRenderItemInfo,
   Pressable,
   ScrollView,
   Text,
   TextInput,
   View,
 } from 'react-native';
-import type { ImageSourcePropType } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
+import { NewBookingCourtOptionRow } from 'components/booking/new-booking/NewBookingCourtOptionRow';
+import { NewBookingEmptyStateCard } from 'components/booking/new-booking/NewBookingEmptyStateCard';
+import { NewBookingField } from 'components/booking/new-booking/NewBookingField';
+import { NewBookingGuestOptionRow } from 'components/booking/new-booking/NewBookingGuestOptionRow';
+import { NewBookingSelectedGuestChip } from 'components/booking/new-booking/NewBookingSelectedGuestChip';
+import { NewBookingSheet } from 'components/booking/new-booking/NewBookingSheet';
+import { NewBookingSummaryCard } from 'components/booking/new-booking/NewBookingSummaryCard';
+import { NewBookingTimeSlotRow } from 'components/booking/new-booking/NewBookingTimeSlotRow';
+import type { SelectableTimeSlot } from 'components/booking/new-booking/shared';
 import type { UserProfile } from 'lib/auth.types';
 import {
   areSlotsAdjacent,
@@ -36,12 +40,10 @@ import {
   isSlotBlockedByCourt,
   isSlotBlockedByLeadTime,
   isSlotBlockedByOrganizer,
-  type BookingHourSlot,
   MAX_DAILY_BOOKING_MINUTES,
   SLOT_DURATION_MINUTES,
 } from 'lib/booking-reservation';
 import { getUserDisplayName } from 'lib/auth-utils';
-import type { Court } from 'lib/court.types';
 import { getErrorMessage } from 'lib/error-utils';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { useCourtDayBookingsQuery } from 'hooks/useCourtDayBookingsQuery';
@@ -50,281 +52,14 @@ import { useStartBookingCheckoutMutation } from 'hooks/useCreateBookingMutation'
 import { useMyBookingsQuery } from 'hooks/useMyBookingsQuery';
 import { useUserSearchQuery } from 'hooks/useUserSearchQuery';
 import type { BookingCheckoutSession } from 'services/booking.service';
+import type { Court } from 'lib/court.types';
 
-const DEFAULT_COURT_IMAGE = require('../../assets/imgs/tennis.jpg');
 const SLOT_GRADIENTS = [
   ['#FFE5BE', '#FF6B1A'],
   ['#D6FFD5', '#3C8DFF'],
   ['#FFD6D6', '#FF3F2E'],
   ['#E5E5E5', '#555555'],
 ] as const;
-
-interface BookingFieldProps {
-  label: string;
-  onPress: () => void;
-  placeholder: string;
-  required?: boolean;
-  value?: string;
-}
-
-interface BookingSheetProps {
-  children: React.ReactNode;
-  onClose: () => void;
-  title: string;
-  visible: boolean;
-}
-
-interface SelectableTimeSlot extends BookingHourSlot {
-  accentColors: readonly [string, string];
-  isCourtBlocked: boolean;
-  isDisabled: boolean;
-  isLeadTimeBlocked: boolean;
-  isOrganizerBlocked: boolean;
-  isSelected: boolean;
-}
-
-function FieldLabel({ label, required }: { label: string; required?: boolean }) {
-  return (
-    <View className="mb-3 flex-row items-center">
-      <Text className="text-[16px] font-medium text-[#181818]">{label}</Text>
-      {required ? <Text className="ml-1 text-[18px] text-[#FF4B4B]">*</Text> : null}
-    </View>
-  );
-}
-
-function BookingField({ label, onPress, placeholder, required, value }: BookingFieldProps) {
-  const hasValue = Boolean(value?.trim());
-
-  return (
-    <View className="mb-7">
-      <FieldLabel label={label} required={required} />
-
-      <Pressable
-        accessibilityRole="button"
-        className="h-[56px] flex-row items-center justify-between rounded-[22px] bg-[#E9E9EC] px-5"
-        onPress={onPress}>
-        <Text className={`text-[16px] ${hasValue ? 'text-[#181818]' : 'text-[#92939C]'}`}>
-          {hasValue ? value : placeholder}
-        </Text>
-
-        <ChevronDown size={24} stroke="#7E8089" strokeWidth={2} />
-      </Pressable>
-    </View>
-  );
-}
-
-function BookingSheet({ children, onClose, title, visible }: BookingSheetProps) {
-  if (!visible) {
-    return null;
-  }
-
-  return (
-    <Modal animationType="slide" onRequestClose={onClose} transparent visible>
-      <View className="flex-1 justify-end bg-black/30">
-        <Pressable className="flex-1" onPress={onClose} />
-
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <View className="max-h-[85%] rounded-t-[28px] bg-white px-6 pb-8 pt-4">
-            <View className="mb-5 items-center">
-              <View className="h-1.5 w-14 rounded-full bg-[#D9D9DD]" />
-            </View>
-
-            <View className="mb-4 flex-row items-center justify-between">
-              <Text className="text-[20px] font-semibold text-[#111111]">{title}</Text>
-
-              <Pressable
-                accessibilityRole="button"
-                className="h-10 w-10 items-center justify-center rounded-full bg-[#F4F4F6]"
-                onPress={onClose}>
-                <X size={20} stroke="#181818" strokeWidth={2.3} />
-              </Pressable>
-            </View>
-
-            {children}
-          </View>
-        </KeyboardAvoidingView>
-      </View>
-    </Modal>
-  );
-}
-
-function EmptyStateCard({ description, title }: { description: string; title: string }) {
-  return (
-    <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-6">
-      <Text className="text-[16px] font-semibold text-[#161616]">{title}</Text>
-      <Text className="mt-2 text-[14px] leading-5 text-[#767676]">{description}</Text>
-    </View>
-  );
-}
-
-function SelectedGuestChip({
-  guest,
-  onRemove,
-}: {
-  guest: UserProfile;
-  onRemove: (guestId: string) => void;
-}) {
-  return (
-    <View className="mr-2 mt-2 flex-row items-center rounded-full bg-[#EEF3ED] px-3 py-2">
-      <Text className="text-[13px] font-medium text-[#1F3125]">{getUserDisplayName(guest)}</Text>
-
-      <Pressable accessibilityRole="button" className="ml-2" onPress={() => onRemove(guest.id)}>
-        <X size={14} stroke="#1F3125" strokeWidth={2.2} />
-      </Pressable>
-    </View>
-  );
-}
-
-function CourtOptionRow({
-  court,
-  isSelected,
-  onPress,
-}: {
-  court: Court;
-  isSelected: boolean;
-  onPress: () => void;
-}) {
-  const imageSource: ImageSourcePropType = court.images[0]?.url
-    ? { uri: court.images[0].url }
-    : DEFAULT_COURT_IMAGE;
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      className={`mb-3 flex-row items-center rounded-[24px] border px-4 py-4 ${
-        isSelected ? 'border-[#1F3125] bg-[#EEF3ED]' : 'border-[#ECECEF] bg-white'
-      }`}
-      onPress={onPress}>
-      <Image className="h-16 w-16 rounded-[18px]" resizeMode="cover" source={imageSource} />
-
-      <View className="ml-4 flex-1">
-        <Text className="text-[16px] font-semibold text-[#171717]">{court.name}</Text>
-        <Text className="mt-1 text-[13px] text-[#757575]">
-          {court.surface} • {court.type === 'INDOOR' ? 'Indoor' : 'Outdoor'}
-        </Text>
-        <Text className="mt-1 text-[12px] text-[#8A8A8A]">
-          {court.pricePerHour} {court.currency}/hora • {court.maxPlayers} jogadores
-        </Text>
-      </View>
-
-      {isSelected ? (
-        <View className="h-8 w-8 items-center justify-center rounded-full bg-[#1F3125]">
-          <Check size={16} stroke="#FFFFFF" strokeWidth={2.4} />
-        </View>
-      ) : null}
-    </Pressable>
-  );
-}
-
-function GuestOptionRow({
-  guest,
-  isDisabled,
-  isSelected,
-  onPress,
-}: {
-  guest: UserProfile;
-  isDisabled: boolean;
-  isSelected: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      className={`mb-3 flex-row items-center rounded-[22px] px-4 py-4 ${
-        isSelected ? 'bg-[#EEF3ED]' : 'bg-[#F7F7F8]'
-      } ${isDisabled ? 'opacity-50' : ''}`}
-      disabled={isDisabled}
-      onPress={onPress}>
-      <View className="h-11 w-11 items-center justify-center rounded-full bg-[#DCE9DD]">
-        <Text className="text-[14px] font-semibold text-[#1F3125]">
-          {getUserDisplayName(guest).slice(0, 1).toUpperCase()}
-        </Text>
-      </View>
-
-      <View className="ml-3 flex-1">
-        <Text className="text-[15px] font-medium text-[#171717]">{getUserDisplayName(guest)}</Text>
-        <Text className="mt-1 text-[12px] text-[#7A7A7A]">{guest.email}</Text>
-      </View>
-
-      <View
-        className={`h-6 w-6 items-center justify-center rounded-full border ${
-          isSelected ? 'border-[#1F3125] bg-[#1F3125]' : 'border-[#C7CAD1] bg-white'
-        }`}>
-        {isSelected ? <Check size={14} stroke="#FFFFFF" strokeWidth={2.3} /> : null}
-      </View>
-    </Pressable>
-  );
-}
-
-function TimeSlotRow({ onPress, slot }: { onPress: () => void; slot: SelectableTimeSlot }) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      className={`mb-3 flex-row items-center rounded-[24px] px-4 py-4 ${
-        slot.isSelected ? 'bg-[#E9E9EC]' : 'bg-white'
-      } ${slot.isDisabled && !slot.isSelected ? 'opacity-50' : ''}`}
-      disabled={slot.isDisabled && !slot.isSelected}
-      onPress={onPress}>
-      <LinearGradient
-        className="h-12 w-12 rounded-full"
-        colors={slot.accentColors}
-        end={{ x: 1, y: 1 }}
-        start={{ x: 0, y: 0 }}
-      />
-
-      <View className="ml-4 flex-1">
-        <Text className="text-[17px] font-medium text-[#191919]">{slot.label}</Text>
-
-        {slot.isCourtBlocked ? (
-          <Text className="mt-1 text-[12px] text-[#8A8A8A]">Ja reservado nesta quadra</Text>
-        ) : null}
-
-        {!slot.isCourtBlocked && slot.isOrganizerBlocked ? (
-          <Text className="mt-1 text-[12px] text-[#8A8A8A]">Conflito com outra reserva tua</Text>
-        ) : null}
-
-        {!slot.isCourtBlocked && !slot.isOrganizerBlocked && slot.isLeadTimeBlocked ? (
-          <Text className="mt-1 text-[12px] text-[#8A8A8A]">
-            Disponivel apenas com 30 minutos de antecedencia
-          </Text>
-        ) : null}
-      </View>
-    </Pressable>
-  );
-}
-
-function BookingSummaryCard({
-  court,
-  dateKey,
-  organizerName,
-  rangeLabel,
-}: {
-  court: Court;
-  dateKey: string;
-  organizerName: string;
-  rangeLabel: string;
-}) {
-  const imageSource: ImageSourcePropType = court.images[0]?.url
-    ? { uri: court.images[0].url }
-    : DEFAULT_COURT_IMAGE;
-
-  return (
-    <View className="rounded-[28px] bg-[#F1F1F3] px-5 py-5">
-      <View className="flex-row">
-        <Image className="h-24 w-24 rounded-[24px]" resizeMode="cover" source={imageSource} />
-
-        <View className="ml-4 flex-1 justify-center">
-          <Text className="text-[20px] font-semibold text-[#171717]">{court.name}</Text>
-          <Text className="mt-1 text-[15px] text-[#5A5A5A]">{rangeLabel}</Text>
-          <Text className="mt-1 text-[13px] text-[#878787]">
-            {formatReservationDateLabel(dateKey)}
-          </Text>
-          <Text className="mt-3 text-[15px] font-medium text-[#1B1B1B]">{organizerName}</Text>
-        </View>
-      </View>
-    </View>
-  );
-}
 
 export function NewBookingScreen() {
   const router = useRouter();
@@ -608,7 +343,7 @@ export function NewBookingScreen() {
         contentContainerClassName="px-6 pb-6"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
-        <BookingField
+        <NewBookingField
           label="Quadra"
           onPress={() => setIsCourtSheetOpen(true)}
           placeholder="Selecione a quadra"
@@ -616,7 +351,7 @@ export function NewBookingScreen() {
           value={selectedCourt?.name}
         />
 
-        <BookingField
+        <NewBookingField
           label="Convidado(s)"
           onPress={() => setIsGuestSheetOpen(true)}
           placeholder="Adicione um membro"
@@ -630,7 +365,7 @@ export function NewBookingScreen() {
         {selectedGuests.length > 0 ? (
           <View className="-mt-4 mb-7 flex-row flex-wrap">
             {selectedGuests.map((guest) => (
-              <SelectedGuestChip
+              <NewBookingSelectedGuestChip
                 key={guest.id}
                 guest={guest}
                 onRemove={(guestId) => {
@@ -644,7 +379,7 @@ export function NewBookingScreen() {
           </View>
         ) : null}
 
-        <BookingField
+        <NewBookingField
           label="Data"
           onPress={() => setIsDateSheetOpen(true)}
           placeholder="dd / mm / yyyy"
@@ -663,7 +398,7 @@ export function NewBookingScreen() {
         </View>
 
         {!selectedCourt ? (
-          <EmptyStateCard
+          <NewBookingEmptyStateCard
             description="Escolhe primeiro uma quadra para ver os horarios livres nessa data."
             title="Quadra em falta"
           />
@@ -691,19 +426,23 @@ export function NewBookingScreen() {
             </Pressable>
           </View>
         ) : remainingDailyMinutes < SLOT_DURATION_MINUTES ? (
-          <EmptyStateCard
+          <NewBookingEmptyStateCard
             description="Ja atingiste o limite de 2 horas de reserva para esta data."
             title="Limite diario atingido"
           />
         ) : selectableSlots.every((slot) => slot.isDisabled) ? (
-          <EmptyStateCard
+          <NewBookingEmptyStateCard
             description="Nao existem horarios livres para esta quadra na data escolhida."
             title="Sem disponibilidade"
           />
         ) : (
           <View>
             {selectableSlots.map((slot) => (
-              <TimeSlotRow key={slot.key} onPress={() => handleSelectSlot(slot)} slot={slot} />
+              <NewBookingTimeSlotRow
+                key={slot.key}
+                onPress={() => handleSelectSlot(slot)}
+                slot={slot}
+              />
             ))}
           </View>
         )}
@@ -715,7 +454,7 @@ export function NewBookingScreen() {
         className="border-t border-[#F0F0F0] bg-white px-6 pt-4"
         style={{ paddingBottom: Math.max(insets.bottom, 20) }}>
         {selectedCourt && selectedRangeLabel ? (
-          <BookingSummaryCard
+          <NewBookingSummaryCard
             court={selectedCourt}
             dateKey={selectedDate}
             organizerName={organizerName}
@@ -750,7 +489,7 @@ export function NewBookingScreen() {
         </Pressable>
       </View>
 
-      <BookingSheet
+      <NewBookingSheet
         onClose={() => setIsCourtSheetOpen(false)}
         title="Selecionar quadra"
         visible={isCourtSheetOpen}>
@@ -759,7 +498,7 @@ export function NewBookingScreen() {
             <ActivityIndicator color="#1F3125" size="small" />
           </View>
         ) : courtsQuery.error ? (
-          <EmptyStateCard
+          <NewBookingEmptyStateCard
             description={getErrorMessage(
               courtsQuery.error,
               'Nao foi possivel carregar a lista de quadras.'
@@ -767,26 +506,30 @@ export function NewBookingScreen() {
             title="Erro ao carregar quadras"
           />
         ) : (
-          <FlatList
+          <BottomSheetFlatList<Court>
             data={activeCourts}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <CourtOptionRow
-                court={item}
-                isSelected={item.id === selectedCourtId}
-                onPress={() => {
-                  resetSelectionState();
-                  setSelectedCourtId(item.id);
-                  setIsCourtSheetOpen(false);
-                }}
-              />
-            )}
+            keyExtractor={(item: Court) => item.id}
+            renderItem={(info: ListRenderItemInfo<Court>) => {
+              const { item } = info;
+
+              return (
+                <NewBookingCourtOptionRow
+                  court={item}
+                  isSelected={item.id === selectedCourtId}
+                  onPress={() => {
+                    resetSelectionState();
+                    setSelectedCourtId(item.id);
+                    setIsCourtSheetOpen(false);
+                  }}
+                />
+              );
+            }}
             showsVerticalScrollIndicator={false}
           />
         )}
-      </BookingSheet>
+      </NewBookingSheet>
 
-      <BookingSheet
+      <NewBookingSheet
         onClose={() => setIsGuestSheetOpen(false)}
         title="Selecionar convidados"
         visible={isGuestSheetOpen}>
@@ -824,7 +567,7 @@ export function NewBookingScreen() {
             <ActivityIndicator color="#1F3125" size="small" />
           </View>
         ) : guestSearchQueryResult.error ? (
-          <EmptyStateCard
+          <NewBookingEmptyStateCard
             description={getErrorMessage(
               guestSearchQueryResult.error,
               'Nao foi possivel carregar os membros.'
@@ -832,21 +575,22 @@ export function NewBookingScreen() {
             title="Erro ao carregar membros"
           />
         ) : guestOptions.length === 0 ? (
-          <EmptyStateCard
+          <NewBookingEmptyStateCard
             description="Nenhum membro encontrado para a pesquisa atual."
             title="Sem resultados"
           />
         ) : (
-          <FlatList
+          <BottomSheetFlatList<UserProfile>
             data={guestOptions}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item: UserProfile) => item.id}
             keyboardShouldPersistTaps="handled"
-            renderItem={({ item }) => {
+            renderItem={(info: ListRenderItemInfo<UserProfile>) => {
+              const { item } = info;
               const isSelected = selectedGuests.some((guest) => guest.id === item.id);
               const isDisabled = !isSelected && selectedGuests.length >= maxGuestSlots;
 
               return (
-                <GuestOptionRow
+                <NewBookingGuestOptionRow
                   guest={item}
                   isDisabled={isDisabled}
                   isSelected={isSelected}
@@ -857,9 +601,9 @@ export function NewBookingScreen() {
             showsVerticalScrollIndicator={false}
           />
         )}
-      </BookingSheet>
+      </NewBookingSheet>
 
-      <BookingSheet
+      <NewBookingSheet
         onClose={() => setIsDateSheetOpen(false)}
         title="Selecionar data"
         visible={isDateSheetOpen}>
@@ -897,7 +641,7 @@ export function NewBookingScreen() {
             todayTextColor: '#1F3125',
           }}
         />
-      </BookingSheet>
+      </NewBookingSheet>
     </SafeAreaView>
   );
 }

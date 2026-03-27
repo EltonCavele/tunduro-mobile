@@ -15,7 +15,7 @@ export default function AuthLayout() {
 
   if (hasSession) {
     if (isVerified) {
-      return <Redirect href="/(tabs)/inicio" />;
+      return <Redirect href="/(tabs)/index" />;
     }
 
     const identifier = getPreferredIdentifier(user);

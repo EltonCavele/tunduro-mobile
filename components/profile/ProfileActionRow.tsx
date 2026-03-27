@@ -24,7 +24,7 @@ export function ProfileActionRow({
       </View>
 
       <Text
-        className={`flex-1 text-xl font-normal text-[#151515] ${isLast ? ' !text-red-500' : ''}`}>
+        className={`flex-1 text-[17px] font-normal text-[#151515] ${isLast ? ' !text-red-500' : ''}`}>
         {label}
       </Text>
     </Pressable>

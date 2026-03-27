@@ -16,7 +16,7 @@ export default function Index() {
   }
 
   if (isVerified) {
-    return <Redirect href="/(tabs)/inicio" />;
+    return <Redirect href="/(tabs)/index" />;
   }
 
   const identifier = getPreferredIdentifier(user);

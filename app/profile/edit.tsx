@@ -15,7 +15,7 @@ import { getErrorMessage } from 'lib/error-utils';
 import { useUpdateProfileMutation } from 'hooks/useProfileMutation';
 import { useProfileQuery } from 'hooks/useProfileQuery';
 
-const GENDER_OPTIONS: Array<{ value: Gender; label: string }> = [
+const GENDER_OPTIONS: { value: Gender; label: string }[] = [
   { value: 'MALE', label: formatGenderLabel('MALE') },
   { value: 'FEMALE', label: formatGenderLabel('FEMALE') },
   { value: 'OTHER', label: formatGenderLabel('OTHER') },
@@ -101,14 +101,14 @@ export default function EditProfileScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView  edges={['right', 'left']} className="flex-1 bg-white">
       <StatusBar style="dark" />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Editar perfil',
           headerTitleAlign: 'center',
-          headerBackButtonDisplayMode: 'default',
+          headerBackButtonDisplayMode: 'minimal',
           headerBackTitle: '',
           headerBlurEffect: 'none',
           headerShadowVisible: false,
@@ -159,7 +159,7 @@ export default function EditProfileScreen() {
             <Select
               onValueChange={(option) => setGender((option?.value as Gender | undefined) ?? null)}
               value={selectedGenderOption}>
-              <Select.Trigger className="min-h-[50px] rounded-2xl bg-[#E9E9EC] px-4 shadow-none">
+              <Select.Trigger className="min-h-12.5 rounded-2xl bg-[#E9E9EC] px-4 shadow-none">
                 <Select.Value className="text-[15px]" placeholder="Selecione o genero" />
                 <Select.TriggerIndicator iconProps={{ color: '#6D6D6D', size: 18 }} />
               </Select.Trigger>
@@ -195,7 +195,7 @@ export default function EditProfileScreen() {
 
           <View className="mt-auto">
             <AuthButton
-              className="h-[52px] rounded-full"
+              className="h-13 rounded-full"
               isLoading={updateProfileMutation.isPending}
               label="Salvar"
               loadingLabel="A salvar..."

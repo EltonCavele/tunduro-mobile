@@ -10,7 +10,7 @@ import { ChevronRight } from 'lucide-react-native/icons';
 
 export function HomeScreen() {
   return (
-    <SafeAreaView  edges={['right', 'left', "top"]} className="flex-1 bg-white" >
+    <SafeAreaView edges={['right', 'left', 'top']} className="flex-1 bg-white">
       <View className="px-6 pb-4 pt-1">
         <HomeHeader />
       </View>
@@ -20,8 +20,8 @@ export function HomeScreen() {
         contentContainerClassName="px-6 pb-10 gap-3 "
         showsVerticalScrollIndicator={false}>
         <View>
-          <Text className="text-sm">Seja bem-vindo de volta!</Text>
-          <Text className="text-xl">Pronto para o próximo jogo?</Text>
+          <Text className="text-[13px] text-[#555555]">Seja bem-vindo de volta!</Text>
+          <Text className="text-[18px] font-medium">Pronto para o próximo jogo?</Text>
         </View>
 
         <Pressable
@@ -30,13 +30,13 @@ export function HomeScreen() {
           <View className="mr-4">
             <Plus stroke="white" />
           </View>
-          <Text className="text-xl text-white ">Reservar uma quadra</Text>
+          <Text className="text-[17px] font-medium text-white">Reservar uma quadra</Text>
         </Pressable>
 
         <View className=" mt-4 flex flex-row items-center justify-between">
-          <Text className="text-xl font-semibold">Proxima partida</Text>
+          <Text className="text-[18px] font-semibold">Proxima partida</Text>
           <View className="flex flex-row items-center">
-            <Text className="text-xl  text-gray-500">Ver agenda</Text>
+            <Text className="text-[15px] text-gray-500">Ver agenda</Text>
             <ChevronRight stroke="gray" />
           </View>
         </View>

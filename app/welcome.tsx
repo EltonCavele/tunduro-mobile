@@ -20,7 +20,7 @@ export default function WelcomeRoute() {
   }
 
   if (hasSession && isVerified) {
-    return <Redirect href="/(tabs)/inicio" />;
+    return <Redirect href="/(tabs)/index" />;
   }
 
   if (hasSession) {
