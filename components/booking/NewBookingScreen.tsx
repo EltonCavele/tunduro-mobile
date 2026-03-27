@@ -333,7 +333,7 @@ export function NewBookingScreen() {
           <X size={34} stroke="#121212" strokeWidth={2.2} />
         </Pressable>
 
-        <Text className="text-[24px] font-semibold text-[#111111]">Nova Reserva</Text>
+        <Text className="text-[21px] font-semibold text-[#111111]">Nova Reserva</Text>
 
         <View className="h-11 w-11" />
       </View>
@@ -388,10 +388,10 @@ export function NewBookingScreen() {
         />
 
         <View className="mb-4 flex-row items-center justify-between">
-          <Text className="text-[18px] font-semibold text-[#181818]">Horarios disponiveis</Text>
+          <Text className="text-[16px] font-semibold text-[#181818]">Horarios disponiveis</Text>
           <View className="flex-row items-center rounded-full bg-[#F3F4F2] px-3 py-2">
             <Clock3 size={15} stroke="#1F3125" strokeWidth={2.1} />
-            <Text className="ml-2 text-[12px] font-medium text-[#1F3125]">
+            <Text className="ml-2 text-[11px] font-medium text-[#1F3125]">
               Restante: {remainingDailyMinutes} min
             </Text>
           </View>
@@ -405,16 +405,18 @@ export function NewBookingScreen() {
         ) : isAvailabilityLoading ? (
           <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-8">
             <ActivityIndicator color="#1F3125" size="small" />
-            <Text className="mt-3 text-center text-[14px] text-[#6D6D6D]">
+            <Text className="mt-3 text-center text-[13px] text-[#6D6D6D]">
               A verificar disponibilidade da quadra.
             </Text>
           </View>
         ) : availabilityError ? (
           <View className="rounded-[24px] bg-[#FFF4F4] px-5 py-6">
-            <Text className="text-[16px] font-semibold text-[#171717]">
+            <Text className="text-[15px] font-semibold text-[#171717]">
               Nao foi possivel validar os horarios
             </Text>
-            <Text className="mt-2 text-[13px] leading-5 text-[#7C6F6F]">{availabilityError}</Text>
+            <Text className="mt-2 text-[12px] leading-[19px] text-[#7C6F6F]">
+              {availabilityError}
+            </Text>
 
             <Pressable
               accessibilityRole="button"
@@ -422,7 +424,7 @@ export function NewBookingScreen() {
               onPress={() => {
                 void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
               }}>
-              <Text className="text-[13px] font-semibold text-white">Tentar novamente</Text>
+              <Text className="text-[12px] font-semibold text-white">Tentar novamente</Text>
             </Pressable>
           </View>
         ) : remainingDailyMinutes < SLOT_DURATION_MINUTES ? (
@@ -462,14 +464,14 @@ export function NewBookingScreen() {
           />
         ) : (
           <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-5">
-            <Text className="text-[15px] font-medium text-[#181818]">
+            <Text className="text-[14px] font-medium text-[#181818]">
               Seleciona a quadra, a data e um horario para concluir a reserva.
             </Text>
           </View>
         )}
 
         {submissionError ? (
-          <Text className="mt-3 text-[13px] leading-5 text-[#D05B5B]">{submissionError}</Text>
+          <Text className="mt-3 text-[12px] leading-[19px] text-[#D05B5B]">{submissionError}</Text>
         ) : null}
 
         <Pressable
@@ -479,7 +481,7 @@ export function NewBookingScreen() {
           }`}
           disabled={!canSubmit}
           onPress={() => void handleCreateBooking()}>
-          <Text className="text-[18px] font-semibold text-white">
+          <Text className="text-[16px] font-semibold text-white">
             {startBookingCheckoutMutation.isPending
               ? 'A iniciar pagamento...'
               : canReuseCheckoutSession
@@ -539,7 +541,7 @@ export function NewBookingScreen() {
           <TextInput
             autoCapitalize="none"
             autoCorrect={false}
-            className="ml-3 h-12 flex-1 text-[15px] text-[#111111]"
+            className="ml-3 h-12 flex-1 text-[14px] text-[#111111]"
             onChangeText={setGuestSearchQuery}
             placeholder="Pesquisar membro"
             placeholderTextColor="#8F9099"
@@ -550,14 +552,14 @@ export function NewBookingScreen() {
         <View className="mb-4 flex-row items-center justify-between">
           <View className="flex-row items-center">
             <Users size={16} stroke="#1F3125" strokeWidth={2.1} />
-            <Text className="ml-2 text-[13px] text-[#666666]">
+            <Text className="ml-2 text-[12px] text-[#666666]">
               {selectedGuests.length}/{maxGuestSlots} convidados
             </Text>
           </View>
 
           {selectedGuests.length > 0 ? (
             <Pressable accessibilityRole="button" onPress={() => setSelectedGuests([])}>
-              <Text className="text-[13px] font-medium text-[#1F3125]">Limpar</Text>
+              <Text className="text-[12px] font-medium text-[#1F3125]">Limpar</Text>
             </Pressable>
           ) : null}
         </View>
@@ -609,7 +611,7 @@ export function NewBookingScreen() {
         visible={isDateSheetOpen}>
         <View className="mb-4 flex-row items-center">
           <CalendarDays size={18} stroke="#1F3125" strokeWidth={2.1} />
-          <Text className="ml-2 text-[13px] text-[#666666]">
+          <Text className="ml-2 text-[12px] text-[#666666]">
             Escolhe uma data ate {formatReservationDateLabel(getMaxBookableDateKey())}
           </Text>
         </View>
@@ -636,8 +638,8 @@ export function NewBookingScreen() {
             monthTextColor: '#181818',
             selectedDayBackgroundColor: '#1F3125',
             selectedDayTextColor: '#FFFFFF',
-            textDayFontSize: 14,
-            textMonthFontSize: 18,
+            textDayFontSize: 13,
+            textMonthFontSize: 16,
             todayTextColor: '#1F3125',
           }}
         />

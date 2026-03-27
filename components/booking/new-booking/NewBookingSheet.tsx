@@ -1,13 +1,13 @@
 import type { PropsWithChildren } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import {
+import BottomSheet, {
   BottomSheetBackdrop,
-  BottomSheetModal,
+  BottomSheetView,
 } from '@gorhom/bottom-sheet';
+import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { X } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
-import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 
 interface NewBookingSheetProps extends PropsWithChildren {
   onClose: () => void;
@@ -21,16 +21,18 @@ export function NewBookingSheet({
   title,
   visible,
 }: NewBookingSheetProps) {
-  const modalRef = useRef<BottomSheetModal>(null);
+  const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['85%'], []);
 
   useEffect(() => {
     if (visible) {
-      modalRef.current?.present();
+      requestAnimationFrame(() => {
+        sheetRef.current?.snapToIndex(0);
+      });
       return;
     }
 
-    modalRef.current?.dismiss();
+    sheetRef.current?.close();
   }, [visible]);
 
   const renderBackdrop = useCallback(
@@ -47,33 +49,34 @@ export function NewBookingSheet({
   );
 
   return (
-    <BottomSheetModal
-      ref={modalRef}
-      index={0}
+    <BottomSheet
+      ref={sheetRef}
+      index={-1}
       snapPoints={snapPoints}
       android_keyboardInputMode="adjustResize"
       backdropComponent={renderBackdrop}
       backgroundStyle={{ backgroundColor: '#FFFFFF' }}
-      enableDismissOnClose
       enableDynamicSizing={false}
       enablePanDownToClose
       handleIndicatorStyle={{ backgroundColor: '#D9D9DD', height: 6, width: 56 }}
       keyboardBehavior="interactive"
-      onDismiss={onClose}>
-      <View className="flex-1 px-6 pb-8 pt-2">
-        <View className="mb-4 flex-row items-center justify-between">
-          <Text className="text-[20px] font-semibold text-[#111111]">{title}</Text>
+      onClose={onClose}>
+      <BottomSheetView style={{ flex: 1 }}>
+        <View className="flex-1 px-6 pb-8 pt-2">
+          <View className="mb-4 flex-row items-center justify-between">
+            <Text className="text-[18px] font-semibold text-[#111111]">{title}</Text>
 
-          <Pressable
-            accessibilityRole="button"
-            className="h-10 w-10 items-center justify-center rounded-full bg-[#F4F4F6]"
-            onPress={onClose}>
-            <X size={20} stroke="#181818" strokeWidth={2.3} />
-          </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              className="h-10 w-10 items-center justify-center rounded-full bg-[#F4F4F6]"
+              onPress={() => sheetRef.current?.close()}>
+              <X size={20} stroke="#181818" strokeWidth={2.3} />
+            </Pressable>
+          </View>
+
+          <View className="flex-1">{children}</View>
         </View>
-
-        <View className="flex-1">{children}</View>
-      </View>
-    </BottomSheetModal>
+      </BottomSheetView>
+    </BottomSheet>
   );
 }

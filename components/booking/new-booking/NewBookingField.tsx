@@ -17,8 +17,8 @@ interface NewBookingFieldProps {
 function FieldLabel({ label, required }: FieldLabelProps) {
   return (
     <View className="mb-3 flex-row items-center">
-      <Text className="text-[16px] font-medium text-[#181818]">{label}</Text>
-      {required ? <Text className="ml-1 text-[18px] text-[#FF4B4B]">*</Text> : null}
+      <Text className="text-[14px] font-medium text-[#181818]">{label}</Text>
+      {required ? <Text className="ml-1 text-[16px] text-[#FF4B4B]">*</Text> : null}
     </View>
   );
 }
@@ -40,7 +40,7 @@ export function NewBookingField({
         accessibilityRole="button"
         className="h-[56px] flex-row items-center justify-between rounded-[22px] bg-[#E9E9EC] px-5"
         onPress={onPress}>
-        <Text className={`text-[16px] ${hasValue ? 'text-[#181818]' : 'text-[#92939C]'}`}>
+        <Text className={`text-[14px] ${hasValue ? 'text-[#181818]' : 'text-[#92939C]'}`}>
           {hasValue ? value : placeholder}
         </Text>
 

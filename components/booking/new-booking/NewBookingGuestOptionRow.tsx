@@ -26,14 +26,14 @@ export function NewBookingGuestOptionRow({
       disabled={isDisabled}
       onPress={onPress}>
       <View className="h-11 w-11 items-center justify-center rounded-full bg-[#DCE9DD]">
-        <Text className="text-[14px] font-semibold text-[#1F3125]">
+        <Text className="text-[13px] font-semibold text-[#1F3125]">
           {getUserDisplayName(guest).slice(0, 1).toUpperCase()}
         </Text>
       </View>
 
       <View className="ml-3 flex-1">
-        <Text className="text-[15px] font-medium text-[#171717]">{getUserDisplayName(guest)}</Text>
-        <Text className="mt-1 text-[12px] text-[#7A7A7A]">{guest.email}</Text>
+        <Text className="text-[14px] font-medium text-[#171717]">{getUserDisplayName(guest)}</Text>
+        <Text className="mt-1 text-[11px] text-[#7A7A7A]">{guest.email}</Text>
       </View>
 
       <View

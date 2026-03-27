@@ -29,12 +29,12 @@ export function NewBookingSummaryCard({
         <Image className="h-24 w-24 rounded-[24px]" resizeMode="cover" source={imageSource} />
 
         <View className="ml-4 flex-1 justify-center">
-          <Text className="text-[20px] font-semibold text-[#171717]">{court.name}</Text>
-          <Text className="mt-1 text-[15px] text-[#5A5A5A]">{rangeLabel}</Text>
-          <Text className="mt-1 text-[13px] text-[#878787]">
+          <Text className="text-[17px] font-semibold text-[#171717]">{court.name}</Text>
+          <Text className="mt-1 text-[14px] text-[#5A5A5A]">{rangeLabel}</Text>
+          <Text className="mt-1 text-[12px] text-[#878787]">
             {formatReservationDateLabel(dateKey)}
           </Text>
-          <Text className="mt-3 text-[15px] font-medium text-[#1B1B1B]">{organizerName}</Text>
+          <Text className="mt-3 text-[13px] font-medium text-[#1B1B1B]">{organizerName}</Text>
         </View>
       </View>
     </View>

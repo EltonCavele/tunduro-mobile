@@ -32,11 +32,11 @@ export function NewBookingCourtOptionRow({
       <Image className="h-16 w-16 rounded-[18px]" resizeMode="cover" source={imageSource} />
 
       <View className="ml-4 flex-1">
-        <Text className="text-[16px] font-semibold text-[#171717]">{court.name}</Text>
-        <Text className="mt-1 text-[13px] text-[#757575]">
+        <Text className="text-[15px] font-semibold text-[#171717]">{court.name}</Text>
+        <Text className="mt-1 text-[12px] text-[#757575]">
           {court.surface} • {court.type === 'INDOOR' ? 'Indoor' : 'Outdoor'}
         </Text>
-        <Text className="mt-1 text-[12px] text-[#8A8A8A]">
+        <Text className="mt-1 text-[11px] text-[#8A8A8A]">
           {court.pricePerHour} {court.currency}/hora • {court.maxPlayers} jogadores
         </Text>
       </View>

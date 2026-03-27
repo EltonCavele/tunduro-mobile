@@ -1,7 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { useState } from 'react';
 
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { HeroUINativeProvider } from 'heroui-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
@@ -18,13 +17,11 @@ export function AppProviders({ children }: PropsWithChildren) {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics} style={{ flex: 1 }}>
-        <BottomSheetModalProvider>
-          <HeroUINativeProvider>
-            <QueryClientProvider client={queryClient}>
-              <AuthSessionProvider>{children}</AuthSessionProvider>
-            </QueryClientProvider>
-          </HeroUINativeProvider>
-        </BottomSheetModalProvider>
+        <HeroUINativeProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthSessionProvider>{children}</AuthSessionProvider>
+          </QueryClientProvider>
+        </HeroUINativeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

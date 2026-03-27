@@ -28,18 +28,18 @@ export function NewBookingTimeSlotRow({
       />
 
       <View className="ml-4 flex-1">
-        <Text className="text-[17px] font-medium text-[#191919]">{slot.label}</Text>
+        <Text className="text-[15px] font-medium text-[#191919]">{slot.label}</Text>
 
         {slot.isCourtBlocked ? (
-          <Text className="mt-1 text-[12px] text-[#8A8A8A]">Ja reservado nesta quadra</Text>
+          <Text className="mt-1 text-[11px] text-[#8A8A8A]">Ja reservado nesta quadra</Text>
         ) : null}
 
         {!slot.isCourtBlocked && slot.isOrganizerBlocked ? (
-          <Text className="mt-1 text-[12px] text-[#8A8A8A]">Conflito com outra reserva tua</Text>
+          <Text className="mt-1 text-[11px] text-[#8A8A8A]">Conflito com outra reserva tua</Text>
         ) : null}
 
         {!slot.isCourtBlocked && !slot.isOrganizerBlocked && slot.isLeadTimeBlocked ? (
-          <Text className="mt-1 text-[12px] text-[#8A8A8A]">
+          <Text className="mt-1 text-[11px] text-[#8A8A8A]">
             Disponivel apenas com 30 minutos de antecedencia
           </Text>
         ) : null}
