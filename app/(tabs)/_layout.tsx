@@ -1,4 +1,6 @@
-import { Redirect, Tabs } from 'expo-router';
+import { useEffect } from 'react';
+
+import { Tabs, useRouter } from 'expo-router';
 import { LayoutGrid, UserRound, Bookmark, Club } from 'lucide-react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
@@ -7,31 +9,35 @@ import { useAuthStatus } from 'hooks/useAuthStatus';
 import { getPreferredIdentifier } from 'lib/auth-utils';
 
 export default function TabsLayout() {
+  const router = useRouter();
   const { hasSession, isLoading, isVerified, user } = useAuthStatus();
+  const identifier = getPreferredIdentifier(user);
 
   if (isLoading) {
     return <AppScreenLoader message="A validar acesso..." />;
   }
 
-  if (!hasSession) {
-    return <Redirect href="/auth/sign-in" />;
-  }
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (!hasSession) {
+      router.navigate('/auth/sign-in');
+      return;
+    }
 
-  if (!isVerified) {
-    const identifier = getPreferredIdentifier(user);
+    if (!isVerified) {
+      router.navigate(
+        identifier
+          ? {
+              pathname: '/auth/verify-account',
+              params: { identifier },
+            }
+          : '/auth/verify-account'
+      );
+    }
+  }, [hasSession, identifier, isVerified, router]);
 
-    return (
-      <Redirect
-        href={
-          identifier
-            ? {
-                pathname: '/auth/verify-account',
-                params: { identifier },
-              }
-            : '/auth/verify-account'
-        }
-      />
-    );
+  if (!hasSession || !isVerified) {
+    return null;
   }
 
   return (
@@ -92,7 +98,7 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="perfil"
+        name="profile"
         options={{
           headerShown: true,
           headerStyle: {

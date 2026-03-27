@@ -1,9 +1,13 @@
 import type { ApiPaginatedData } from 'lib/api.types';
 import { api, unwrapResponse } from 'lib/api';
-import type { UserProfile } from 'lib/auth.types';
+import type { UserProfile, UserUpdatePayload } from 'lib/auth.types';
 
 export function getProfile() {
   return unwrapResponse<UserProfile>(api.get('/v1/user/profile'));
+}
+
+export function updateProfile(payload: UserUpdatePayload) {
+  return unwrapResponse<UserProfile>(api.put('/v1/user', payload));
 }
 
 interface GetUsersDirectoryParams {

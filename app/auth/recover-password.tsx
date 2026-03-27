@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -45,6 +45,21 @@ export default function RecoverPasswordScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: 'Recuperar senha',
+          headerTitleAlign: 'center',
+          headerBackButtonDisplayMode: 'minimal',
+          headerBackTitle: '',
+          headerBlurEffect: 'none',
+          headerShadowVisible: false,
+          headerTransparent: false,
+          headerStyle: { backgroundColor: '#FFFFFF' },
+          sheetElevation: 0,
+          headerTitleStyle: { fontSize: 16, fontWeight: '500', color: '#101010' },
+        }}
+      />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

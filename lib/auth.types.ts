@@ -52,6 +52,15 @@ export interface UserCreatePayload {
   gender?: Gender;
 }
 
+export interface UserUpdatePayload {
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
+  avatarUrl?: string | null;
+  level?: string | null;
+  gender?: Gender | null;
+}
+
 export interface RequestVerificationOtpPayload {
   identifier: string;
   channel?: OtpChannel;

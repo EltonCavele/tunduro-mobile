@@ -1,13 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { StatusBar } from 'expo-status-bar';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface AuthMinimalScreenProps {
@@ -16,13 +10,9 @@ interface AuthMinimalScreenProps {
   footer?: ReactNode;
 }
 
-export function AuthMinimalScreen({
-  title,
-  children,
-  footer,
-}: AuthMinimalScreenProps) {
+export function AuthMinimalScreen({ title, children, footer }: AuthMinimalScreenProps) {
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView edges={['right', 'left']} className="flex-1 bg-white">
       <StatusBar style="dark" />
 
       <KeyboardAvoidingView
@@ -33,10 +23,12 @@ export function AuthMinimalScreen({
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
-          <View className="flex-1 justify-center px-9 pb-20 pt-24">
-            <Text className="mb-12 text-center text-[28px] font-bold tracking-[-0.4px] text-[#101010]">
-              {title}
-            </Text>
+          <View className="flex-1 justify-center px-7 pb-20 ">
+            {title ? (
+              <Text className="mb-12 text-center text-[28px] font-bold tracking-[-0.4px] text-[#101010]">
+                {title}
+              </Text>
+            ) : null}
 
             {children}
             {footer ? <View className="mt-7">{footer}</View> : null}

@@ -54,10 +54,9 @@ export function ProfileScreen() {
         contentContainerStyle={{ paddingBottom: 32 }}
         showsVerticalScrollIndicator={false}>
         <View className="pb-6">
-          <ProfileHeaderCard user={user} />
+          <ProfileHeaderCard user={user} onEditPress={() => router.push('/profile/edit')} />
 
           <View className="mt-5 px-6">
-            <ProfileActionRow icon={Star} label="Minha subscricao" />
             <ProfileActionRow icon={Wallet} label="Pagamentos" />
             <ProfileActionRow icon={BarChart3} label="Estatisticas" />
             <ProfileActionRow

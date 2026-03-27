@@ -64,8 +64,8 @@ export default function WelcomeRoute() {
 
         <View className="-mt-5">
           <WelcomeContent
-            onCreateAccount={() => router.push('/auth/sign-up')}
-            onEnter={() => router.push('/auth/sign-in')}
+            onCreateAccount={() => router.replace('/auth/sign-up')}
+            onEnter={() => router.replace('/auth/sign-in')}
           />
         </View>
       </View>

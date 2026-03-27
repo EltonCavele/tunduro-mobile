@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
 import { AuthButton } from 'components/auth/AuthButton';
@@ -83,11 +83,26 @@ export default function SignUpScreen() {
           accessibilityRole="button"
           className="items-center py-2"
           onPress={() => router.replace('/auth/sign-in')}>
-          <Text className="text-[17px] font-normal text-[#181818]">Ja tenho uma conta</Text>
+          <Text className="text-[17px] font-normal text-[#181818] ">Ja tenho uma conta</Text>
         </Pressable>
       }
-      title="Criar conta">
+      title="">
       <View>
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            headerTitle: 'Criar conta',
+            headerTitleAlign: 'center',
+            headerBackButtonDisplayMode: 'minimal',
+            headerBackTitle: '',
+            headerBlurEffect: 'none',
+            headerShadowVisible: false,
+            headerTransparent: false,
+            headerStyle: { backgroundColor: '#FFFFFF' },
+            sheetElevation: 0,
+            headerTitleStyle: { fontSize: 16, fontWeight: '500', color: '#101010' },
+          }}
+        />
         <AuthMinimalField
           autoCapitalize="words"
           label="Nome completo"
