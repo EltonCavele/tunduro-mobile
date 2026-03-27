@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
 import { useRouter } from 'expo-router';
-import { BarChart3, LogOut, Star, Wallet } from 'lucide-react-native';
+import { BarChart3, LogOut, Wallet } from 'lucide-react-native';
 import { ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import { useLogoutAllDevicesMutation } from 'hooks/useAuthMutations';
 import { useProfileQuery } from 'hooks/useProfileQuery';
 import { getErrorMessage } from 'lib/error-utils';

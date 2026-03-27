@@ -2,9 +2,9 @@ import { Redirect, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import { WelcomeContent } from 'components/welcome/WelcomeContent';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { getPreferredIdentifier } from 'lib/auth-utils';

@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import { AddReservationButton } from './AddReservationButton';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarWeekStrip } from './CalendarWeekStrip';

@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import { HomeHeader } from './HomeHeader';
 
 import { UpcomingMatchCard } from './UpcomingMatchCard';
@@ -10,7 +10,7 @@ import { ChevronRight } from 'lucide-react-native/icons';
 
 export function HomeScreen() {
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView  edges={['right', 'left', "top"]} className="flex-1 bg-white" >
       <View className="px-6 pb-4 pt-1">
         <HomeHeader />
       </View>

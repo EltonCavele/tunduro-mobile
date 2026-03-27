@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { SafeAreaView } from 'components/app/SafeAreaView';
 
 interface AuthMinimalScreenProps {
   title: string;

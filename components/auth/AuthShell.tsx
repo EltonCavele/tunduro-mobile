@@ -13,9 +13,10 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const START_PAGE_IMAGE = require('../../assets/imgs/startpage.png');
+
+import { SafeAreaView } from 'components/app/SafeAreaView';
 
 interface AuthShellProps {
   title: string;

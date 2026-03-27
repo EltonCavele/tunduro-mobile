@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthButton } from 'components/auth/AuthButton';
 import { AuthOtpInput } from 'components/auth/AuthOtpInput';
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import { useForgotPasswordMutation } from 'hooks/useAuthMutations';
 import { maskIdentifier } from 'lib/auth-utils';
 import { getErrorMessage } from 'lib/error-utils';

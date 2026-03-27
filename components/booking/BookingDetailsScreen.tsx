@@ -5,8 +5,9 @@ import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, CalendarDays, Clock3, CreditCard, Users } from 'lucide-react-native';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { useBookingDetailsQuery } from 'hooks/useBookingDetailsQuery';
 import { useBookingUsersQuery } from 'hooks/useBookingUsersQuery';

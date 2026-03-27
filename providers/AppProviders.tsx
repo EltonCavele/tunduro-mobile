@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { HeroUINativeProvider } from 'heroui-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 
 import { QueryClientProvider } from '@tanstack/react-query';
 
@@ -15,11 +16,13 @@ export function AppProviders({ children }: PropsWithChildren) {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <HeroUINativeProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthSessionProvider>{children}</AuthSessionProvider>
-        </QueryClientProvider>
-      </HeroUINativeProvider>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics} style={{ flex: 1 }}>
+        <HeroUINativeProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthSessionProvider>{children}</AuthSessionProvider>
+          </QueryClientProvider>
+        </HeroUINativeProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

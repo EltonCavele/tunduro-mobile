@@ -20,8 +20,9 @@ import {
 } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import type { UserProfile } from 'lib/auth.types';
 import {
   areSlotsAdjacent,

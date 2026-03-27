@@ -3,8 +3,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import { useBookingCheckoutSessionQuery } from 'hooks/useBookingCheckoutSessionQuery';
 import { useRefreshBookingCheckoutSessionMutation } from 'hooks/useRefreshBookingCheckoutSessionMutation';
 import { getErrorMessage } from 'lib/error-utils';

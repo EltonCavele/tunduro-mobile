@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { View } from 'react-native';
 
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import { WelcomeContent } from './WelcomeContent';
 import { WelcomeHero } from './WelcomeHero';
 

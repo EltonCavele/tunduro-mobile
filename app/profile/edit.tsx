@@ -1,21 +1,25 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ChevronDown } from 'lucide-react-native';
-import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Select } from 'heroui-native';
+import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 
 import { AuthButton } from 'components/auth/AuthButton';
 import { AuthMinimalField } from 'components/auth/AuthMinimalField';
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import type { Gender } from 'lib/auth.types';
 import { formatGenderLabel, splitFullName } from 'lib/auth-utils';
 import { getErrorMessage } from 'lib/error-utils';
 import { useUpdateProfileMutation } from 'hooks/useProfileMutation';
 import { useProfileQuery } from 'hooks/useProfileQuery';
 
-const GENDER_OPTIONS: Gender[] = ['MALE', 'FEMALE', 'OTHER'];
+const GENDER_OPTIONS: Array<{ value: Gender; label: string }> = [
+  { value: 'MALE', label: formatGenderLabel('MALE') },
+  { value: 'FEMALE', label: formatGenderLabel('FEMALE') },
+  { value: 'OTHER', label: formatGenderLabel('OTHER') },
+];
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -44,19 +48,9 @@ export default function EditProfileScreen() {
     setIsInitialized(true);
   }, [isInitialized, user]);
 
-  const genderLabel = useMemo(() => {
-    if (!gender) {
-      return 'Selecione o genero';
-    }
-
-    return formatGenderLabel(gender);
-  }, [gender]);
-
-  function handleGenderToggle() {
-    const currentIndex = gender ? GENDER_OPTIONS.indexOf(gender) : -1;
-    const nextIndex = (currentIndex + 1) % GENDER_OPTIONS.length;
-    setGender(GENDER_OPTIONS[nextIndex]);
-  }
+  const selectedGenderOption = gender
+    ? GENDER_OPTIONS.find((option) => option.value === gender)
+    : undefined;
 
   async function handleSave() {
     if (!user) {
@@ -162,13 +156,37 @@ export default function EditProfileScreen() {
 
           <View className="mb-6">
             <Text className="mb-2 text-[13px] font-medium text-[#2B2B2B]">Genero</Text>
-            <Pressable
-              accessibilityRole="button"
-              className="h-[50px] flex-row items-center justify-between rounded-2xl bg-[#E9E9EC] px-4"
-              onPress={handleGenderToggle}>
-              <Text className="text-[15px] text-[#6D6D6D]">{genderLabel}</Text>
-              <ChevronDown size={18} stroke="#6D6D6D" strokeWidth={2.2} />
-            </Pressable>
+            <Select
+              onValueChange={(option) => setGender((option?.value as Gender | undefined) ?? null)}
+              value={selectedGenderOption}>
+              <Select.Trigger className="min-h-[50px] rounded-2xl bg-[#E9E9EC] px-4 shadow-none">
+                <Select.Value className="text-[15px]" placeholder="Selecione o genero" />
+                <Select.TriggerIndicator iconProps={{ color: '#6D6D6D', size: 18 }} />
+              </Select.Trigger>
+
+              <Select.Portal>
+                <Select.Overlay className="bg-black/10" />
+                <Select.Content
+                  className="rounded-2xl bg-white p-2 shadow-none"
+                  presentation="popover"
+                  width="trigger">
+                  <Select.ListLabel className="px-3 pt-2 text-[13px] font-medium text-[#2B2B2B]">
+                    Selecione o genero
+                  </Select.ListLabel>
+
+                  {GENDER_OPTIONS.map((option) => (
+                    <Select.Item
+                      key={option.value}
+                      className="rounded-xl px-3 py-3"
+                      label={option.label}
+                      value={option.value}>
+                      <Select.ItemLabel className="text-[15px] text-[#2B2B2B]" />
+                      <Select.ItemIndicator />
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Portal>
+            </Select>
           </View>
 
           {errorMessage ? (
