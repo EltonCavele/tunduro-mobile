@@ -49,10 +49,18 @@ export default function TabsLayout() {
         tabBarActiveTintColor: '#1F3125',
         tabBarInactiveTintColor: '#8B8B8B',
         tabBarHideOnKeyboard: true,
+        headerBackTitleStyle: {
+          fontFamily: 'Inter_700Black',
+        },
+        headerTitleStyle: {
+          fontFamily: 'Inter_700Black',
+        },
         tabBarStyle: {
           paddingTop: 8,
         },
-        tabBarLabelStyle: {},
+        tabBarLabelStyle: {
+          fontFamily: 'Inter_700Black',
+        },
         sceneStyle: {
           backgroundColor: 'white',
         },

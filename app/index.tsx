@@ -5,18 +5,18 @@ import { useAuthStatus } from 'hooks/useAuthStatus';
 import { getPreferredIdentifier } from 'lib/auth-utils';
 
 export default function Index() {
-  const { hasSession, isLoading, isVerified, user } = useAuthStatus();
+  const { isLoading, isVerified, user } = useAuthStatus();
 
   if (isLoading) {
     return <AppScreenLoader message="A carregar sessao..." />;
   }
 
-  if (!hasSession) {
+  if (!user) {
     return <Redirect href="/welcome" />;
   }
 
   if (isVerified) {
-    return <Redirect href="/(tabs)/index" />;
+    return <Redirect href="/(tabs)" />;
   }
 
   const identifier = getPreferredIdentifier(user);

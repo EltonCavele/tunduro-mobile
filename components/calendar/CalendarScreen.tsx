@@ -61,8 +61,6 @@ export function CalendarScreen() {
   const showAddReservationButton = !isPastDateKey(selectedDate);
   const errorMessage = getErrorMessage(error, 'Tenta novamente dentro de alguns instantes.');
 
-  console.log(error, 'error');
-
   if (isLoading) {
     return (
       <SafeAreaView edges={['right', 'left']} className="flex-1">

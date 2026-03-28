@@ -13,17 +13,17 @@ const START_PAGE_IMAGE = require('../assets/imgs/startpage.png');
 
 export default function WelcomeRoute() {
   const router = useRouter();
-  const { hasSession, isLoading, isVerified, user } = useAuthStatus();
+  const { isLoading, isVerified, user } = useAuthStatus();
 
   if (isLoading) {
     return <AppScreenLoader message="A carregar sessao..." />;
   }
 
-  if (hasSession && isVerified) {
+  if (user && isVerified) {
     return <Redirect href="/(tabs)/index" />;
   }
 
-  if (hasSession) {
+  if (user) {
     const identifier = getPreferredIdentifier(user);
 
     return (

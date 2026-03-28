@@ -7,15 +7,15 @@ import { getPreferredIdentifier } from 'lib/auth-utils';
 export default function AuthLayout() {
   const segments = useSegments();
   const currentRoute = segments[segments.length - 1];
-  const { hasSession, isLoading, isVerified, user } = useAuthStatus();
+  const { isLoading, isVerified, user } = useAuthStatus();
 
   if (isLoading) {
     return <AppScreenLoader message="A validar sessao..." />;
   }
 
-  if (hasSession) {
+  if (user) {
     if (isVerified) {
-      return <Redirect href="/(tabs)/index" />;
+      return <Redirect href="/(tabs)" />;
     }
 
     const identifier = getPreferredIdentifier(user);

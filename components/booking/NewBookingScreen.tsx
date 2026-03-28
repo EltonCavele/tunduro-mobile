@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { CalendarDays, Clock3, Search, Users, X } from 'lucide-react-native';
 import {
@@ -64,7 +64,8 @@ const SLOT_GRADIENTS = [
 export function NewBookingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ date?: string }>();
+  const params = useLocalSearchParams<{ courtId?: string; date?: string }>();
+  const initialCourtId = typeof params.courtId === 'string' ? params.courtId.trim() : '';
   const initialDate = clampBookableDateKey(
     typeof params.date === 'string' ? params.date : undefined
   );
@@ -72,7 +73,7 @@ export function NewBookingScreen() {
   const courtsQuery = useCourtsQuery();
   const myBookingsQuery = useMyBookingsQuery();
   const startBookingCheckoutMutation = useStartBookingCheckoutMutation();
-  const [selectedCourtId, setSelectedCourtId] = useState('');
+  const [selectedCourtId, setSelectedCourtId] = useState(initialCourtId);
   const [selectedDate, setSelectedDate] = useState(initialDate);
   const [selectedGuests, setSelectedGuests] = useState<UserProfile[]>([]);
   const [selectedSlotKeys, setSelectedSlotKeys] = useState<string[]>([]);
@@ -322,21 +323,17 @@ export function NewBookingScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       <StatusBar style="dark" />
 
-      <View className="flex-row items-center justify-between px-6 py-5">
-        <Pressable
-          accessibilityRole="button"
-          className="h-11 w-11 items-center justify-center rounded-full"
-          onPress={() => router.back()}>
-          <X size={34} stroke="#121212" strokeWidth={2.2} />
-        </Pressable>
-
-        <Text className="text-[21px] font-semibold text-[#111111]">Nova Reserva</Text>
-
-        <View className="h-11 w-11" />
-      </View>
+      <Stack.Screen
+        options={{
+          headerShadowVisible: false,
+          headerShown: true,
+          headerTitle: 'Nova Reserva',
+          headerBackButtonDisplayMode: 'minimal',
+        }}
+      />
 
       <ScrollView
         className="flex-1"
@@ -403,18 +400,18 @@ export function NewBookingScreen() {
             title="Quadra em falta"
           />
         ) : isAvailabilityLoading ? (
-          <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-8">
+          <View className="rounded-3xl bg-[#F7F7F8] px-5 py-8">
             <ActivityIndicator color="#1F3125" size="small" />
             <Text className="mt-3 text-center text-[13px] text-[#6D6D6D]">
               A verificar disponibilidade da quadra.
             </Text>
           </View>
         ) : availabilityError ? (
-          <View className="rounded-[24px] bg-[#FFF4F4] px-5 py-6">
+          <View className="rounded-3xl bg-[#FFF4F4] px-5 py-6">
             <Text className="text-[15px] font-semibold text-[#171717]">
               Nao foi possivel validar os horarios
             </Text>
-            <Text className="mt-2 text-[12px] leading-[19px] text-[#7C6F6F]">
+            <Text className="leading-4.75 mt-2 text-[12px] text-[#7C6F6F]">
               {availabilityError}
             </Text>
 

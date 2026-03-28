@@ -101,7 +101,7 @@ export default function EditProfileScreen() {
   }
 
   return (
-    <SafeAreaView  edges={['right', 'left']} className="flex-1 bg-white">
+    <SafeAreaView edges={['right', 'left']} className="flex-1 bg-white">
       <StatusBar style="dark" />
       <Stack.Screen
         options={{
@@ -114,7 +114,12 @@ export default function EditProfileScreen() {
           headerShadowVisible: false,
           headerTransparent: false,
           headerStyle: { backgroundColor: '#FFFFFF' },
-          headerTitleStyle: { fontSize: 16, fontWeight: '600', color: '#101010' },
+          headerTitleStyle: {
+            fontFamily: 'Inter_900Black',
+            fontSize: 16,
+            fontWeight: '600',
+            color: '#101010',
+          },
         }}
       />
 

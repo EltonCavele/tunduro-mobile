@@ -57,7 +57,12 @@ export default function RecoverPasswordScreen() {
           headerTransparent: false,
           headerStyle: { backgroundColor: '#FFFFFF' },
           sheetElevation: 0,
-          headerTitleStyle: { fontSize: 16, fontWeight: '500', color: '#101010' },
+          headerTitleStyle: {
+            fontFamily: 'Inter_900Black',
+            fontSize: 16,
+            fontWeight: '500',
+            color: '#101010',
+          },
         }}
       />
 

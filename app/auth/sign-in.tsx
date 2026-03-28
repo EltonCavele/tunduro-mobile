@@ -34,7 +34,7 @@ export default function SignInScreen() {
       });
 
       if (response.user.isVerified) {
-        router.replace('/(tabs)/index');
+        router.replace('/(tabs)');
         return;
       }
 

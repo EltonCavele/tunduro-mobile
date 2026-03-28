@@ -35,7 +35,7 @@ const CALENDAR_THEME = {
   dayTextColor: '#1C1C1C',
   monthTextColor: '#171717',
   reservationsBackgroundColor: '#FFFFFF',
-  selectedDayBackgroundColor: '#FF7A33',
+  selectedDayBackgroundColor: '#1F3125',
   selectedDayTextColor: '#FFFFFF',
   textDayFontSize: 13,
   textDayFontWeight: '600',
@@ -44,7 +44,7 @@ const CALENDAR_THEME = {
   textMonthFontSize: 15,
   textMonthFontWeight: '600',
   textSectionTitleColor: '#8B8B8B',
-  todayTextColor: '#FF7A33',
+  todayTextColor: '#1F3125',
   'stylesheet.agenda.main': {
     reservations: {
       flex: 1,

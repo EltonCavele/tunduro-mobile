@@ -1,13 +1,5 @@
-import { BookOpen } from 'lucide-react-native';
+import { CourtsScreen } from 'components/court/CourtsScreen';
 
-import { TabPlaceholderScreen } from 'components/screens/TabPlaceholderScreen';
-
-export default function ReservasScreen() {
-  return (
-    <TabPlaceholderScreen
-      description="Acompanhe as reservas confirmadas, pendentes e o histórico das suas quadras."
-      icon={BookOpen}
-      title="Reservas"
-    />
-  );
+export default function CourtsRoute() {
+  return <CourtsScreen />;
 }

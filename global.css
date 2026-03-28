@@ -3,6 +3,8 @@
 @import 'heroui-native/styles';
 
 @theme {
+  --font-sans: 'Inter_700Black';
+  --font-display: 'Inter_700Black';
   --color-primary: #1f3125;
 }
 
