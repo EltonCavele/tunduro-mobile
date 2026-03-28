@@ -1,17 +1,12 @@
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
-import { AddReservationButton } from './AddReservationButton';
-import { CalendarHeader } from './CalendarHeader';
 import { CalendarWeekStrip } from './CalendarWeekStrip';
 import {
   adaptBookingsToCalendarReservations,
-  buildMarkedDates,
   getTodayDateKey,
   groupReservationsByDate,
-  isPastDateKey,
 } from 'lib/calendar-bookings';
 import { getErrorMessage } from 'lib/error-utils';
 import { useMyBookingsQuery } from 'hooks/useMyBookingsQuery';
@@ -48,7 +43,6 @@ function CalendarErrorState({ message, onRetry }: { message: string; onRetry: ()
 }
 
 export function CalendarScreen() {
-  const insets = useSafeAreaInsets();
   const [selectedDate, setSelectedDate] = useState(getTodayDateKey());
   const { data: bookings = [], error, isError, isLoading, refetch } = useMyBookingsQuery();
 
@@ -57,17 +51,11 @@ export function CalendarScreen() {
     [bookings]
   );
 
-  const markedDates = buildMarkedDates(reservationsByDate, selectedDate);
-  const showAddReservationButton = !isPastDateKey(selectedDate);
   const errorMessage = getErrorMessage(error, 'Tenta novamente dentro de alguns instantes.');
 
   if (isLoading) {
     return (
       <SafeAreaView edges={['right', 'left']} className="flex-1">
-        <View className="px-5 pb-5 pt-3">
-          <CalendarHeader selectedDate={selectedDate} />
-        </View>
-
         <CalendarLoadingState />
       </SafeAreaView>
     );
@@ -76,10 +64,6 @@ export function CalendarScreen() {
   if (isError && bookings.length === 0) {
     return (
       <SafeAreaView edges={['right', 'left']} className="flex-1">
-        <View className="px-5 pb-5 pt-3">
-          <CalendarHeader selectedDate={selectedDate} />
-        </View>
-
         <CalendarErrorState message={errorMessage} onRetry={() => void refetch()} />
       </SafeAreaView>
     );
@@ -87,25 +71,11 @@ export function CalendarScreen() {
 
   return (
     <SafeAreaView edges={['right', 'left']} className="flex-1">
-      <View className="px-5 pb-5 pt-3">
-        <CalendarHeader selectedDate={selectedDate} />
-      </View>
-
       <CalendarWeekStrip
-        markedDates={markedDates}
         onSelectDate={setSelectedDate}
         reservationsByDate={reservationsByDate}
         selectedDate={selectedDate}
       />
-
-      {showAddReservationButton ? (
-        <View
-          pointerEvents="box-none"
-          className="absolute right-5"
-          style={{ bottom: Math.max(insets.bottom, 16) + 20 }}>
-          <AddReservationButton selectedDate={selectedDate} />
-        </View>
-      ) : null}
     </SafeAreaView>
   );
 }

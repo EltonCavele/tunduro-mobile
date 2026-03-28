@@ -1,19 +1,19 @@
-import { FlatList, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CalendarDays } from 'lucide-react-native';
+import { CalendarDays, MapPin } from 'lucide-react-native';
+import { FlatList, Pressable, Text, View } from 'react-native';
 
 import { type CalendarReservation, getBookingStatusLabel } from 'lib/calendar-bookings';
 
 function EmptyReservationsState() {
   return (
-    <View className="mt-6 items-center rounded-[28px] bg-white px-6 py-10">
-      <View className="h-14 w-14 items-center justify-center rounded-full bg-[#EEF4EF]">
+    <View className="items-center px-6 py-16">
+      <View className="h-14 w-14 items-center justify-center rounded-full bg-[#F4F4F4]">
         <CalendarDays size={24} stroke="#1F3125" strokeWidth={2.2} />
       </View>
 
       <Text className="mt-5 text-[18px] font-semibold text-[#171717]">Sem reservas nesta data</Text>
-      <Text className="mt-2 text-center text-[13px] leading-5 text-[#787878]">
-        Escolha outro dia no calendário para ver os jogos reservados.
+      <Text className="mt-2 text-center text-[13px] leading-6 text-[#8B8B8B]">
+        Escolhe outro dia para ver as reservas agendadas.
       </Text>
     </View>
   );
@@ -50,84 +50,110 @@ function getDurationLabel(startLabel: string, endLabel: string) {
   const endTotalMinutes = endHour * 60 + endMinute;
   const durationInMinutes = Math.max(endTotalMinutes - startTotalMinutes, 0);
 
-  return `${durationInMinutes}min`;
+  if (durationInMinutes === 0) {
+    return '';
+  }
+
+  const hours = Math.floor(durationInMinutes / 60);
+  const minutes = durationInMinutes % 60;
+
+  if (hours > 0 && minutes > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+
+  if (hours > 0) {
+    return `${hours}h`;
+  }
+
+  return `${minutes}m`;
+}
+
+const PARTICIPANT_COLORS = ['#1F3125', '#5E88FC', '#F2A65A', '#D45C7A'];
+
+function ParticipantStack({ participantCount }: { participantCount: number }) {
+  const avatars = Math.min(participantCount, 4);
+
+  if (avatars <= 0) {
+    return null;
+  }
+
+  return (
+    <View className="flex-row pl-3">
+      {Array.from({ length: avatars }).map((_, index) => (
+        <View
+          key={`participant-${index}`}
+          className="-ml-3 h-7 w-7 items-center justify-center rounded-full border-2 border-white"
+          style={{ backgroundColor: PARTICIPANT_COLORS[index % PARTICIPANT_COLORS.length] }}>
+          <Text className="text-[10px] text-white">{index + 1}</Text>
+        </View>
+      ))}
+    </View>
+  );
 }
 
 function ReservationTimelineRow({ reservation }: { reservation: CalendarReservation }) {
   const router = useRouter();
-  const softAccent = hexToRgba(reservation.accentColor, 0.14);
+  const softAccent = hexToRgba(reservation.accentColor, 0.16);
+  const accentTag = hexToRgba(reservation.accentColor, 0.24);
   const durationLabel = getDurationLabel(reservation.startLabel, reservation.endLabel);
-  const secondaryLabel =
-    reservation.participantCount > 0
-      ? `${reservation.courtLabel} • ${reservation.participantCount} jogadores`
-      : reservation.courtLabel;
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      className="mb-7 flex-row items-start"
-      onPress={() =>
-        router.push({
-          pathname: '/bookings/[id]',
-          params: {
-            id: reservation.id,
-          },
-        })
-      }>
-      <View className="w-[84px] pr-3 pt-0.5">
-        <Text className="text-[15px] font-light  text-[#1F1F1F] ">{reservation.startLabel}</Text>
+    <View className="mb-5 flex-row items-start">
+      <View className="w-[78px] pr-3 pt-2">
+        <Text className="text-[16px] text-[#5F5F5F]">{reservation.startLabel}</Text>
         {durationLabel ? (
-          <Text className="mt-1 text-sm  text-[#7A7A7A]">{durationLabel}</Text>
+          <Text className="mt-1 text-[13px] text-[#B0B0B0]">{durationLabel}</Text>
         ) : null}
       </View>
 
-      <View className="flex-1 flex-row items-start">
-        <View
-          className="mr-4 mt-1 h-[72px] w-2 overflow-hidden rounded-full"
-          style={
-            {
-              // backgroundColor: softAccent,
-            }
-          }>
+      <Pressable
+        accessibilityRole="button"
+        className="flex-1 rounded-[22px] px-4 py-4"
+        onPress={() =>
+          router.push({
+            pathname: '/bookings/[id]',
+            params: {
+              id: reservation.id,
+            },
+          })
+        }
+        style={{
+          backgroundColor: softAccent,
+        }}>
+        <View className="flex-row items-start justify-between gap-3">
           <View
+            className="rounded-[10px] px-3 py-1"
             style={{
-              position: 'absolute',
-              left: 2,
-              top: -8,
-              bottom: -8,
-              width: 4,
-              borderRadius: 999,
-              backgroundColor: reservation.accentColor,
-            }}
-          />
-        </View>
-
-        <View className="flex-1 pr-2">
-          <View className="flex flex-row items-center justify-between gap-2">
-            <Text className="text-lg font-semibold leading-6 text-[#212121]">
-              {reservation.title}
-            </Text>
-            <View
-              className="rounded-full px-[9px] py-1"
+              backgroundColor: accentTag,
+            }}>
+            <Text
+              className="text-[11px] uppercase"
               style={{
-                backgroundColor: softAccent,
+                color: reservation.accentColor,
               }}>
-              <Text
-                className="text-[10px] font-bold uppercase"
-                style={{
-                  color: reservation.accentColor,
-                }}>
-                {getBookingStatusLabel(reservation.status)}
-              </Text>
-            </View>
+              {getBookingStatusLabel(reservation.status)}
+            </Text>
           </View>
 
-          <Text className="mt-1.5 text-[14px] leading-5 text-[#7A7A7A]">{secondaryLabel}</Text>
-
-          <Text className="text-[12px] text-[#8B8B8B]">{reservation.timeRangeLabel}</Text>
+          <ParticipantStack participantCount={reservation.participantCount} />
         </View>
-      </View>
-    </Pressable>
+
+        <Text className="mt-4 text-[22px] text-[#202020]">{reservation.title}</Text>
+        <Text className="mt-1 text-[14px] text-[#7D7D7D]">{reservation.timeRangeLabel}</Text>
+
+        <View className="mt-4 flex-row items-center justify-between gap-3">
+          <View className="flex-row items-center">
+            <MapPin size={15} color="#9A9A9A" strokeWidth={2} />
+            <Text className="ml-1.5 text-[13px] text-[#9A9A9A]">{reservation.courtLabel}</Text>
+          </View>
+
+          <Text className="text-[13px] text-[#9A9A9A]">
+            {reservation.participantCount} jogador
+            {reservation.participantCount === 1 ? '' : 'es'}
+          </Text>
+        </View>
+      </Pressable>
+    </View>
   );
 }
 
@@ -135,7 +161,7 @@ export function AgendaReservationsList({ reservations }: { reservations: Calenda
   return (
     <FlatList
       className="flex-1"
-      contentContainerClassName="px-5 pb-28 pt-10"
+      contentContainerClassName="px-5 pb-10 pt-6"
       data={reservations}
       keyExtractor={(item) => item.id}
       ListEmptyComponent={<EmptyReservationsState />}

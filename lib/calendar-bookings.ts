@@ -103,6 +103,8 @@ const WEEKDAY_NAMES = [
   'Sábado',
 ];
 
+const WEEKDAY_SHORT_NAMES = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
 function padNumber(value: number) {
   return String(value).padStart(2, '0');
 }
@@ -173,6 +175,37 @@ export function formatScheduleHeading(dateKey: string) {
   const date = parseDateKey(dateKey);
 
   return `${WEEKDAY_NAMES[date.getDay()]} ${date.getDate()}`;
+}
+
+export function formatCalendarWeekdayShort(dateKey: string) {
+  return WEEKDAY_SHORT_NAMES[parseDateKey(dateKey).getDay()];
+}
+
+export function formatCalendarSelectedDateLabel(dateKey: string) {
+  const date = parseDateKey(dateKey);
+
+  return new Intl.DateTimeFormat('pt-PT', {
+    day: 'numeric',
+    month: 'long',
+    weekday: 'long',
+  }).format(date);
+}
+
+export function buildWeekDateKeys(selectedDate: string, firstDay = 1) {
+  const startOfWeek = parseDateKey(selectedDate);
+  let selectedDayOfWeek = startOfWeek.getDay();
+
+  if (selectedDayOfWeek < firstDay) {
+    selectedDayOfWeek += 7;
+  }
+
+  startOfWeek.setDate(startOfWeek.getDate() - (selectedDayOfWeek - firstDay));
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const nextDate = new Date(startOfWeek);
+    nextDate.setDate(startOfWeek.getDate() + index);
+    return formatDateKey(nextDate);
+  });
 }
 
 export function adaptBookingsToCalendarReservations(bookings: BookingItem[]) {

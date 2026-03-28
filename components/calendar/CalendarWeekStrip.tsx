@@ -1,117 +1,52 @@
-import { useMemo } from 'react';
-import { View } from 'react-native';
-import { Agenda, type AgendaEntry } from 'react-native-calendars';
+import { useEffect, useMemo, useRef } from 'react';
+import { FlatList, Pressable, Text, View } from 'react-native';
 
 import type { CalendarReservation } from 'lib/calendar-bookings';
+import {
+  formatCalendarSelectedDateLabel,
+  formatCalendarWeekdayShort,
+  shiftDateKey,
+} from 'lib/calendar-bookings';
 
 import { AgendaReservationsList } from './AgendaReservationsList';
 
-type MarkedDay = {
-  dotColor?: string;
-  marked?: boolean;
-  selected?: boolean;
-  selectedColor?: string;
-  selectedTextColor?: string;
-};
-
 interface CalendarWeekStripProps {
-  markedDates: Record<string, MarkedDay>;
   onSelectDate: (date: string) => void;
   reservationsByDate: Record<string, CalendarReservation[]>;
   selectedDate: string;
 }
 
-interface AgendaSelectedDayLike {
-  getDate: () => number;
-  getFullYear: () => number;
-  getMonth: () => number;
-}
-
-const CALENDAR_THEME = {
-  agendaKnobColor: '#D7D4CD',
-  arrowColor: '#1C1C1C',
-  backgroundColor: '#FFFFFF',
-  calendarBackground: '#FFFFFF',
-  dayTextColor: '#1C1C1C',
-  monthTextColor: '#171717',
-  reservationsBackgroundColor: '#FFFFFF',
-  selectedDayBackgroundColor: '#BDE111',
-  selectedDayTextColor: '#171717',
-  textDayFontSize: 13,
-  textDayFontWeight: '600',
-  textDayHeaderFontSize: 10,
-  textDayHeaderFontWeight: '500',
-  textMonthFontSize: 15,
-  textMonthFontWeight: '600',
-  textSectionTitleColor: '#8B8B8B',
-  todayTextColor: '#1F3125',
-  'stylesheet.agenda.main': {
-    reservations: {
-      flex: 1,
-      backgroundColor: '#FFFFFF',
-      marginTop: 96,
-    },
-  },
-  stylesheet: {
-    calendar: {
-      header: {
-        week: {
-          marginBottom: 6,
-          marginTop: 8,
-        },
-      },
-    },
-  },
-} as const;
-
-function buildAgendaItems(
-  reservationsByDate: Record<string, CalendarReservation[]>,
-  selectedDate: string
-) {
-  const items: Record<string, AgendaEntry[]> = {};
-
-  Object.entries(reservationsByDate).forEach(([dateKey, reservations]) => {
-    items[dateKey] = reservations.map((reservation) => ({
-      day: dateKey,
-      height: 1,
-      name: reservation.title,
-    }));
-  });
-
-  if (!items[selectedDate]) {
-    items[selectedDate] = [];
-  }
-
-  return items;
-}
-
-function padNumber(value: number) {
-  return String(value).padStart(2, '0');
-}
-
-function getDateKeyFromAgendaSelectedDay(
-  selectedDay: AgendaSelectedDayLike | undefined,
-  fallbackDateKey: string
-) {
-  if (!selectedDay) {
-    return fallbackDateKey;
-  }
-
-  return `${selectedDay.getFullYear()}-${padNumber(selectedDay.getMonth() + 1)}-${padNumber(
-    selectedDay.getDate()
-  )}`;
-}
+const DATE_ITEM_WIDTH = 68;
+const DATE_RANGE_DAYS = 180;
 
 export function CalendarWeekStrip({
-  markedDates,
   onSelectDate,
   reservationsByDate,
   selectedDate,
 }: CalendarWeekStripProps) {
-  const agendaItems = useMemo(
-    () => buildAgendaItems(reservationsByDate, selectedDate),
-    [reservationsByDate, selectedDate]
+  const listRef = useRef<FlatList<string>>(null);
+  const initialSelectedDateRef = useRef(selectedDate);
+  const dateKeys = useMemo(
+    () =>
+      Array.from({ length: DATE_RANGE_DAYS * 2 + 1 }, (_, index) =>
+        shiftDateKey(initialSelectedDateRef.current, index - DATE_RANGE_DAYS)
+      ),
+    []
   );
+  const selectedIndex = dateKeys.indexOf(selectedDate);
+  const reservations = reservationsByDate[selectedDate] ?? [];
+
+  useEffect(() => {
+    if (selectedIndex < 0) {
+      return;
+    }
+
+    listRef.current?.scrollToIndex({
+      animated: true,
+      index: selectedIndex,
+      viewPosition: 0.5,
+    });
+  }, [selectedIndex]);
 
   function handleSelectDate(dateString: string) {
     if (dateString !== selectedDate) {
@@ -120,30 +55,62 @@ export function CalendarWeekStrip({
   }
 
   return (
-    <View className=" flex-1 rounded-t-[26px]">
-      <Agenda
-        firstDay={0}
-        futureScrollRange={24}
-        hideKnob={false}
-        showClosingKnob={true}
-        items={agendaItems}
-        markedDates={markedDates}
-        onDayPress={(date) => handleSelectDate(date.dateString)}
-        pastScrollRange={24}
-        renderList={(listProps) => {
-          const agendaSelectedDate = getDateKeyFromAgendaSelectedDay(
-            listProps.selectedDay as AgendaSelectedDayLike | undefined,
-            selectedDate
-          );
-          const reservations = reservationsByDate[agendaSelectedDate] ?? [];
+    <View className="flex-1 bg-white">
+      <View className="border-b border-[#F1F1F1] px-5 pb-4 pt-4">
+        <View>
+          <FlatList
+            ref={listRef}
+            className="flex-grow-0"
+            data={dateKeys}
+            getItemLayout={(_, index) => ({
+              index,
+              length: DATE_ITEM_WIDTH,
+              offset: DATE_ITEM_WIDTH * index,
+            })}
+            horizontal
+            initialScrollIndex={selectedIndex >= 0 ? selectedIndex : DATE_RANGE_DAYS}
+            keyExtractor={(item) => item}
+            onScrollToIndexFailed={() => {}}
+            renderItem={({ item: dateKey }) => {
+              const isSelected = dateKey === selectedDate;
+              const hasReservations = (reservationsByDate[dateKey] ?? []).length > 0;
 
-          return <AgendaReservationsList key={agendaSelectedDate} reservations={reservations} />;
-        }}
-        selected={selectedDate}
-        showScrollIndicator={false}
-        testID="calendar-agenda"
-        theme={CALENDAR_THEME}
-      />
+              return (
+                <Pressable
+                  accessibilityRole="button"
+                  className={`mx-1 items-center rounded-[18px] px-2 py-3 ${
+                    isSelected ? 'bg-[#BDE111]' : 'bg-white'
+                  }`}
+                  onPress={() => handleSelectDate(dateKey)}
+                  style={{ width: DATE_ITEM_WIDTH - 8 }}>
+                  <Text
+                    className={`text-[12px] ${isSelected ? 'text-[#171717]' : 'text-[#A2A2A2]'}`}>
+                    {formatCalendarWeekdayShort(dateKey)}
+                  </Text>
+                  <Text
+                    className={`mt-1 text-[22px] ${
+                      isSelected ? 'text-[#171717]' : 'text-[#2A2A2A]'
+                    }`}>
+                    {dateKey.slice(-2)}
+                  </Text>
+                  <View
+                    className={`mt-2 h-1.5 w-1.5 rounded-full ${
+                      hasReservations ? 'bg-[#171717]' : 'bg-transparent'
+                    }`}
+                  />
+                </Pressable>
+              );
+            }}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+
+        <Text className="mt-4 text-center text-[16px] text-[#9A9A9A]">
+          {formatCalendarSelectedDateLabel(selectedDate)}
+        </Text>
+      </View>
+
+      <AgendaReservationsList reservations={reservations} />
     </View>
   );
 }
