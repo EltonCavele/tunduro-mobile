@@ -12,8 +12,8 @@ export function HomeHeader() {
         resizeMode="cover"
       />
 
-      <View className="bg-primary h-12 w-12 items-center justify-center rounded-full ">
-        <Bell size={20} stroke="white" />
+      <View className="h-12 w-12 items-center justify-center rounded-full bg-primary ">
+        <Bell size={20} stroke="black" />
       </View>
     </View>
   );

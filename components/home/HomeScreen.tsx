@@ -26,11 +26,11 @@ export function HomeScreen() {
 
         <Pressable
           accessibilityRole="button"
-          className=" bg-primary  mt-4 flex-row items-center justify-center rounded-2xl px-8 py-4">
+          className=" mt-4  flex-row items-center justify-center rounded-2xl bg-primary px-8 py-4">
           <View className="mr-4">
-            <Plus stroke="white" />
+            <Plus stroke="black" />
           </View>
-          <Text className="text-[17px] font-medium text-white">Reservar uma quadra</Text>
+          <Text className="text-[17px] font-medium text-black">Reservar uma quadra</Text>
         </Pressable>
 
         <View className=" mt-4 flex flex-row items-center justify-between">

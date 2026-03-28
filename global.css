@@ -5,7 +5,7 @@
 @theme {
   --font-sans: 'Inter_700Black';
   --font-display: 'Inter_700Black';
-  --color-primary: #1f3125;
+  --color-primary: #bde111;
 }
 
 @source './node_modules/heroui-native/lib';

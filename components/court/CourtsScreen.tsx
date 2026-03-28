@@ -52,6 +52,14 @@ function CourtsEmptyState() {
   );
 }
 
+function CourtCardDivider() {
+  return (
+    <View className="py-6">
+      <View className="h-px bg-[#EFEFEF]" />
+    </View>
+  );
+}
+
 export function CourtsScreen() {
   const courtsQuery = useCourtsQuery();
 
@@ -80,7 +88,7 @@ export function CourtsScreen() {
             <CourtsEmptyState />
           )
         }
-        ItemSeparatorComponent={() => <View className="h-4" />}
+        ItemSeparatorComponent={CourtCardDivider}
         renderItem={({ item }) => <CourtHorizontalCard court={item} />}
         showsVerticalScrollIndicator={false}
       />

@@ -121,7 +121,7 @@ export function CourtDetailsScreen() {
         </View>
 
         <Button
-          className="mt-5 h-14"
+          className="mt-5 h-14 rounded-2xl bg-primary"
           feedbackVariant="none"
           onPress={() =>
             router.push({
@@ -129,8 +129,8 @@ export function CourtDetailsScreen() {
               params: { courtId: court.id },
             })
           }>
-          <CalendarDays size={18} stroke="#FFFFFF" strokeWidth={2} />
-          <Button.Label>Reservar</Button.Label>
+          <CalendarDays size={18} stroke="black" strokeWidth={2} />
+          <Button.Label className="text-black">Reservar</Button.Label>
         </Button>
       </ScrollView>
     </SafeAreaView>
