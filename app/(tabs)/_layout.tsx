@@ -95,6 +95,7 @@ export default function TabsLayout() {
         name="courts"
         options={{
           headerShown: true,
+
           headerStyle: {
             elevation: 0,
             shadowOpacity: 0,

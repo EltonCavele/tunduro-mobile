@@ -242,8 +242,8 @@ export function buildMarkedDates(
   markedDates[selectedDate] = {
     ...markedDates[selectedDate],
     selected: true,
-    selectedColor: '#FF7A33',
-    selectedTextColor: '#FFFFFF',
+    selectedColor: '#BDE111',
+    selectedTextColor: '#171717',
   };
 
   return markedDates;
