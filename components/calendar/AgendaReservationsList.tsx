@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { CalendarDays, MapPin } from 'lucide-react-native';
 import { FlatList, Pressable, Text, View } from 'react-native';
 
@@ -91,8 +90,13 @@ function ParticipantStack({ participantCount }: { participantCount: number }) {
   );
 }
 
-function ReservationTimelineRow({ reservation }: { reservation: CalendarReservation }) {
-  const router = useRouter();
+function ReservationTimelineRow({
+  reservation,
+  onSelectBooking,
+}: {
+  reservation: CalendarReservation;
+  onSelectBooking: (id: string) => void;
+}) {
   const softAccent = hexToRgba(reservation.accentColor, 0.16);
   const accentTag = hexToRgba(reservation.accentColor, 0.24);
   const durationLabel = getDurationLabel(reservation.startLabel, reservation.endLabel);
@@ -109,14 +113,7 @@ function ReservationTimelineRow({ reservation }: { reservation: CalendarReservat
       <Pressable
         accessibilityRole="button"
         className="flex-1 rounded-[22px] px-4 py-4"
-        onPress={() =>
-          router.push({
-            pathname: '/bookings/[id]',
-            params: {
-              id: reservation.id,
-            },
-          })
-        }
+        onPress={() => onSelectBooking(reservation.id)}
         style={{
           backgroundColor: softAccent,
         }}>
@@ -127,7 +124,7 @@ function ReservationTimelineRow({ reservation }: { reservation: CalendarReservat
               backgroundColor: accentTag,
             }}>
             <Text
-              className="text-[11px] uppercase"
+              className="text-[11px] uppercase tracking-wider"
               style={{
                 color: reservation.accentColor,
               }}>
@@ -157,7 +154,13 @@ function ReservationTimelineRow({ reservation }: { reservation: CalendarReservat
   );
 }
 
-export function AgendaReservationsList({ reservations }: { reservations: CalendarReservation[] }) {
+export function AgendaReservationsList({
+  reservations,
+  onSelectBooking,
+}: {
+  reservations: CalendarReservation[];
+  onSelectBooking: (id: string) => void;
+}) {
   return (
     <FlatList
       className="flex-1"
@@ -165,7 +168,9 @@ export function AgendaReservationsList({ reservations }: { reservations: Calenda
       data={reservations}
       keyExtractor={(item) => item.id}
       ListEmptyComponent={<EmptyReservationsState />}
-      renderItem={({ item }) => <ReservationTimelineRow reservation={item} />}
+      renderItem={({ item }) => (
+        <ReservationTimelineRow reservation={item} onSelectBooking={onSelectBooking} />
+      )}
       showsVerticalScrollIndicator={false}
     />
   );

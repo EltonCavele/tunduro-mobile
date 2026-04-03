@@ -20,7 +20,7 @@ export default function NotificationsPreferencesRoute() {
 
   if (isError) {
     return (
-      <SafeAreaView className="flex-1 bg-[#F9FBFA]">
+      <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center px-6">
           <Text className="text-center text-[14px] text-[#D05B5B]">
             Erro ao carregar preferências: {error?.message}
@@ -41,8 +41,8 @@ export default function NotificationsPreferencesRoute() {
   }
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-[#F9FBFA]">
-      <View className="flex-row items-center justify-between border-b border-[#F4F4F5] bg-white px-5 py-3">
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+      <View className="flex-row items-center justify-between  bg-white px-5 py-2">
         <Pressable
           className="h-10 w-10 items-center justify-center rounded-full"
           onPress={() => router.back()}>

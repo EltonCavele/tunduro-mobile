@@ -1,7 +1,7 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import { Clock3, MapPin } from 'lucide-react-native';
+import { Calendar, Clock3, MapPin } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
-import { Image, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { BookingStatus, getBookingStatusLabel } from 'lib/calendar-bookings';
 
 interface UpcomingMatchCardProps {
   dayLabel: string;
@@ -9,6 +9,7 @@ interface UpcomingMatchCardProps {
   courtLabel: string;
   courtName: string;
   opponentName: string;
+  status: BookingStatus;
 }
 
 function getInitials(name: string) {
@@ -25,49 +26,32 @@ function MatchStat({
   icon: Icon,
   label,
   value,
-  align = 'left',
 }: {
   icon: LucideIcon;
   label: string;
   value: string;
-  align?: 'left' | 'right';
 }) {
-  const alignment = align === 'right' ? 'items-end' : 'items-start';
-
   return (
-    <View
-      className={`flex-1 rounded-[22px] border border-[#E2E8DF] bg-[#F7F8F4] px-4 py-3 ${alignment}`}>
-      <View className="mb-2 flex-row items-center">
-        <Icon size={14} stroke="#1F3125" strokeWidth={2.1} />
-        <Text className="ml-2 text-[11px] font-semibold uppercase tracking-[0.8px] text-[#5E685F]">
-          {label}
-        </Text>
+    <View className="flex-row items-center gap-2">
+      <View className="items-center justify-center rounded-full bg-[#EEF3EE] p-2">
+        <Icon size={14} stroke="#1F3125" strokeWidth={2.5} />
       </View>
-
-      <Text className="text-[18px] font-semibold leading-5.5 text-[#121512]">{value}</Text>
+      <View>
+        <Text className="text-[10px] uppercase tracking-wider text-[#7A7A7A]">{label}</Text>
+        <Text className="text-[14px] text-[#121512]">{value}</Text>
+      </View>
     </View>
   );
 }
 
-function OpponentRow({ opponentName }: { opponentName: string }) {
-  return (
-    <View className="mt-3 flex-row items-center rounded-[22px] border border-[#E5EAE4] bg-white px-4 py-4">
-      <View className="mr-3 h-11 w-11 items-center justify-center rounded-2xl bg-[#1F3125]">
-        <Text className="text-[14px] font-bold text-white">{getInitials(opponentName)}</Text>
-      </View>
-
-      <View className="flex-1">
-        <Text className="text-[11px] font-medium text-[#6F776F]">Oponente</Text>
-        <Text className="mt-0.5 text-[16px] font-semibold leading-5 text-[#121512]">
-          {opponentName}
-        </Text>
-      </View>
-
-      <View className="rounded-full bg-[#EEF3EE] px-3 py-1.5">
-        <Text className="text-[11px] font-semibold text-[#1F3125]">Pronto</Text>
-      </View>
-    </View>
-  );
+function getStatusConfig(status: BookingStatus) {
+  if (status === BookingStatus.CONFIRMED) {
+    return { bgClass: 'bg-[#BDE111]', textClass: 'text-[#171717]', iconColor: '#171717' };
+  }
+  if (status === BookingStatus.PENDING) {
+    return { bgClass: 'bg-[#FFF0CC]', textClass: 'text-[#835600]', iconColor: '#835600' };
+  }
+  return { bgClass: 'bg-[#E5EAE4]', textClass: 'text-[#6B746D]', iconColor: '#6B746D' };
 }
 
 export function UpcomingMatchCard({
@@ -76,49 +60,48 @@ export function UpcomingMatchCard({
   courtLabel,
   courtName,
   opponentName,
+  status,
 }: UpcomingMatchCardProps) {
+  const statusConfig = getStatusConfig(status);
+
   return (
     <View
-      className="mt-4 overflow-hidden rounded-[30px] border border-[#E5EAE4] bg-[#F6F7F3]"
+      className="mb-3 overflow-hidden rounded-[24px] border border-[#E5EAE4] bg-white p-4"
       style={{
         shadowColor: '#102017',
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.08,
-        shadowRadius: 20,
-        elevation: 4,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 10,
+        elevation: 2,
       }}>
-      <View className="relative">
-        <Image
-          source={{
-            uri: 'https://images.unsplash.com/photo-1542144582-1ba00456b5e3?auto=format&fit=crop&w=1200&q=80',
-          }}
-          className="h-55 w-full"
-          resizeMode="cover"
-        />
-
-        <LinearGradient
-          className="absolute inset-0"
-          colors={['rgba(10, 22, 15, 0.18)', 'rgba(10, 22, 15, 0.46)', 'rgba(10, 22, 15, 0.94)']}
-        />
-
-        <View className="absolute left-4 top-4 rounded-full bg-[#0F1A12] px-3 py-1.5">
-          <Text className="text-[11px] font-semibold uppercase tracking-[0.9px] text-[#F4F7F2]">
-            Proxima partida
+      <View className="mb-4 flex-row items-center justify-between">
+        <View
+          className={`flex-row items-center gap-2 rounded-full ${statusConfig.bgClass} px-3 py-1.5`}>
+          <Calendar size={12} stroke={statusConfig.iconColor} strokeWidth={2.5} />
+          <Text className={`text-[11px] uppercase tracking-wider ${statusConfig.textClass}`}>
+            {getBookingStatusLabel(status)}
           </Text>
         </View>
-
-        <View className="absolute inset-x-4 bottom-4 flex-row gap-3">
-          <MatchStat icon={Clock3} label={dayLabel} value={timeLabel} />
-          <MatchStat icon={MapPin} label={courtLabel} value={courtName} align="right" />
-        </View>
+        <Text className="text-[14px] text-[#121512]">{timeLabel}</Text>
       </View>
 
-      <View className="bg-[#F6F7F3] px-4 pb-4 pt-4">
-        <Text className="text-[11px] font-semibold uppercase tracking-[0.8px] text-[#6B746D]">
-          Jogador confirmado
-        </Text>
+      <View className="mb-5 flex-row items-center justify-between">
+        <MatchStat icon={MapPin} label={courtLabel} value={courtName} />
+      </View>
 
-        <OpponentRow opponentName={opponentName} />
+      <View className="flex-row items-center rounded-[18px] bg-[#F6F7F3] p-3">
+        <View className="mr-3 h-10 w-10 items-center justify-center rounded-2xl bg-[#D2E4C6]">
+          <Text className="text-[13px] text-[#1F3125]">{getInitials(opponentName) || '?'}</Text>
+        </View>
+
+        <View className="flex-1">
+          <Text className="text-[11px] uppercase tracking-wider text-[#7A7A7A]">Adversário</Text>
+          <Text className="text-[15px] text-[#121512]">{opponentName || 'Sem adversário'}</Text>
+        </View>
+
+        <View className="items-center justify-center rounded-full bg-white px-3 py-1.5 ">
+          <Text className="text-[11px] text-[#1F3125]">Pronto</Text>
+        </View>
       </View>
     </View>
   );

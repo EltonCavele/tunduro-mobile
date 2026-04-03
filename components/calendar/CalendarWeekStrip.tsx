@@ -12,6 +12,7 @@ import { AgendaReservationsList } from './AgendaReservationsList';
 
 interface CalendarWeekStripProps {
   onSelectDate: (date: string) => void;
+  onSelectBooking: (id: string) => void;
   reservationsByDate: Record<string, CalendarReservation[]>;
   selectedDate: string;
 }
@@ -21,6 +22,7 @@ const DATE_RANGE_DAYS = 180;
 
 export function CalendarWeekStrip({
   onSelectDate,
+  onSelectBooking,
   reservationsByDate,
   selectedDate,
 }: CalendarWeekStripProps) {
@@ -110,7 +112,7 @@ export function CalendarWeekStrip({
         </Text>
       </View>
 
-      <AgendaReservationsList reservations={reservations} />
+      <AgendaReservationsList reservations={reservations} onSelectBooking={onSelectBooking} />
     </View>
   );
 }

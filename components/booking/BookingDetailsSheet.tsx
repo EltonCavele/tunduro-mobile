@@ -1,9 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { Button } from 'heroui-native';
-import { ArrowLeft, Clock3, Phone, Share2 } from 'lucide-react-native';
+import { Clock3, Phone, Share2 } from 'lucide-react-native';
 import {
   ActivityIndicator,
   Image,
@@ -17,7 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConfirmationModal } from 'components/app/ConfirmationModal';
-import { SafeAreaView } from 'components/app/SafeAreaView';
+import { NewBookingSheet } from 'components/booking/new-booking/NewBookingSheet';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { useBookingDetailsQuery } from 'hooks/useBookingDetailsQuery';
 import { useBookingUsersQuery } from 'hooks/useBookingUsersQuery';
@@ -76,8 +74,8 @@ function ScreenState({
   title: string;
 }) {
   return (
-    <View className="flex-1 items-center justify-center px-6">
-      <View className="w-full max-w-[340px] rounded-[30px] bg-white px-6 py-8">
+    <View className="flex-1 items-center justify-center pt-8">
+      <View className="w-full max-w-[340px] rounded-[30px] px-6 py-8">
         {isLoading ? <ActivityIndicator color="#1F1F1F" size="small" /> : null}
         <Text className={`text-center text-[20px] text-[#171717] ${isLoading ? 'mt-4' : ''}`}>
           {title}
@@ -127,7 +125,7 @@ function InfoCard({
   titleClassName?: string;
 }) {
   return (
-    <View className="w-full flex-1 rounded-lg  bg-gray-50 px-4 py-4">
+    <View className="w-full flex-1 rounded-lg bg-gray-50 px-4 py-4">
       {icon}
       <Text className={`leading-6.5 mt-5 text-xl text-[#232323] ${titleClassName ?? ''}`}>
         {title}
@@ -172,15 +170,8 @@ function PersonRow({
         ) : null}
       </View>
 
-      {onPressPhone && item.phoneLabel ? (
-        <Pressable
-          accessibilityRole="button"
-          className="h-11 w-11 items-center justify-center rounded-full bg-white"
-          onPress={onPressPhone}>
-          <Phone size={22} stroke="#232323" strokeWidth={2} />
-        </Pressable>
-      ) : item.statusLabel ? (
-        <View className="rounded-full bg-white px-3 py-1.5">
+      {item.statusLabel ? (
+        <View className="rounded-full bg-gray-100 px-3 py-1.5">
           <Text className="text-[11px] text-[#4A4A4A]">{item.statusLabel}</Text>
         </View>
       ) : null}
@@ -355,11 +346,13 @@ function buildBookingDetailsViewModel(
   };
 }
 
-export function BookingDetailsScreen() {
-  const router = useRouter();
+interface BookingDetailsSheetProps {
+  bookingId: string | null;
+  onClose: () => void;
+}
+
+export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetProps) {
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ id?: string }>();
-  const bookingId = typeof params.id === 'string' ? params.id.trim() : '';
   const { user } = useAuthStatus();
   const [actionError, setActionError] = useState('');
   const [pendingConfirmationAction, setPendingConfirmationAction] =
@@ -367,7 +360,8 @@ export function BookingDetailsScreen() {
   const [pendingInvitationAction, setPendingInvitationAction] = useState<
     'accept' | 'decline' | null
   >(null);
-  const bookingQuery = useBookingDetailsQuery(bookingId, {
+
+  const bookingQuery = useBookingDetailsQuery(bookingId || '', {
     enabled: Boolean(bookingId),
   });
   const booking = bookingQuery.data ?? null;
@@ -455,6 +449,7 @@ export function BookingDetailsScreen() {
     bookingQuery.error,
     'Nao foi possivel carregar os detalhes desta reserva.'
   );
+
   const confirmationModalConfig =
     pendingConfirmationAction === 'cancel-booking'
       ? {
@@ -521,6 +516,8 @@ export function BookingDetailsScreen() {
       setActionError(getErrorMessage(error, 'Nao foi possivel cancelar a reserva.'));
     } finally {
       setPendingConfirmationAction(null);
+      // Optional: Close the bottom sheet when successfully cancelled.
+      // But preserving the state is also fine because the Details will update Live.
     }
   }
 
@@ -534,7 +531,7 @@ export function BookingDetailsScreen() {
       setPendingInvitationAction(action);
       await respondInvitationMutation.mutateAsync({
         action,
-        bookingId,
+        bookingId: bookingId as string,
         token: currentPendingInvitation.token,
       });
     } catch (error) {
@@ -552,204 +549,187 @@ export function BookingDetailsScreen() {
     }
   }
 
-  if (!bookingId) {
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-        <StatusBar style="dark" />
-        <ScreenState
-          description="Nao recebemos um identificador de reserva valido para abrir este ecra."
-          title="Reserva invalida"
-        />
-      </SafeAreaView>
-    );
-  }
-
-  if (bookingQuery.isLoading && !booking) {
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-        <StatusBar style="dark" />
+  return (
+    <NewBookingSheet
+      visible={Boolean(bookingId)}
+      onClose={onClose}
+      snapPoints={['90%']}
+      title="Detalhes da Reserva">
+      {bookingQuery.isLoading && !booking ? (
         <ScreenState
           description="A carregar os detalhes da reserva selecionada."
           isLoading
-          title="A carregar reserva"
+          title="A carregar..."
         />
-      </SafeAreaView>
-    );
-  }
-
-  if (bookingQuery.isError || !booking || !bookingDetails) {
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-        <StatusBar style="dark" />
+      ) : bookingQuery.isError || !booking || !bookingDetails ? (
         <ScreenState
           actionLabel="Tentar novamente"
           description={primaryErrorMessage}
           onPress={() => void bookingQuery.refetch()}
-          title="Nao foi possivel abrir a reserva"
+          title="Erro ao carregar reserva"
         />
-      </SafeAreaView>
-    );
-  }
+      ) : (
+        <View className="flex-1">
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{
+              paddingBottom: actionBarVisible
+                ? 180 + Math.max(insets.bottom, 20)
+                : Math.max(insets.bottom, 48),
+              paddingTop: 8,
+            }}
+            showsVerticalScrollIndicator={false}>
+            <View className="flex-row items-start justify-between pb-4">
+              <View className="flex-1">
+                <Text className="text-[17px] text-[#202020]">{bookingDetails.dateLabel}</Text>
+                <Text className="mt-1 text-[32px] leading-[38px] text-[#202020]">
+                  {bookingDetails.title}
+                </Text>
+              </View>
 
-  return (
-    <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" />
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View className="flex-row items-center justify-between px-6 pb-3 pt-2">
-        <Pressable
-          accessibilityRole="button"
-          className="h-11 w-11 items-center justify-center"
-          onPress={() => router.back()}>
-          <ArrowLeft size={28} stroke="#202020" strokeWidth={2.1} />
-        </Pressable>
-
-        <Text className="text-[20px] text-[#202020]">{bookingDetails.dateLabel}</Text>
-
-        <Pressable
-          accessibilityRole="button"
-          className="h-11 w-11 items-center justify-center"
-          onPress={() => {
-            void handleShareBooking();
-          }}>
-          <Share2 size={24} stroke="#202020" strokeWidth={2.1} />
-        </Pressable>
-      </View>
-
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{
-          paddingBottom: actionBarVisible ? 180 + Math.max(insets.bottom, 20) : 48,
-          paddingHorizontal: 24,
-        }}
-        showsVerticalScrollIndicator={false}>
-        <Text className="leading-9.5 text-[32px] text-[#202020]">{bookingDetails.title}</Text>
-
-        <View className="mt-4 flex-row flex-wrap gap-3">
-          <StatusPill
-            backgroundColor="#D6ED95"
-            label={bookingDetails.statusLabel}
-            textColor="#31461A"
-          />
-
-          {canRespondToInvitation ? (
-            <StatusPill backgroundColor="#FF5E4F" label="Convite pendente" textColor="#FFFFFF" />
-          ) : bookingDetails.paymentStateLabel !== 'Pago' ? (
-            <StatusPill
-              backgroundColor="#FFF0CC"
-              label={bookingDetails.paymentStateLabel}
-              textColor="#835600"
-            />
-          ) : null}
-        </View>
-
-        <View className="mt-7 flex-row gap-4">
-          <InfoCard
-            icon={<Clock3 size={22} stroke="#252525" strokeWidth={2} />}
-            subtitle={bookingDetails.durationLabel}
-            title={bookingDetails.timeLabel}
-          />
-        </View>
-
-        <View className="mt-10">
-          <Text className="text-[18px] text-[#232323]">Organizador</Text>
-          <View className="mt-3">
-            <PersonRow
-              item={bookingDetails.organizer}
-              onPressPhone={
-                bookingDetails.organizer.phoneLabel
-                  ? () => {
-                      void handleCallOrganizer();
-                    }
-                  : undefined
-              }
-              showDivider={false}
-            />
-          </View>
-        </View>
-
-        <View className="mt-8 border-t border-[#ECECEC] pt-6">
-          <Text className="text-[18px] text-[#232323]">Participantes</Text>
-
-          {relatedUsersQuery.isLoading ? (
-            <View className="mt-4 flex-row items-center">
-              <ActivityIndicator color="#202020" size="small" />
-              <Text className="ml-3 text-[14px] text-[#7A7A7A]">A carregar participantes...</Text>
+              <Pressable
+                accessibilityRole="button"
+                className="h-11 w-11 items-center justify-center rounded-full bg-[#F4F4F6]"
+                onPress={() => void handleShareBooking()}>
+                <Share2 size={22} stroke="#202020" strokeWidth={2.1} />
+              </Pressable>
             </View>
-          ) : bookingDetails.participants.length === 0 ? (
-            <Text className="mt-4 text-[15px] leading-6 text-[#7A7A7A]">
-              Ainda nao existem participantes confirmados para esta reserva.
-            </Text>
-          ) : (
-            <View className="mt-3">
-              {bookingDetails.participants.map((participant, index) => (
-                <PersonRow
-                  key={participant.id}
-                  item={participant}
-                  showDivider={index < bookingDetails.participants.length - 1}
+
+            <View className="mt-2 flex-row flex-wrap gap-3">
+              <StatusPill
+                backgroundColor="#D6ED95"
+                label={bookingDetails.statusLabel}
+                textColor="#31461A"
+              />
+
+              {canRespondToInvitation ? (
+                <StatusPill
+                  backgroundColor="#FF5E4F"
+                  label="Convite pendente"
+                  textColor="#FFFFFF"
                 />
-              ))}
+              ) : bookingDetails.paymentStateLabel !== 'Pago' ? (
+                <StatusPill
+                  backgroundColor="#FFF0CC"
+                  label={bookingDetails.paymentStateLabel}
+                  textColor="#835600"
+                />
+              ) : null}
             </View>
-          )}
-        </View>
 
-        {courtQuery.isError ? (
-          <Text className="mt-8 text-[13px] leading-5 text-[#7E7E7E]">
-            Nao foi possivel carregar todos os detalhes do campo. A reserva continua visivel com os
-            dados essenciais.
-          </Text>
-        ) : null}
-      </ScrollView>
-
-      {actionBarVisible ? (
-        <View className="bg-white px-6 pt-4" style={{ paddingBottom: Math.max(insets.bottom, 20) }}>
-          {actionError ? (
-            <Text className="mb-3 text-[13px] leading-5 text-[#C14A3D]">{actionError}</Text>
-          ) : null}
-
-          {canRespondToInvitation ? (
-            <View className="flex-row gap-3">
-              <Button
-                className="h-14 flex-1 rounded-[20px] bg-white"
-                feedbackVariant="none"
-                isDisabled={respondInvitationMutation.isPending}
-                onPress={() => setPendingConfirmationAction('decline-invitation')}
-                variant="secondary">
-                <Button.Label className="text-[14px] text-[#232323]">
-                  {pendingInvitationAction === 'decline' && respondInvitationMutation.isPending
-                    ? 'A negar...'
-                    : 'Negar'}
-                </Button.Label>
-              </Button>
-
-              <Button
-                className="h-14 flex-1 rounded-[20px] bg-[#1F1F1F]"
-                feedbackVariant="none"
-                isDisabled={respondInvitationMutation.isPending}
-                onPress={() => {
-                  void handleRespondToInvitation('accept');
-                }}>
-                <Button.Label className="text-[14px] text-white">
-                  {pendingInvitationAction === 'accept' && respondInvitationMutation.isPending
-                    ? 'A aceitar...'
-                    : 'Aceitar convite'}
-                </Button.Label>
-              </Button>
+            <View className="mt-7 flex-row gap-4">
+              <InfoCard
+                icon={<Clock3 size={22} stroke="#252525" strokeWidth={2} />}
+                subtitle={bookingDetails.durationLabel}
+                title={bookingDetails.timeLabel}
+              />
             </View>
-          ) : canCancelBooking ? (
-            <Button
-              className="h-14 rounded-[20px] bg-[#FCE8E6]"
-              feedbackVariant="none"
-              isDisabled={cancelBookingMutation.isPending}
-              onPress={() => setPendingConfirmationAction('cancel-booking')}
-              variant="secondary">
-              <Button.Label className="text-[14px] text-[#C54D4D]">
-                {cancelBookingMutation.isPending ? 'A cancelar reserva...' : 'Cancelar reserva'}
-              </Button.Label>
-            </Button>
+
+            <View className="mt-10">
+              <Text className="text-[18px] text-[#232323]">Organizador</Text>
+              <View className="mt-3">
+                <PersonRow
+                  item={bookingDetails.organizer}
+                  onPressPhone={
+                    bookingDetails.organizer.phoneLabel
+                      ? () => void handleCallOrganizer()
+                      : undefined
+                  }
+                  showDivider={false}
+                />
+              </View>
+            </View>
+
+            <View className="mt-8 border-t border-[#ECECEC] pt-6">
+              <Text className="text-[18px] text-[#232323]">Participantes</Text>
+
+              {relatedUsersQuery.isLoading ? (
+                <View className="mt-4 flex-row items-center">
+                  <ActivityIndicator color="#202020" size="small" />
+                  <Text className="ml-3 text-[14px] text-[#7A7A7A]">
+                    A carregar participantes...
+                  </Text>
+                </View>
+              ) : bookingDetails.participants.length === 0 ? (
+                <Text className="mt-4 text-[15px] leading-6 text-[#7A7A7A]">
+                  Ainda não existem participantes confirmados para esta reserva.
+                </Text>
+              ) : (
+                <View className="mt-3">
+                  {bookingDetails.participants.map((participant, index) => (
+                    <PersonRow
+                      key={participant.id}
+                      item={participant}
+                      showDivider={index < bookingDetails.participants.length - 1}
+                    />
+                  ))}
+                </View>
+              )}
+            </View>
+
+            {courtQuery.isError ? (
+              <Text className="mt-8 text-[13px] leading-5 text-[#7E7E7E]">
+                Não foi possível carregar todos os detalhes do campo. A reserva continua visível com
+                os dados essenciais.
+              </Text>
+            ) : null}
+          </ScrollView>
+
+          {actionBarVisible ? (
+            <View
+              className="absolute bottom-0 left-0 right-0 bg-white pt-4 shadow-sm"
+              style={{ paddingBottom: Math.max(insets.bottom, 20) }}>
+              {actionError ? (
+                <Text className="mb-3 px-6 text-[13px] leading-5 text-[#C14A3D]">
+                  {actionError}
+                </Text>
+              ) : null}
+
+              {canRespondToInvitation ? (
+                <View className="flex-row gap-3 px-6">
+                  <Button
+                    className="h-14 flex-1 rounded-[20px] border border-[#ECECEC] bg-white"
+                    feedbackVariant="none"
+                    isDisabled={respondInvitationMutation.isPending}
+                    onPress={() => setPendingConfirmationAction('decline-invitation')}
+                    variant="secondary">
+                    <Button.Label className="text-[14px] text-[#232323]">
+                      {pendingInvitationAction === 'decline' && respondInvitationMutation.isPending
+                        ? 'A negar...'
+                        : 'Negar'}
+                    </Button.Label>
+                  </Button>
+
+                  <Button
+                    className="h-14 flex-1 rounded-[20px] bg-[#1F1F1F]"
+                    feedbackVariant="none"
+                    isDisabled={respondInvitationMutation.isPending}
+                    onPress={() => void handleRespondToInvitation('accept')}>
+                    <Button.Label className="text-[14px] text-white">
+                      {pendingInvitationAction === 'accept' && respondInvitationMutation.isPending
+                        ? 'A aceitar...'
+                        : 'Aceitar convite'}
+                    </Button.Label>
+                  </Button>
+                </View>
+              ) : canCancelBooking ? (
+                <View className="px-6">
+                  <Button
+                    className="h-14 rounded-[20px] bg-[#FCE8E6]"
+                    feedbackVariant="none"
+                    isDisabled={cancelBookingMutation.isPending}
+                    onPress={() => setPendingConfirmationAction('cancel-booking')}
+                    variant="secondary">
+                    <Button.Label className="text-[14px] text-[#C54D4D]">
+                      {cancelBookingMutation.isPending ? 'A cancelar...' : 'Cancelar reserva'}
+                    </Button.Label>
+                  </Button>
+                </View>
+              ) : null}
+            </View>
           ) : null}
         </View>
-      ) : null}
+      )}
 
       <ConfirmationModal
         confirmLabel={confirmationModalConfig?.confirmLabel ?? 'Confirmar'}
@@ -761,6 +741,6 @@ export function BookingDetailsScreen() {
         title={confirmationModalConfig?.title ?? ''}
         tone={confirmationModalConfig?.tone ?? 'default'}
       />
-    </SafeAreaView>
+    </NewBookingSheet>
   );
 }

@@ -12,6 +12,8 @@ import {
 import { getErrorMessage } from 'lib/error-utils';
 import { useMyBookingsQuery } from 'hooks/useMyBookingsQuery';
 
+import { BookingDetailsSheet } from 'components/booking/BookingDetailsSheet';
+
 function CalendarLoadingState() {
   return (
     <View className="flex-1 items-center justify-center px-6">
@@ -45,6 +47,7 @@ function CalendarErrorState({ message, onRetry }: { message: string; onRetry: ()
 
 export function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(getTodayDateKey());
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const { data: bookings = [], error, isError, isLoading, refetch } = useMyBookingsQuery();
 
   useFocusEffect(
@@ -80,8 +83,13 @@ export function CalendarScreen() {
     <SafeAreaView edges={['right', 'left']} className="flex-1">
       <CalendarWeekStrip
         onSelectDate={setSelectedDate}
+        onSelectBooking={setSelectedBookingId}
         reservationsByDate={reservationsByDate}
         selectedDate={selectedDate}
+      />
+      <BookingDetailsSheet
+        bookingId={selectedBookingId}
+        onClose={() => setSelectedBookingId(null)}
       />
     </SafeAreaView>
   );
