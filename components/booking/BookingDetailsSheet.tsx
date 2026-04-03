@@ -3,7 +3,6 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { Button } from 'heroui-native';
 import { Clock3, Phone, Share2 } from 'lucide-react-native';
 import {
-  ActivityIndicator,
   Image,
   Linking,
   Pressable,
@@ -15,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConfirmationModal } from 'components/app/ConfirmationModal';
+import { LoadingIndicator } from 'components/app/LoadingIndicator';
 import { NewBookingSheet } from 'components/booking/new-booking/NewBookingSheet';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { useBookingDetailsQuery } from 'hooks/useBookingDetailsQuery';
@@ -76,7 +76,7 @@ function ScreenState({
   return (
     <View className="flex-1 items-center justify-center pt-8">
       <View className="w-full max-w-[340px] rounded-[30px] px-6 py-8">
-        {isLoading ? <ActivityIndicator color="#1F1F1F" size="small" /> : null}
+        {isLoading ? <LoadingIndicator size="small" /> : null}
         <Text className={`text-center text-[20px] text-[#171717] ${isLoading ? 'mt-4' : ''}`}>
           {title}
         </Text>
@@ -645,7 +645,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
 
               {relatedUsersQuery.isLoading ? (
                 <View className="mt-4 flex-row items-center">
-                  <ActivityIndicator color="#202020" size="small" />
+                  <LoadingIndicator size="small" />
                   <Text className="ml-3 text-[14px] text-[#7A7A7A]">
                     A carregar participantes...
                   </Text>

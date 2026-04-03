@@ -9,8 +9,6 @@ export function NotificationPermissionSheet() {
   const { hasSeenPrompt, permissionStatus, requestAndRegister, dismissPrompt } =
     usePushNotificationSetup();
 
-  // Adicionamos um atraso porque muitas vezes o BottomSheet precisa ser montado (com isOpen={false})
-  // antes de receber receber isOpen={true}, senao ele nao aparece por causa das refs iniciais.
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => setIsReady(true), 500);
@@ -19,11 +17,6 @@ export function NotificationPermissionSheet() {
 
   const isVisible = isReady && permissionStatus !== 'granted';
 
-  console.log(isVisible, 'TESTE');
-  console.log(hasSeenPrompt, 'hasSeenPrompt');
-  console.log(permissionStatus, 'permissionStatus');
-
-  console.log(isReady, 'isReady');
   return (
     <NewBookingSheet
       title="Notificações"

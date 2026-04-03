@@ -2,9 +2,10 @@ import { useEffect, useMemo, useRef } from 'react';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
+import { LoadingIndicator } from 'components/app/LoadingIndicator';
 import { useBookingCheckoutSessionQuery } from 'hooks/useBookingCheckoutSessionQuery';
 import { useRefreshBookingCheckoutSessionMutation } from 'hooks/useRefreshBookingCheckoutSessionMutation';
 import { getErrorMessage } from 'lib/error-utils';
@@ -151,7 +152,7 @@ export function BookingPaymentReturnScreen() {
 
       <View className="flex-1 items-center justify-center px-6">
         <View className="w-full max-w-[360px] rounded-[30px] bg-[#F6F7F5] px-6 py-8">
-          {isBusy ? <ActivityIndicator color="#1F3125" size="small" /> : null}
+          {isBusy ? <LoadingIndicator size="small" /> : null}
 
           <Text
             className={`text-center text-[22px] font-semibold text-[#171717] ${

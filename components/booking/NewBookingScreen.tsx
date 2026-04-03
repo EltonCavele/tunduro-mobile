@@ -6,7 +6,6 @@ import { StatusBar } from 'expo-status-bar';
 import { Button, SearchField } from 'heroui-native';
 import { CalendarDays, Clock3, Users } from 'lucide-react-native';
 import {
-  ActivityIndicator,
   Linking,
   type ListRenderItemInfo,
   ScrollView,
@@ -17,6 +16,7 @@ import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
+import { LoadingIndicator } from 'components/app/LoadingIndicator';
 import { NewBookingCourtOptionRow } from 'components/booking/new-booking/NewBookingCourtOptionRow';
 import { NewBookingEmptyStateCard } from 'components/booking/new-booking/NewBookingEmptyStateCard';
 import { NewBookingField } from 'components/booking/new-booking/NewBookingField';
@@ -399,7 +399,7 @@ export function NewBookingScreen() {
           />
         ) : isAvailabilityLoading ? (
           <View className="rounded-3xl bg-[#F7F7F8] px-5 py-8">
-            <ActivityIndicator color="#1F3125" size="small" />
+            <LoadingIndicator size="small" />
             <Text className="mt-3 text-center text-[13px] text-[#6D6D6D]">
               A verificar disponibilidade da quadra.
             </Text>
@@ -490,7 +490,7 @@ export function NewBookingScreen() {
         visible={isCourtSheetOpen}>
         {courtsQuery.isLoading ? (
           <View className="py-10">
-            <ActivityIndicator color="#1F3125" size="small" />
+            <LoadingIndicator size="small" />
           </View>
         ) : courtsQuery.error ? (
           <NewBookingEmptyStateCard
@@ -568,7 +568,7 @@ export function NewBookingScreen() {
 
         {guestSearchQueryResult.isLoading ? (
           <View className="py-10">
-            <ActivityIndicator color="#1F3125" size="small" />
+            <LoadingIndicator size="small" />
           </View>
         ) : guestSearchQueryResult.error ? (
           <NewBookingEmptyStateCard

@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+
+import { LoadingIndicator } from 'components/app/LoadingIndicator';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
 import { CalendarWeekStrip } from './CalendarWeekStrip';
@@ -17,7 +19,7 @@ import { BookingDetailsSheet } from 'components/booking/BookingDetailsSheet';
 function CalendarLoadingState() {
   return (
     <View className="flex-1 items-center justify-center px-6">
-      <ActivityIndicator color="#FF7A33" size="large" />
+      <LoadingIndicator size="large" />
       <Text className="mt-4 text-center text-[14px] text-[#6F6F6F]">
         A carregar as tuas reservas.
       </Text>

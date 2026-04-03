@@ -1,9 +1,10 @@
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { CalendarDays, Plus } from 'lucide-react-native';
 import { ChevronRight } from 'lucide-react-native/icons';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
+import { LoadingIndicator } from 'components/app/LoadingIndicator';
 import { HomeHeader } from './HomeHeader';
 import { UpcomingMatchCard } from './UpcomingMatchCard';
 import { NotificationPermissionSheet } from 'components/notifications/NotificationPermissionSheet';
@@ -118,8 +119,8 @@ export function HomeScreen() {
         </View>
 
         {isLoadingBookings ? (
-          <View className="py-10">
-            <ActivityIndicator color="#1F3125" size="large" />
+          <View className="flex-1 items-center justify-center">
+            <LoadingIndicator size="large" />
           </View>
         ) : upcomingBookings.length > 0 ? (
           upcomingBookings.map((booking) => {

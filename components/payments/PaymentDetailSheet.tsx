@@ -8,9 +8,10 @@ import {
   Loader,
   XCircle,
 } from 'lucide-react-native';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { Payment, PaymentStatus } from 'lib/payments.types';
+import { LoadingIndicator } from 'components/app/LoadingIndicator';
 
 interface PaymentDetailSheetProps {
   paymentId: string | null;
@@ -103,7 +104,7 @@ export function PaymentDetailSheet({
 
           {isLoading && (
             <View className="items-center py-12">
-              <ActivityIndicator color="#18181B" />
+              <LoadingIndicator size="small" />
               <Text className="mt-4 text-[13px] text-[#71717A]">A carregar detalhes...</Text>
             </View>
           )}
