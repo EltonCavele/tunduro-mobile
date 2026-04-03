@@ -53,6 +53,12 @@ export interface CancelBookingPayload {
   reason?: string;
 }
 
+export interface RespondToBookingInvitationPayload {
+  action: 'accept' | 'decline';
+  bookingId: string;
+  token: string;
+}
+
 export function getMyBookingsPage(params?: GetMyBookingsPageParams) {
   const page = params?.page ?? 1;
   const pageSize = params?.pageSize ?? DEFAULT_BOOKINGS_PAGE_SIZE;
@@ -119,6 +125,14 @@ export function cancelBooking(payload: CancelBookingPayload) {
   return unwrapResponse<BookingItem>(
     api.post(`/v1/bookings/${payload.bookingId}/cancel`, {
       reason: payload.reason?.trim() || undefined,
+    })
+  );
+}
+
+export function respondToBookingInvitation(payload: RespondToBookingInvitationPayload) {
+  return unwrapResponse<BookingItem>(
+    api.post(`/v1/invitations/${payload.token}/respond`, {
+      action: payload.action,
     })
   );
 }

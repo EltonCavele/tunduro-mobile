@@ -1,16 +1,11 @@
 import type { PropsWithChildren } from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetView,
-} from '@gorhom/bottom-sheet';
-import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
-import { X } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { BottomSheet } from 'heroui-native';
+import { View } from 'react-native';
 
 interface NewBookingSheetProps extends PropsWithChildren {
   onClose: () => void;
+  snapPoints?: string[];
   title: string;
   visible: boolean;
 }
@@ -20,63 +15,41 @@ export function NewBookingSheet({
   onClose,
   title,
   visible,
+  snapPoints = ['50%'],
 }: NewBookingSheetProps) {
-  const sheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['85%'], []);
-
-  useEffect(() => {
-    if (visible) {
-      requestAnimationFrame(() => {
-        sheetRef.current?.snapToIndex(0);
-      });
-      return;
-    }
-
-    sheetRef.current?.close();
-  }, [visible]);
-
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        opacity={0.3}
-        pressBehavior="close"
-      />
-    ),
-    []
-  );
-
   return (
     <BottomSheet
-      ref={sheetRef}
-      index={-1}
-      snapPoints={snapPoints}
-      android_keyboardInputMode="adjustResize"
-      backdropComponent={renderBackdrop}
-      backgroundStyle={{ backgroundColor: '#FFFFFF' }}
-      enableDynamicSizing={false}
-      enablePanDownToClose
-      handleIndicatorStyle={{ backgroundColor: '#D9D9DD', height: 6, width: 56 }}
-      keyboardBehavior="interactive"
-      onClose={onClose}>
-      <BottomSheetView style={{ flex: 1 }}>
-        <View className="flex-1 px-6 pb-8 pt-2">
-          <View className="mb-4 flex-row items-center justify-between">
-            <Text className="text-[18px] font-semibold text-[#111111]">{title}</Text>
+      isOpen={visible}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          onClose();
+        }
+      }}>
+      <BottomSheet.Portal>
+        <BottomSheet.Overlay style={{ backgroundColor: 'rgba(17, 17, 17, 0.3)' }} />
 
-            <Pressable
-              accessibilityRole="button"
-              className="h-10 w-10 items-center justify-center rounded-full bg-[#F4F4F6]"
-              onPress={() => sheetRef.current?.close()}>
-              <X size={20} stroke="#181818" strokeWidth={2.3} />
-            </Pressable>
+        <BottomSheet.Content
+          android_keyboardInputMode="adjustResize"
+          backgroundClassName="rounded-t-[32px] bg-white"
+          contentContainerClassName="px-6 pb-8 pt-2"
+          enableDynamicSizing={false}
+          handleIndicatorClassName="bg-[#D9D9DD]"
+          keyboardBehavior="interactive"
+          snapPoints={snapPoints}>
+          <View className="mb-4 flex-row items-center justify-between">
+            <BottomSheet.Title className="text-[18px] font-semibold text-[#111111]">
+              {title}
+            </BottomSheet.Title>
+
+            <BottomSheet.Close
+              className="bg-[#F4F4F6]"
+              iconProps={{ color: '#181818', size: 20 }}
+            />
           </View>
 
           <View className="flex-1">{children}</View>
-        </View>
-      </BottomSheetView>
+        </BottomSheet.Content>
+      </BottomSheet.Portal>
     </BottomSheet>
   );
 }

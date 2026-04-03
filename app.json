@@ -33,6 +33,13 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5722f53f-4a76-4116-87c2-b7c7838480e5"
+      }
+    },
+    "owner": "eltonxxccxv"
   }
 }

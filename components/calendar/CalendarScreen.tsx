@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
@@ -45,6 +46,12 @@ function CalendarErrorState({ message, onRetry }: { message: string; onRetry: ()
 export function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(getTodayDateKey());
   const { data: bookings = [], error, isError, isLoading, refetch } = useMyBookingsQuery();
+
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedDate(getTodayDateKey());
+    }, [])
+  );
 
   const reservationsByDate = useMemo(
     () => groupReservationsByDate(adaptBookingsToCalendarReservations(bookings)),

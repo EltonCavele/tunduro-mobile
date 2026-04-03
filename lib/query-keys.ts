@@ -13,6 +13,7 @@ export const bookingQueryKeys = {
   cancel: ['bookings', 'cancel'] as const,
   confirmPayment: ['bookings', 'confirm-payment'] as const,
   create: ['bookings', 'create'] as const,
+  respondInvitation: ['bookings', 'respond-invitation'] as const,
 };
 
 export const courtQueryKeys = {
@@ -28,4 +29,8 @@ export const userDirectoryQueryKeys = {
   all: ['user-directory'] as const,
   byIds: (userIdsKey: string) => ['user-directory', 'by-ids', userIdsKey] as const,
   search: (query: string) => ['user-directory', 'search', query] as const,
+};
+
+export const notificationQueryKeys = {
+  preferences: ['notifications', 'preferences'] as const,
 };

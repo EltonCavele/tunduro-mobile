@@ -8,6 +8,8 @@ import { UpcomingMatchCard } from './UpcomingMatchCard';
 import { Plus } from 'lucide-react-native';
 import { ChevronRight } from 'lucide-react-native/icons';
 
+import { NotificationPermissionSheet } from 'components/notifications/NotificationPermissionSheet';
+
 export function HomeScreen() {
   return (
     <SafeAreaView edges={['right', 'left', 'top']} className="flex-1 bg-white">
@@ -49,6 +51,8 @@ export function HomeScreen() {
           opponentName="Armando Simango"
         />
       </ScrollView>
+
+      <NotificationPermissionSheet />
     </SafeAreaView>
   );
 }

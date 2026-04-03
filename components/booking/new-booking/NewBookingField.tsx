@@ -1,10 +1,6 @@
+import { Input, Label, TextField } from 'heroui-native';
 import { ChevronDown } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
-
-interface FieldLabelProps {
-  label: string;
-  required?: boolean;
-}
+import { Pressable, View } from 'react-native';
 
 interface NewBookingFieldProps {
   label: string;
@@ -12,15 +8,6 @@ interface NewBookingFieldProps {
   placeholder: string;
   required?: boolean;
   value?: string;
-}
-
-function FieldLabel({ label, required }: FieldLabelProps) {
-  return (
-    <View className="mb-3 flex-row items-center">
-      <Text className="text-[14px] font-medium text-[#181818]">{label}</Text>
-      {required ? <Text className="ml-1 text-[16px] text-[#FF4B4B]">*</Text> : null}
-    </View>
-  );
 }
 
 export function NewBookingField({
@@ -33,19 +20,23 @@ export function NewBookingField({
   const hasValue = Boolean(value?.trim());
 
   return (
-    <View className="mb-7">
-      <FieldLabel label={label} required={required} />
+    <TextField className="mb-7" isRequired={required}>
+      <Label className="mb-3 text-[14px] font-medium text-[#181818]">{label}</Label>
+      <Pressable accessibilityRole="button" onPress={onPress}>
+        <View pointerEvents="none" className="relative">
+          <Input
+            editable={false}
+            variant="secondary"
+            placeholder={placeholder}
+            placeholderColorClassName="text-[#92939C]"
+            value={hasValue ? value : ''}
+          />
 
-      <Pressable
-        accessibilityRole="button"
-        className="h-[56px] flex-row items-center justify-between rounded-[22px] bg-[#E9E9EC] px-5"
-        onPress={onPress}>
-        <Text className={`text-[14px] ${hasValue ? 'text-[#181818]' : 'text-[#92939C]'}`}>
-          {hasValue ? value : placeholder}
-        </Text>
-
-        <ChevronDown size={24} stroke="#7E8089" strokeWidth={2} />
+          <View className="absolute inset-y-0 right-0 justify-center pr-5">
+            <ChevronDown size={24} stroke="#7E8089" strokeWidth={2} />
+          </View>
+        </View>
       </Pressable>
-    </View>
+    </TextField>
   );
 }

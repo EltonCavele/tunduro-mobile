@@ -20,6 +20,7 @@ export interface BookingInvitation {
   inviteeEmail: string | null;
   invitedUserId: string | null;
   status: string;
+  token: string;
 }
 
 export interface BookingStatusHistoryItem {

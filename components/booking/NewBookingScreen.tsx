@@ -1,17 +1,16 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { CalendarDays, Clock3, Search, Users, X } from 'lucide-react-native';
+import { Button, SearchField } from 'heroui-native';
+import { CalendarDays, Clock3, Users } from 'lucide-react-native';
 import {
   ActivityIndicator,
   Linking,
   type ListRenderItemInfo,
-  Pressable,
   ScrollView,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
@@ -62,7 +61,6 @@ const SLOT_GRADIENTS = [
 ] as const;
 
 export function NewBookingScreen() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ courtId?: string; date?: string }>();
   const initialCourtId = typeof params.courtId === 'string' ? params.courtId.trim() : '';
@@ -415,14 +413,14 @@ export function NewBookingScreen() {
               {availabilityError}
             </Text>
 
-            <Pressable
-              accessibilityRole="button"
-              className="mt-4 self-start rounded-full bg-[#1F3125] px-4 py-2"
+            <Button
+              className="mt-4 self-start rounded-full bg-[#1F3125] px-4"
+              feedbackVariant="none"
               onPress={() => {
                 void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
               }}>
-              <Text className="text-[12px] font-semibold text-white">Tentar novamente</Text>
-            </Pressable>
+              <Button.Label className="text-[12px] text-white">Tentar novamente</Button.Label>
+            </Button>
           </View>
         ) : remainingDailyMinutes < SLOT_DURATION_MINUTES ? (
           <NewBookingEmptyStateCard
@@ -471,21 +469,19 @@ export function NewBookingScreen() {
           <Text className="mt-3 text-[12px] leading-[19px] text-[#D05B5B]">{submissionError}</Text>
         ) : null}
 
-        <Pressable
-          accessibilityRole="button"
-          className={`mt-4 h-[58px] items-center justify-center rounded-full ${
-            canSubmit ? 'bg-[#1F3125]' : 'bg-[#C9CDC8]'
-          }`}
-          disabled={!canSubmit}
+        <Button
+          className={`mt-4 h-[58px] rounded-full ${canSubmit ? 'bg-[#1F3125]' : 'bg-[#C9CDC8]'}`}
+          feedbackVariant="none"
+          isDisabled={!canSubmit}
           onPress={() => void handleCreateBooking()}>
-          <Text className="text-[16px] font-semibold text-white">
+          <Button.Label className="text-[16px] text-white">
             {startBookingCheckoutMutation.isPending
               ? 'A iniciar pagamento...'
               : canReuseCheckoutSession
                 ? 'Continuar pagamento'
                 : 'Pagar e reservar'}
-          </Text>
-        </Pressable>
+          </Button.Label>
+        </Button>
       </View>
 
       <NewBookingSheet
@@ -532,19 +528,24 @@ export function NewBookingScreen() {
         onClose={() => setIsGuestSheetOpen(false)}
         title="Selecionar convidados"
         visible={isGuestSheetOpen}>
-        <View className="mb-4 flex-row items-center rounded-[20px] bg-[#F1F2F4] px-4">
-          <Search size={18} stroke="#71727A" strokeWidth={2.1} />
-
-          <TextInput
-            autoCapitalize="none"
-            autoCorrect={false}
-            className="ml-3 h-12 flex-1 text-[14px] text-[#111111]"
-            onChangeText={setGuestSearchQuery}
-            placeholder="Pesquisar membro"
-            placeholderTextColor="#8F9099"
-            value={guestSearchQuery}
-          />
-        </View>
+        <SearchField className="mb-4" value={guestSearchQuery} onChange={setGuestSearchQuery}>
+          <SearchField.Group className="rounded-[20px] bg-[#F1F2F4]">
+            <SearchField.SearchIcon iconProps={{ color: '#71727A', size: 18 }} />
+            <SearchField.Input
+              autoCapitalize="none"
+              autoCorrect={false}
+              className="h-12 flex-1 bg-transparent px-4 pl-11 pr-11 text-[14px] text-[#111111]"
+              placeholder="Pesquisar membro"
+              placeholderColorClassName="text-[#8F9099]"
+            />
+            <SearchField.ClearButton
+              className="absolute right-2 top-1/2 -translate-y-1/2"
+              feedbackVariant="none"
+              iconProps={{ color: '#71727A', size: 14 }}
+              variant="tertiary"
+            />
+          </SearchField.Group>
+        </SearchField>
 
         <View className="mb-4 flex-row items-center justify-between">
           <View className="flex-row items-center">
@@ -555,9 +556,13 @@ export function NewBookingScreen() {
           </View>
 
           {selectedGuests.length > 0 ? (
-            <Pressable accessibilityRole="button" onPress={() => setSelectedGuests([])}>
-              <Text className="text-[12px] font-medium text-[#1F3125]">Limpar</Text>
-            </Pressable>
+            <Button
+              className="min-h-0 px-0"
+              feedbackVariant="none"
+              onPress={() => setSelectedGuests([])}
+              variant="tertiary">
+              <Button.Label className="text-[12px] text-[#1F3125]">Limpar</Button.Label>
+            </Button>
           ) : null}
         </View>
 
