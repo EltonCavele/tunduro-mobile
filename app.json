@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "my-expo-app",
-    "slug": "my-expo-app",
+    "name": "tuduro-app",
+    "slug": "tuduro-app",
     "scheme": "myexpoapp",
     "version": "1.0.0",
     "web": {
@@ -37,9 +37,15 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "5722f53f-4a76-4116-87c2-b7c7838480e5"
+        "projectId": "0ffc5f59-ffd9-4458-a70f-cd76b35209d8"
       }
     },
-    "owner": "eltonxxccxv"
+    "owner": "arkustech",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/0ffc5f59-ffd9-4458-a70f-cd76b35209d8"
+    }
   }
 }
