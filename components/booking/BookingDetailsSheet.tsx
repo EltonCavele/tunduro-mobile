@@ -1,7 +1,7 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { Button } from 'heroui-native';
-import { Clock3, Phone, Share2 } from 'lucide-react-native';
+import { CheckCircle, Clock3, Phone, Share2 } from 'lucide-react-native';
 import {
   Image,
   Linking,
@@ -109,6 +109,37 @@ function StatusPill({
       <Text className="text-[12px]" style={{ color: textColor }}>
         {label}
       </Text>
+    </View>
+  );
+}
+
+function CheckInStatusCard({
+  checkInAt,
+  isOrganizer,
+  isParticipant,
+}: {
+  checkInAt: string;
+  isOrganizer: boolean;
+  isParticipant: boolean;
+}) {
+  const timeLabel = formatCheckInTimeLabel(checkInAt);
+  const title = isOrganizer
+    ? 'Já fizeste check-in'
+    : isParticipant
+      ? 'Check-in da reserva confirmado'
+      : 'Check-in registado';
+
+  return (
+    <View className="mt-4 rounded-[20px] border border-[#C8E0C0] bg-[#EEF5ED] px-4 py-4">
+      <View className="flex-row items-start gap-3">
+        <CheckCircle size={22} stroke="#1F3125" strokeWidth={2} />
+        <View className="flex-1">
+          <Text className="text-[16px] font-semibold text-[#1F3125]">{title}</Text>
+          {timeLabel ? (
+            <Text className="mt-1 text-[14px] leading-5 text-[#3F5C45]">{`Às ${timeLabel}.`}</Text>
+          ) : null}
+        </View>
+      </View>
     </View>
   );
 }
@@ -224,6 +255,56 @@ function formatScreenDateLabel(value: string) {
   }).format(date);
 
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}
+
+function formatCheckInTimeLabel(iso: string) {
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  return new Intl.DateTimeFormat('pt-PT', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
+function isUserParticipantOnBooking(booking: BookingItem, userId: string | undefined) {
+  if (!userId) {
+    return false;
+  }
+
+  if (booking.organizerId === userId) {
+    return true;
+  }
+
+  return (booking.participants ?? []).some((participant) => participant.userId === userId);
+}
+
+function getSessionCountdownParts(endAtIso: string, nowMs: number) {
+  const endMs = new Date(endAtIso).getTime();
+
+  if (Number.isNaN(endMs)) {
+    return { ended: true, minutesRoundedUp: 0, mmss: '0:00' };
+  }
+
+  const remainingMs = endMs - nowMs;
+
+  if (remainingMs <= 0) {
+    return { ended: true, minutesRoundedUp: 0, mmss: '0:00' };
+  }
+
+  const totalSeconds = Math.floor(remainingMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  const minutesRoundedUp = Math.max(1, Math.ceil(remainingMs / 60000));
+
+  return {
+    ended: false,
+    minutesRoundedUp,
+    mmss: `${minutes}:${seconds.toString().padStart(2, '0')}`,
+  };
 }
 
 function formatPaymentStateLabel(booking: BookingItem) {
@@ -360,6 +441,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   const [pendingInvitationAction, setPendingInvitationAction] = useState<
     'accept' | 'decline' | null
   >(null);
+  const [sessionClockTick, setSessionClockTick] = useState(0);
 
   const bookingQuery = useBookingDetailsQuery(bookingId || '', {
     enabled: Boolean(bookingId),
@@ -371,8 +453,30 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   const cancelBookingMutation = useCancelBookingMutation();
   const respondInvitationMutation = useRespondBookingInvitationMutation();
 
+  useEffect(() => {
+    if (!bookingId || !booking) {
+      return;
+    }
 
-  console.log(JSON.stringify(booking, null, 2), 'booking');
+    if (booking.status === BookingStatus.CANCELLED) {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      setSessionClockTick((tick) => tick + 1);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [booking, bookingId]);
+
+  const sessionCountdown = useMemo(() => {
+    if (!booking || booking.status === BookingStatus.CANCELLED) {
+      return null;
+    }
+
+    return getSessionCountdownParts(booking.endAt, Date.now());
+  }, [booking, sessionClockTick]);
+
   const relatedUserIds = useMemo(() => {
     if (!booking) {
       return [];
@@ -618,6 +722,36 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                 />
               ) : null}
             </View>
+
+            {booking.checkedInAt ? (
+              <CheckInStatusCard
+                checkInAt={booking.checkedInAt}
+                isOrganizer={isOrganizer}
+                isParticipant={isUserParticipantOnBooking(booking, user?.id)}
+              />
+            ) : null}
+
+            {sessionCountdown ? (
+              <View className="mt-3 rounded-[20px] bg-[#F4F6F4] px-4 py-4">
+                <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#6F6F6F]">
+                  Tempo até ao fim da reserva
+                </Text>
+                <Text className="mt-2 text-[34px] font-semibold tabular-nums text-[#171717]">
+                  {sessionCountdown.mmss}
+                </Text>
+                {sessionCountdown.ended ? (
+                  <Text className="mt-1 text-[14px] text-[#6F6F6F]">
+                    A janela desta reserva terminou.
+                  </Text>
+                ) : (
+                  <Text className="mt-1 text-[14px] text-[#6F6F6F]">
+                    {`Faltam cerca de ${sessionCountdown.minutesRoundedUp} minuto${
+                      sessionCountdown.minutesRoundedUp === 1 ? '' : 's'
+                    }`}
+                  </Text>
+                )}
+              </View>
+            ) : null}
 
             <View className="mt-7 flex-row gap-4">
               <InfoCard
