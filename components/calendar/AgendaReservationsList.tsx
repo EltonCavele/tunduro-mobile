@@ -155,9 +155,13 @@ function ReservationTimelineRow({
 }
 
 export function AgendaReservationsList({
+  isRefreshing,
+  onRefresh,
   reservations,
   onSelectBooking,
 }: {
+  isRefreshing: boolean;
+  onRefresh: () => void;
   reservations: CalendarReservation[];
   onSelectBooking: (id: string) => void;
 }) {
@@ -168,9 +172,11 @@ export function AgendaReservationsList({
       data={reservations}
       keyExtractor={(item) => item.id}
       ListEmptyComponent={<EmptyReservationsState />}
+      onRefresh={onRefresh}
       renderItem={({ item }) => (
         <ReservationTimelineRow reservation={item} onSelectBooking={onSelectBooking} />
       )}
+      refreshing={isRefreshing}
       showsVerticalScrollIndicator={false}
     />
   );

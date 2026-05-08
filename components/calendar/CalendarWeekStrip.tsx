@@ -11,6 +11,8 @@ import {
 import { AgendaReservationsList } from './AgendaReservationsList';
 
 interface CalendarWeekStripProps {
+  isRefreshing: boolean;
+  onRefresh: () => void;
   onSelectDate: (date: string) => void;
   onSelectBooking: (id: string) => void;
   reservationsByDate: Record<string, CalendarReservation[]>;
@@ -21,6 +23,8 @@ const DATE_ITEM_WIDTH = 68;
 const DATE_RANGE_DAYS = 180;
 
 export function CalendarWeekStrip({
+  isRefreshing,
+  onRefresh,
   onSelectDate,
   onSelectBooking,
   reservationsByDate,
@@ -62,7 +66,7 @@ export function CalendarWeekStrip({
         <View>
           <FlatList
             ref={listRef}
-            className="flex-grow-0"
+            className="grow-0"
             data={dateKeys}
             getItemLayout={(_, index) => ({
               index,
@@ -112,7 +116,12 @@ export function CalendarWeekStrip({
         </Text>
       </View>
 
-      <AgendaReservationsList reservations={reservations} onSelectBooking={onSelectBooking} />
+      <AgendaReservationsList
+        isRefreshing={isRefreshing}
+        onRefresh={onRefresh}
+        reservations={reservations}
+        onSelectBooking={onSelectBooking}
+      />
     </View>
   );
 }

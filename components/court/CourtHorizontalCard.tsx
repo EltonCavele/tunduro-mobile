@@ -22,6 +22,8 @@ export function CourtHorizontalCard({ court }: CourtHorizontalCardProps) {
   const contentWidth = Math.max(width - 40, 280);
   const handleOpenDetails = () => router.push(`/courts/${court.id}`);
 
+
+
   return (
     <Pressable accessibilityRole="button" className="bg-white" onPress={handleOpenDetails}>
       <CourtImageCarousel
@@ -40,13 +42,6 @@ export function CourtHorizontalCard({ court }: CourtHorizontalCardProps) {
             </Text>
             <Text className="mt-1 text-[13px] text-[#8A8A8A]">
               {formatCourtLighting(court.hasLighting)}
-            </Text>
-          </View>
-
-          <View className="items-end">
-            <Text className="text-[13px] text-[#8A8A8A]">Avaliacao</Text>
-            <Text className="mt-1 text-[17px] text-[#161616]">
-              {formatCourtRating(court.ratingAverage, court.ratingCount)}
             </Text>
           </View>
         </View>

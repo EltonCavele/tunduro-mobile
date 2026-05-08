@@ -5,6 +5,7 @@ import { Image, ScrollView, Text, View } from 'react-native';
 
 import { DEFAULT_COURT_IMAGE } from 'components/booking/new-booking/shared';
 import type { CourtImage } from 'lib/court.types';
+import { getCourtImageUrl } from 'lib/court-utils';
 
 interface CourtImageCarouselProps {
   height: number;
@@ -26,7 +27,7 @@ export function CourtImageCarousel({
       .sort((left, right) => left.sortOrder - right.sortOrder)
       .map((image) => image.url?.trim())
       .filter(Boolean)
-      .map((url) => ({ uri: url }));
+      .map((url) => ({ uri: getCourtImageUrl(url) }));
 
     return sortedImages.length > 0 ? sortedImages : [DEFAULT_COURT_IMAGE];
   }, [images]);
@@ -37,13 +38,14 @@ export function CourtImageCarousel({
   }
 
   return (
-    <View className="relative overflow-hidden rounded-[30px]" style={{ height, width }}>
+    <View className="relative overflow-hidden rounded-[30px] border border-[#E0E0E0]" style={{ height, width }}>
       <ScrollView
         decelerationRate="fast"
         horizontal
         onMomentumScrollEnd={handleMomentumScrollEnd}
         pagingEnabled
         showsHorizontalScrollIndicator={false}>
+
         {imageSources.map((source, index) => (
           <Image
             key={`${label}-${index}`}

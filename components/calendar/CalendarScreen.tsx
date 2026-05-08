@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
+import { Plus } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
 
 import { LoadingIndicator } from 'components/app/LoadingIndicator';
@@ -48,9 +49,35 @@ function CalendarErrorState({ message, onRetry }: { message: string; onRetry: ()
 }
 
 export function CalendarScreen() {
+  const navigation = useNavigation();
+  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(getTodayDateKey());
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
-  const { data: bookings = [], error, isError, isLoading, refetch } = useMyBookingsQuery();
+  const { data: bookings = [], error, isError, isLoading, isRefetching, refetch } = useMyBookingsQuery();
+  const todayDateKey = getTodayDateKey();
+  const isTodaySelected = selectedDate === todayDateKey;
+  const isRefreshing = isRefetching && !isLoading;
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitleAlign: 'left',
+      headerRight: () => (
+        <Pressable
+          accessibilityHint="Abre o formulario para criar uma nova reserva"
+          accessibilityLabel="Adicionar reserva"
+          accessibilityRole="button"
+          className="mr-4 rounded-full bg-[#1F3125] p-2"
+          onPress={() =>
+            router.push({
+              pathname: '/bookings/new',
+              params: { date: selectedDate },
+            })
+          }>
+          <Plus size={18} stroke="#FFFFFF" strokeWidth={2.4} />
+        </Pressable>
+      ),
+    });
+  }, [navigation, router, selectedDate]);
 
   useFocusEffect(
     useCallback(() => {
@@ -84,11 +111,23 @@ export function CalendarScreen() {
   return (
     <SafeAreaView edges={['right', 'left']} className="flex-1">
       <CalendarWeekStrip
+        isRefreshing={isRefreshing}
+        onRefresh={() => void refetch()}
         onSelectDate={setSelectedDate}
         onSelectBooking={setSelectedBookingId}
         reservationsByDate={reservationsByDate}
         selectedDate={selectedDate}
       />
+      {!isTodaySelected ? (
+        <Pressable
+          accessibilityHint="Seleciona novamente o dia de hoje no calendario"
+          accessibilityLabel="Voltar para hoje"
+          accessibilityRole="button"
+          className="absolute bottom-6 right-5 rounded-full border border-[#2D4A37] bg-[#1F3125] px-5 py-3.5 shadow-sm"
+          onPress={() => setSelectedDate(getTodayDateKey())}>
+          <Text className="text-[13px] font-semibold text-white">Voltar para hoje</Text>
+        </Pressable>
+      ) : null}
       <BookingDetailsSheet
         bookingId={selectedBookingId}
         onClose={() => setSelectedBookingId(null)}

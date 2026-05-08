@@ -297,7 +297,7 @@ function buildBookingDetailsViewModel(
       ? currentUser
       : (relatedUsers.get(booking.organizerId) ?? null);
   const resolvedCourtName = court?.name ?? deriveCourtLabel(booking.courtId);
-  const participants = booking.participants
+  const participants = (booking.participants ?? [])
     .filter((participant) => !participant.isOrganizer)
     .map((participant) => {
       const relatedUser =
@@ -371,6 +371,8 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   const cancelBookingMutation = useCancelBookingMutation();
   const respondInvitationMutation = useRespondBookingInvitationMutation();
 
+
+  console.log(JSON.stringify(booking, null, 2), 'booking');
   const relatedUserIds = useMemo(() => {
     if (!booking) {
       return [];
@@ -380,10 +382,10 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
       new Set(
         [
           booking.organizerId,
-          ...booking.participants.map((participant) => participant.userId),
-          ...booking.invitations
-            .map((invitation) => invitation.invitedUserId)
-            .filter((invitedUserId): invitedUserId is string => Boolean(invitedUserId)),
+          ...(booking.participants?.map((participant) => participant.userId) ?? []),
+          ...(booking.invitations
+            ?.map((invitation) => invitation.invitedUserId)
+            .filter((invitedUserId): invitedUserId is string => Boolean(invitedUserId)) ?? []),
         ].filter((userId) => userId !== user?.id)
       )
     );
@@ -421,7 +423,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
     }
 
     return (
-      booking.invitations.find(
+      (booking.invitations ?? []).find(
         (invitation) =>
           invitation.status === 'PENDING' &&
           Boolean(invitation.token?.trim()) &&

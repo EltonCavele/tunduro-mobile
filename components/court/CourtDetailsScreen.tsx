@@ -93,7 +93,7 @@ export function CourtDetailsScreen() {
         <View className="pt-6">
           <Text className="text-[34px] text-[#161616]">{court.name}</Text>
           <Text className="mt-3 text-[16px] leading-7 text-[#8A8A8A]">
-            {court.surface} • {formatCourtRating(court.ratingAverage, court.ratingCount)}
+            {court.surface} 
           </Text>
         </View>
 

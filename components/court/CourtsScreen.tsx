@@ -62,6 +62,10 @@ function CourtCardDivider() {
 
 export function CourtsScreen() {
   const courtsQuery = useCourtsQuery();
+  const isRefreshing = courtsQuery.isRefetching && !courtsQuery.isPending;
+
+
+
 
   if (courtsQuery.isPending) {
     return <AppScreenLoader message="A carregar campos..." />;
@@ -89,7 +93,9 @@ export function CourtsScreen() {
           )
         }
         ItemSeparatorComponent={CourtCardDivider}
+        onRefresh={() => void courtsQuery.refetch()}
         renderItem={({ item }) => <CourtHorizontalCard court={item} />}
+        refreshing={isRefreshing}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>

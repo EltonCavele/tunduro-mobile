@@ -1,4 +1,5 @@
 import type { CourtType } from 'lib/court.types';
+import { baseURL } from './api';
 
 export function formatCourtTypeLabel(type: CourtType) {
   return type === 'INDOOR' ? 'Indoor' : 'Outdoor';
@@ -31,3 +32,7 @@ export function formatCourtRating(ratingAverage: number, ratingCount: number) {
 
   return `${ratingAverage.toFixed(1)} (${ratingCount})`;
 }
+
+export const getCourtImageUrl = (url: string) => {
+  return `${baseURL}${url}`;
+};
