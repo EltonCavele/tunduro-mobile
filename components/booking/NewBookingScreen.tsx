@@ -36,7 +36,6 @@ import {
   MAX_DAILY_BOOKING_MINUTES,
   SLOT_DURATION_MINUTES,
 } from 'lib/booking-reservation';
-import { getUserDisplayName } from 'lib/auth-utils';
 import { ApiClientError, getErrorMessage } from 'lib/error-utils';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { useCourtDayBookingsQuery } from 'hooks/useCourtDayBookingsQuery';
@@ -105,12 +104,12 @@ export function NewBookingScreen() {
   const [phone, setPhone] = useState(user?.phone?.trim() ?? '');
   const [phoneError, setPhoneError] = useState('');
   const [submissionError, setSubmissionError] = useState('');
+  const [bookingStep, setBookingStep] = useState<'form' | 'payment' | 'summary'>('form');
   const deferredGuestSearchQuery = useDeferredValue(guestSearchQuery);
 
   const activeCourts = useMemo(() => courtsQuery.data ?? [], [courtsQuery.data]);
   const myBookings = useMemo(() => myBookingsQuery.data ?? [], [myBookingsQuery.data]);
   const selectedCourt = activeCourts.find((court) => court.id === selectedCourtId) ?? null;
-  const organizerName = getUserDisplayName(user);
   const maxGuestSlots = selectedCourt ? Math.max(selectedCourt.maxPlayers - 1, 0) : 20;
 
   const courtDayBookingsQuery = useCourtDayBookingsQuery({
@@ -225,6 +224,13 @@ export function NewBookingScreen() {
     !courtDayBookingsQuery.isError &&
     !myBookingsQuery.isError &&
     selectedGuests.length <= maxGuestSlots;
+  const canProceedToPayment =
+    Boolean(selectedCourt && selectedWindow && user?.id) &&
+    !isAvailabilityLoading &&
+    !courtDayBookingsQuery.isError &&
+    !myBookingsQuery.isError &&
+    selectedGuests.length <= maxGuestSlots;
+  const canProceedToSummary = canProceedToPayment && isPhoneValid;
   useEffect(() => {
     if (!phone.trim() && user?.phone?.trim()) {
       setPhone(user.phone.trim());
@@ -255,6 +261,9 @@ export function NewBookingScreen() {
     }
 
     setSubmissionError('');
+    if (bookingStep !== 'form') {
+      setBookingStep('form');
+    }
     setSelectedSlotKeys((currentKeys) => {
       if (currentKeys.includes(slot.key)) {
         return currentKeys.filter((key) => key !== slot.key);
@@ -292,6 +301,9 @@ export function NewBookingScreen() {
 
   function handleToggleGuest(guest: UserProfile) {
     setSubmissionError('');
+    if (bookingStep !== 'form') {
+      setBookingStep('form');
+    }
     setSelectedGuests((currentGuests) => {
       if (currentGuests.some((currentGuest) => currentGuest.id === guest.id)) {
         return currentGuests.filter((currentGuest) => currentGuest.id !== guest.id);
@@ -353,6 +365,10 @@ export function NewBookingScreen() {
     if (submissionError) {
       setSubmissionError('');
     }
+
+    if (bookingStep !== 'form') {
+      setBookingStep('form');
+    }
   }
 
   return (
@@ -373,177 +389,262 @@ export function NewBookingScreen() {
         contentContainerClassName="px-6 pb-6"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
-        <NewBookingField
-          label="Quadra"
-          onPress={() => setIsCourtSheetOpen(true)}
-          placeholder="Selecione a quadra"
-          required
-          value={selectedCourt?.name}
-        />
-
-        <NewBookingField
-          label="Convidado(s)"
-          onPress={() => setIsGuestSheetOpen(true)}
-          placeholder="Adicione um membro"
-          value={
-            selectedGuests.length
-              ? `${selectedGuests.length} convidado${selectedGuests.length > 1 ? 's' : ''}`
-              : undefined
-          }
-        />
-
-        {selectedGuests.length > 0 ? (
-          <View className="-mt-4 mb-7 flex-row flex-wrap">
-            {selectedGuests.map((guest) => (
-              <NewBookingSelectedGuestChip
-                key={guest.id}
-                guest={guest}
-                onRemove={(guestId) => {
-                  resetSelectionState();
-                  setSelectedGuests((currentGuests) =>
-                    currentGuests.filter((currentGuest) => currentGuest.id !== guestId)
-                  );
-                }}
-              />
-            ))}
-          </View>
-        ) : null}
-
-        <NewBookingField
-          label="Data"
-          onPress={() => setIsDateSheetOpen(true)}
-          placeholder="dd / mm / yyyy"
-          required
-          value={formatReservationDateLabel(selectedDate)}
-        />
-
-        <View className="mb-4 flex-row items-center justify-between">
-          <Text className="text-[16px] font-semibold text-[#181818]">Horarios disponiveis</Text>
-          <View className="flex-row items-center rounded-full bg-[#F3F4F2] px-3 py-2">
-            <Clock3 size={15} stroke="#1F3125" strokeWidth={2.1} />
-            <Text className="ml-2 text-[11px] font-medium text-[#1F3125]">
-              Restante: {remainingDailyMinutes} min
-            </Text>
-          </View>
+        <View className="mb-6 mt-1 rounded-[20px] bg-[#F4F6F4] px-4 py-3">
+          <Text className="text-[12px] uppercase tracking-wider text-[#6D6D6D]">
+            Passo {bookingStep === 'form' ? '1' : bookingStep === 'payment' ? '2' : '3'} de 3
+          </Text>
+          <Text className="mt-1 text-[16px] font-semibold text-[#171717]">
+            {bookingStep === 'form'
+              ? 'Preenche os detalhes da reserva'
+              : bookingStep === 'payment'
+                ? 'Adiciona os dados de pagamento'
+                : 'Confirma os detalhes finais'}
+          </Text>
         </View>
 
-        {!selectedCourt ? (
-          <NewBookingEmptyStateCard
-            description="Escolhe primeiro uma quadra para ver os horarios livres nessa data."
-            title="Quadra em falta"
-          />
-        ) : isAvailabilityLoading ? (
-          <View className="rounded-3xl bg-[#F7F7F8] px-5 py-8">
-            <LoadingIndicator size="small" />
-            <Text className="mt-3 text-center text-[13px] text-[#6D6D6D]">
-              A verificar disponibilidade da quadra.
-            </Text>
-          </View>
-        ) : availabilityError ? (
-          <View className="rounded-3xl bg-[#FFF4F4] px-5 py-6">
-            <Text className="text-[15px] font-semibold text-[#171717]">
-              Nao foi possivel validar os horarios
-            </Text>
-            <Text className="leading-4.75 mt-2 text-[12px] text-[#7C6F6F]">
-              {availabilityError}
+        {bookingStep === 'form' ? (
+          <>
+            <NewBookingField
+              label="Quadra"
+              onPress={() => setIsCourtSheetOpen(true)}
+              placeholder="Selecione a quadra"
+              required
+              value={selectedCourt?.name}
+            />
+
+            <NewBookingField
+              label="Convidado(s)"
+              onPress={() => setIsGuestSheetOpen(true)}
+              placeholder="Adicione um membro"
+              value={
+                selectedGuests.length
+                  ? `${selectedGuests.length} convidado${selectedGuests.length > 1 ? 's' : ''}`
+                  : undefined
+              }
+            />
+
+            {selectedGuests.length > 0 ? (
+              <View className="-mt-4 mb-7 flex-row flex-wrap">
+                {selectedGuests.map((guest) => (
+                  <NewBookingSelectedGuestChip
+                    key={guest.id}
+                    guest={guest}
+                    onRemove={(guestId) => {
+                      resetSelectionState();
+                      setSelectedGuests((currentGuests) =>
+                        currentGuests.filter((currentGuest) => currentGuest.id !== guestId)
+                      );
+                    }}
+                  />
+                ))}
+              </View>
+            ) : null}
+
+            <NewBookingField
+              label="Data"
+              onPress={() => setIsDateSheetOpen(true)}
+              placeholder="dd / mm / yyyy"
+              required
+              value={formatReservationDateLabel(selectedDate)}
+            />
+
+            <View className="mb-4 flex-row items-center justify-between">
+              <Text className="text-[16px] font-semibold text-[#181818]">Horarios disponiveis</Text>
+              <View className="flex-row items-center rounded-full bg-[#F3F4F2] px-3 py-2">
+                <Clock3 size={15} stroke="#1F3125" strokeWidth={2.1} />
+                <Text className="ml-2 text-[11px] font-medium text-[#1F3125]">
+                  Restante: {remainingDailyMinutes} min
+                </Text>
+              </View>
+            </View>
+
+            {!selectedCourt ? (
+              <NewBookingEmptyStateCard
+                description="Escolhe primeiro uma quadra para ver os horarios livres nessa data."
+                title="Quadra em falta"
+              />
+            ) : isAvailabilityLoading ? (
+              <View className="rounded-3xl bg-[#F7F7F8] px-5 py-8">
+                <LoadingIndicator size="small" />
+                <Text className="mt-3 text-center text-[13px] text-[#6D6D6D]">
+                  A verificar disponibilidade da quadra.
+                </Text>
+              </View>
+            ) : availabilityError ? (
+              <View className="rounded-3xl bg-[#FFF4F4] px-5 py-6">
+                <Text className="text-[15px] font-semibold text-[#171717]">
+                  Nao foi possivel validar os horarios
+                </Text>
+                <Text className="leading-4.75 mt-2 text-[12px] text-[#7C6F6F]">
+                  {availabilityError}
+                </Text>
+
+                <Button
+                  className="mt-4 self-start rounded-full bg-[#1F3125] px-4"
+                  feedbackVariant="none"
+                  onPress={() => {
+                    void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
+                  }}>
+                  <Button.Label className="text-[12px] text-white">Tentar novamente</Button.Label>
+                </Button>
+              </View>
+            ) : remainingDailyMinutes < SLOT_DURATION_MINUTES ? (
+              <NewBookingEmptyStateCard
+                description="Ja atingiste o limite de 2 horas de reserva para esta data."
+                title="Limite diario atingido"
+              />
+            ) : selectableSlots.every((slot) => slot.isDisabled) ? (
+              <NewBookingEmptyStateCard
+                description="Nao existem horarios livres para esta quadra na data escolhida."
+                title="Sem disponibilidade"
+              />
+            ) : (
+              <View>
+                {selectableSlots.map((slot) => (
+                  <NewBookingTimeSlotRow
+                    key={slot.key}
+                    onPress={() => handleSelectSlot(slot)}
+                    slot={slot}
+                  />
+                ))}
+              </View>
+            )}
+          </>
+        ) : bookingStep === 'payment' ? (
+          <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-5">
+            <Text className="text-[14px] leading-6 text-[#5D5D5D]">
+              Introduz o numero M-Pesa para seguir para o resumo final antes de pagar.
             </Text>
 
-            <Button
-              className="mt-4 self-start rounded-full bg-[#1F3125] px-4"
-              feedbackVariant="none"
-              onPress={() => {
-                void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
-              }}>
-              <Button.Label className="text-[12px] text-white">Tentar novamente</Button.Label>
-            </Button>
-          </View>
-        ) : remainingDailyMinutes < SLOT_DURATION_MINUTES ? (
-          <NewBookingEmptyStateCard
-            description="Ja atingiste o limite de 2 horas de reserva para esta data."
-            title="Limite diario atingido"
-          />
-        ) : selectableSlots.every((slot) => slot.isDisabled) ? (
-          <NewBookingEmptyStateCard
-            description="Nao existem horarios livres para esta quadra na data escolhida."
-            title="Sem disponibilidade"
-          />
-        ) : (
-          <View>
-            {selectableSlots.map((slot) => (
-              <NewBookingTimeSlotRow
-                key={slot.key}
-                onPress={() => handleSelectSlot(slot)}
-                slot={slot}
+            <View className="mt-4">
+              <Text className="mb-2 text-[13px] font-semibold text-[#181818]">Numero M-Pesa</Text>
+              <TextInput
+                autoComplete="tel"
+                className={`rounded-[18px] border bg-white px-4 py-3.5 text-[15px] text-[#171717] ${
+                  phoneError ? 'border-[#D05B5B]' : 'border-[#E2E3E5]'
+                }`}
+                keyboardType="phone-pad"
+                maxLength={15}
+                onChangeText={(value) => {
+                  setPhone(value);
+                  if (phoneError) {
+                    setPhoneError('');
+                  }
+                }}
+                placeholder="84 123 4567"
+                textContentType="telephoneNumber"
+                value={phone}
               />
-            ))}
+              {phoneError ? (
+                <Text className="mt-2 text-[12px] leading-5 text-[#D05B5B]">{phoneError}</Text>
+              ) : null}
+              <Text className="mt-2 text-[11px] leading-5 text-[#6C6C6C]">
+                Vodacom Mocambique. Vais receber um pedido de PIN no telemovel.
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-5">
+            <Text className="text-[14px] leading-6 text-[#5D5D5D]">
+              Revê os detalhes da reserva e do pagamento antes de confirmar.
+            </Text>
           </View>
         )}
 
-        <View style={{ height: 220 + Math.max(insets.bottom, 20) }} />
+        <View style={{ height: bookingStep === 'form' ? 220 + Math.max(insets.bottom, 20) : 300 }} />
       </ScrollView>
 
       <View
         className="border-t border-[#F0F0F0] bg-white px-6 pt-4"
         style={{ paddingBottom: Math.max(insets.bottom, 20) }}>
-        {selectedCourt && selectedRangeLabel ? (
-          <NewBookingSummaryCard
-            court={selectedCourt}
-            dateKey={selectedDate}
-            organizerName={organizerName}
-            rangeLabel={selectedRangeLabel}
-          />
+        {bookingStep === 'payment' ? (
+          <>
+            <View className="mt-1 flex-row gap-3">
+              <Button
+                className="h-[58px] flex-1 rounded-full border border-[#D5D7D4] bg-white"
+                feedbackVariant="none"
+                onPress={() => setBookingStep('form')}
+                variant="secondary">
+                <Button.Label className="text-[15px] text-[#1F3125]">Voltar</Button.Label>
+              </Button>
+
+              <Button
+                className={`h-[58px] flex-1 rounded-full ${canProceedToSummary ? 'bg-[#1F3125]' : 'bg-[#C9CDC8]'}`}
+                feedbackVariant="none"
+                isDisabled={!canProceedToSummary}
+                onPress={() => {
+                  if (!isPhoneValid) {
+                    setPhoneError('Numero M-Pesa invalido. Use um numero Vodacom (82-87).');
+                    return;
+                  }
+
+                  setPhoneError('');
+                  setBookingStep('summary');
+                }}>
+                <Button.Label className="text-[16px] text-white">Continuar</Button.Label>
+              </Button>
+            </View>
+          </>
+        ) : bookingStep === 'summary' ? (
+          <>
+            {selectedCourt && selectedRangeLabel ? (
+              <NewBookingSummaryCard
+                court={selectedCourt}
+                dateKey={selectedDate}
+                rangeLabel={selectedRangeLabel}
+              />
+            ) : (
+              <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-5">
+                <Text className="text-[14px] font-medium text-[#181818]">
+                  Seleciona a quadra, a data e um horario para concluir a reserva.
+                </Text>
+              </View>
+            )}
+
+            <View className="mt-4 rounded-[18px] bg-[#F7F7F8] px-4 py-4">
+              <Text className="text-[12px] uppercase tracking-wider text-[#757575]">
+                Numero de pagamento
+              </Text>
+              <Text className="mt-1 text-[16px] font-semibold text-[#171717]">{phone.trim()}</Text>
+            </View>
+
+            {submissionError ? (
+              <Text className="mt-3 text-[12px] leading-[19px] text-[#D05B5B]">{submissionError}</Text>
+            ) : null}
+
+            <View className="mt-4 flex-row gap-3">
+              <Button
+                className="h-[58px] flex-1 rounded-full border border-[#D5D7D4] bg-white"
+                feedbackVariant="none"
+                onPress={() => setBookingStep('payment')}
+                variant="secondary">
+                <Button.Label className="text-[15px] text-[#1F3125]">Voltar</Button.Label>
+              </Button>
+
+              <Button
+                className={`h-[58px] flex-1 rounded-full ${canSubmit ? 'bg-[#1F3125]' : 'bg-[#C9CDC8]'}`}
+                feedbackVariant="none"
+                isDisabled={!canSubmit}
+                onPress={() => void handleCreateBooking()}>
+                <Button.Label className="text-[16px] text-white">
+                  {startBookingCheckoutMutation.isPending
+                    ? 'A iniciar pagamento...'
+                    : bookingTotalLabel
+                      ? `Pagar ${bookingTotalLabel}`
+                      : 'Pagar'}
+                </Button.Label>
+              </Button>
+            </View>
+          </>
         ) : (
-          <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-5">
-            <Text className="text-[14px] font-medium text-[#181818]">
-              Seleciona a quadra, a data e um horario para concluir a reserva.
-            </Text>
-          </View>
+          <Button
+            className={`mt-1 h-[58px] rounded-full ${canProceedToPayment ? 'bg-[#1F3125]' : 'bg-[#C9CDC8]'}`}
+            feedbackVariant="none"
+            isDisabled={!canProceedToPayment}
+            onPress={() => setBookingStep('payment')}>
+            <Button.Label className="text-[16px] text-white">Continuar para pagamento</Button.Label>
+          </Button>
         )}
-
-        {submissionError ? (
-          <Text className="mt-3 text-[12px] leading-[19px] text-[#D05B5B]">{submissionError}</Text>
-        ) : null}
-
-        <View className="mt-4">
-          <Text className="mb-2 text-[13px] font-semibold text-[#181818]">Numero M-Pesa</Text>
-          <TextInput
-            autoComplete="tel"
-            className={`rounded-[18px] border bg-white px-4 py-3.5 text-[15px] text-[#171717] ${
-              phoneError ? 'border-[#D05B5B]' : 'border-[#E2E3E5]'
-            }`}
-            keyboardType="phone-pad"
-            maxLength={15}
-            onChangeText={(value) => {
-              setPhone(value);
-              if (phoneError) {
-                setPhoneError('');
-              }
-            }}
-            placeholder="84 123 4567"
-            textContentType="telephoneNumber"
-            value={phone}
-          />
-          {phoneError ? (
-            <Text className="mt-2 text-[12px] leading-5 text-[#D05B5B]">{phoneError}</Text>
-          ) : null}
-          <Text className="mt-2 text-[11px] leading-5 text-[#6C6C6C]">
-            Vodacom Mocambique. Vais receber um pedido de PIN no telemovel.
-          </Text>
-        </View>
-
-        <Button
-          className={`mt-4 h-[58px] rounded-full ${canSubmit ? 'bg-[#1F3125]' : 'bg-[#C9CDC8]'}`}
-          feedbackVariant="none"
-          isDisabled={!canSubmit}
-          onPress={() => void handleCreateBooking()}>
-          <Button.Label className="text-[16px] text-white">
-            {startBookingCheckoutMutation.isPending
-              ? 'A iniciar pagamento...'
-              : bookingTotalLabel
-                ? `Pagar ${bookingTotalLabel} e reservar`
-                : 'Pagar e reservar'}
-          </Button.Label>
-        </Button>
       </View>
 
       <NewBookingSheet

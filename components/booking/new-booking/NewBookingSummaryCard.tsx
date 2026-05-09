@@ -10,14 +10,12 @@ import { getCourtImageUrl } from 'lib/court-utils';
 interface NewBookingSummaryCardProps {
   court: Court;
   dateKey: string;
-  organizerName: string;
   rangeLabel: string;
 }
 
 export function NewBookingSummaryCard({
   court,
   dateKey,
-  organizerName,
   rangeLabel,
 }: NewBookingSummaryCardProps) {
   const imageSource: ImageSourcePropType = court.images[0]?.url
@@ -35,7 +33,6 @@ export function NewBookingSummaryCard({
           <Text className="mt-1 text-[12px] text-[#878787]">
             {formatReservationDateLabel(dateKey)}
           </Text>
-          <Text className="mt-3 text-[13px] font-medium text-[#1B1B1B]">{organizerName}</Text>
         </View>
       </View>
     </View>
