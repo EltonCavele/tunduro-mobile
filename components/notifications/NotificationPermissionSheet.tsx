@@ -6,7 +6,7 @@ import { usePushNotificationSetup } from 'hooks/usePushNotificationSetup';
 import { NewBookingSheet } from 'components/booking/new-booking/NewBookingSheet';
 
 export function NotificationPermissionSheet() {
-  const { hasSeenPrompt, permissionStatus, requestAndRegister, dismissPrompt } =
+  const { hasSeenPrompt, permissionStatus, requestAndRegister, dismissPrompt, refreshPermissionStatus } =
     usePushNotificationSetup();
 
   const [isReady, setIsReady] = useState(false);
@@ -15,7 +15,7 @@ export function NotificationPermissionSheet() {
     return () => clearTimeout(timer);
   }, []);
 
-  const isVisible = isReady && permissionStatus !== 'granted';
+  const isVisible = isReady && !hasSeenPrompt && permissionStatus !== 'granted';
 
   return (
     <NewBookingSheet
@@ -40,6 +40,7 @@ export function NotificationPermissionSheet() {
           className="w-full flex-row items-center justify-center rounded-full bg-[#18181B] py-4 shadow-sm"
           onPress={async () => {
             await requestAndRegister();
+            await refreshPermissionStatus();
           }}>
           <Text className="text-[16px] font-semibold text-white">Ativar Notificações</Text>
         </Pressable>

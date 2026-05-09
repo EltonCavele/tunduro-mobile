@@ -1,18 +1,33 @@
+import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { ListGroup, Separator, Switch } from 'heroui-native';
-import { ArrowLeft, Bell, Mail, MessageSquare } from 'lucide-react-native';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ArrowLeft, Bell, BellOff, Mail, MessageSquare } from 'lucide-react-native';
+import { AppState, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { SafeAreaView } from 'components/app/SafeAreaView';
+import { usePushNotificationSetup } from 'hooks/usePushNotificationSetup';
 import { useNotificationPreferences } from 'hooks/useNotificationPreferences';
 import { useUpdateNotificationPreferences } from 'hooks/useUpdateNotificationPreferences';
 
 export default function NotificationsPreferencesRoute() {
   const router = useRouter();
+  const { permissionStatus, requestAndRegister, refreshPermissionStatus } = usePushNotificationSetup();
 
   const { data: preferences, isLoading, isError, error, refetch } = useNotificationPreferences();
   const updateMutation = useUpdateNotificationPreferences();
+  const isDevicePushGranted = permissionStatus === 'granted';
+  const isDevicePushDenied = permissionStatus === 'denied';
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        void refreshPermissionStatus();
+      }
+    });
+
+    return () => subscription.remove();
+  }, [refreshPermissionStatus]);
 
   if (isLoading) {
     return <AppScreenLoader message="A carregar preferências..." />;
@@ -35,10 +50,36 @@ export default function NotificationsPreferencesRoute() {
 
   function handleToggle(key: 'notifyPush' | 'notifySms' | 'notifyEmail', value: boolean) {
     if (!preferences) return;
+
+    if (key === 'notifyPush' && !isDevicePushGranted) {
+      return;
+    }
+
     updateMutation.mutate({
       [key]: value,
     });
   }
+
+  async function handlePermissionAction() {
+    if (isDevicePushDenied) {
+      await Linking.openSettings();
+      return;
+    }
+
+    await requestAndRegister();
+    await refreshPermissionStatus();
+  }
+
+  const permissionTitle = isDevicePushGranted
+    ? 'Notificações ativas no dispositivo'
+    : isDevicePushDenied
+      ? 'Notificações bloqueadas no dispositivo'
+      : 'Ativa notificações no teu dispositivo';
+  const permissionDescription = isDevicePushGranted
+    ? 'Vais receber alertas de reservas, convites e atualizações importantes.'
+    : isDevicePushDenied
+      ? 'Para voltar a receber alertas, permite notificações nas definições do telemóvel.'
+      : 'Recebe lembretes de jogos, alterações de estado da reserva e mensagens importantes.';
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
@@ -53,6 +94,45 @@ export default function NotificationsPreferencesRoute() {
       </View>
 
       <ScrollView className="flex-1 px-5 pt-8" showsVerticalScrollIndicator={false}>
+        <View className="mb-8 overflow-hidden rounded-[28px] bg-[#F4F8F4] px-5 py-6">
+          <View className="flex-row items-start">
+            <View className="h-12 w-12 items-center justify-center rounded-2xl bg-white">
+              {isDevicePushGranted ? (
+                <Bell size={22} strokeWidth={1.9} color="#1F3125" />
+              ) : (
+                <BellOff size={22} strokeWidth={1.9} color="#A75A5A" />
+              )}
+            </View>
+            <View className="ml-3 flex-1">
+              <Text className="text-[16px] font-semibold text-[#171717]">{permissionTitle}</Text>
+              <Text className="mt-2 text-[13px] leading-5 text-[#676767]">{permissionDescription}</Text>
+            </View>
+          </View>
+
+          <View className="mt-4 self-start rounded-full bg-white px-3 py-1.5">
+            <Text
+              className={`text-[12px] font-semibold ${
+                isDevicePushGranted ? 'text-[#2D5E3B]' : 'text-[#9A4B4B]'
+              }`}>
+              {isDevicePushGranted ? 'Estado: Ativo' : 'Estado: Bloqueado'}
+            </Text>
+          </View>
+
+          <Pressable
+            accessibilityRole="button"
+            className={`mt-4 items-center rounded-full px-5 py-3 ${
+              isDevicePushGranted ? 'bg-[#E5ECE7]' : 'bg-[#1F3125]'
+            }`}
+            onPress={() => void handlePermissionAction()}>
+            <Text
+              className={`text-[14px] font-semibold ${
+                isDevicePushGranted ? 'text-[#2D5E3B]' : 'text-white'
+              }`}>
+              {isDevicePushDenied ? 'Abrir definições do dispositivo' : 'Ativar notificações'}
+            </Text>
+          </Pressable>
+        </View>
+
         <View className="mb-2 px-1">
           <Text className="text-[13px] font-bold uppercase tracking-[1px] text-[#A0A0A0]">
             Preferências de Receção
@@ -77,9 +157,9 @@ export default function NotificationsPreferencesRoute() {
               </ListGroup.ItemContent>
               <ListGroup.ItemSuffix>
                 <Switch
-                  isSelected={preferences?.notifyPush ?? false}
+                  isSelected={isDevicePushGranted && (preferences?.notifyPush ?? false)}
                   onSelectedChange={(val) => handleToggle('notifyPush', val)}
-                  isDisabled={updateMutation.isPending}
+                  isDisabled={updateMutation.isPending || !isDevicePushGranted}
                 />
               </ListGroup.ItemSuffix>
             </ListGroup.Item>

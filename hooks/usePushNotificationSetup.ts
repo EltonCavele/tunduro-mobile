@@ -23,20 +23,20 @@ export function usePushNotificationSetup() {
     null
   );
 
-  useEffect(() => {
-    async function checkStatus() {
-      const seen = await SecureStore.getItemAsync(PROMPT_SEEN_KEY);
-      setHasSeenPrompt(seen === 'true');
+  async function refreshPermissionStatus() {
+    const seen = await SecureStore.getItemAsync(PROMPT_SEEN_KEY);
+    setHasSeenPrompt(seen === 'true');
 
-      const { status } = await Notifications.getPermissionsAsync();
-      setPermissionStatus(status);
+    const { status } = await Notifications.getPermissionsAsync();
+    setPermissionStatus(status);
 
-      if (status === Notifications.PermissionStatus.GRANTED) {
-        await silentlyRegisterToken();
-      }
+    if (status === Notifications.PermissionStatus.GRANTED) {
+      await silentlyRegisterToken();
     }
+  }
 
-    void checkStatus();
+  useEffect(() => {
+    void refreshPermissionStatus();
   }, []);
 
   async function silentlyRegisterToken() {
@@ -91,5 +91,6 @@ export function usePushNotificationSetup() {
     hasSeenPrompt,
     requestAndRegister,
     dismissPrompt,
+    refreshPermissionStatus,
   };
 }

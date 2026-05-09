@@ -282,17 +282,17 @@ function isUserParticipantOnBooking(booking: BookingItem, userId: string | undef
   return (booking.participants ?? []).some((participant) => participant.userId === userId);
 }
 
-function getSessionCountdownParts(endAtIso: string, nowMs: number) {
-  const endMs = new Date(endAtIso).getTime();
+function getSessionCountdownParts(targetAtIso: string, mode: 'toStart' | 'toEnd', nowMs: number) {
+  const targetMs = new Date(targetAtIso).getTime();
 
-  if (Number.isNaN(endMs)) {
-    return { ended: true, minutesRoundedUp: 0, mmss: '0:00' };
+  if (Number.isNaN(targetMs)) {
+    return { ended: true, minutesRoundedUp: 0, mmss: '0:00', mode };
   }
 
-  const remainingMs = endMs - nowMs;
+  const remainingMs = targetMs - nowMs;
 
   if (remainingMs <= 0) {
-    return { ended: true, minutesRoundedUp: 0, mmss: '0:00' };
+    return { ended: true, minutesRoundedUp: 0, mmss: '0:00', mode };
   }
 
   const totalSeconds = Math.floor(remainingMs / 1000);
@@ -304,6 +304,7 @@ function getSessionCountdownParts(endAtIso: string, nowMs: number) {
     ended: false,
     minutesRoundedUp,
     mmss: `${minutes}:${seconds.toString().padStart(2, '0')}`,
+    mode,
   };
 }
 
@@ -469,13 +470,12 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
     return () => clearInterval(intervalId);
   }, [booking, bookingId]);
 
-  const sessionCountdown = useMemo(() => {
-    if (!booking || booking.status === BookingStatus.CANCELLED) {
-      return null;
-    }
-
-    return getSessionCountdownParts(booking.endAt, Date.now());
-  }, [booking, sessionClockTick]);
+  const sessionCountdown =
+    booking && booking.status !== BookingStatus.CANCELLED
+      ? booking.checkedInAt
+        ? getSessionCountdownParts(booking.endAt, 'toEnd', Date.now())
+        : getSessionCountdownParts(booking.startAt, 'toStart', Date.now())
+      : null;
 
   const relatedUserIds = useMemo(() => {
     if (!booking) {
@@ -734,19 +734,25 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
             {sessionCountdown ? (
               <View className="mt-3 rounded-[20px] bg-[#F4F6F4] px-4 py-4">
                 <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#6F6F6F]">
-                  Tempo até ao fim da reserva
+                  {sessionCountdown.mode === 'toStart'
+                    ? 'Tempo até ao início da reserva'
+                    : 'Tempo até ao fim da reserva'}
                 </Text>
                 <Text className="mt-2 text-[34px] font-semibold tabular-nums text-[#171717]">
                   {sessionCountdown.mmss}
                 </Text>
                 {sessionCountdown.ended ? (
                   <Text className="mt-1 text-[14px] text-[#6F6F6F]">
-                    A janela desta reserva terminou.
+                    {sessionCountdown.mode === 'toStart'
+                      ? 'A reserva já começou.'
+                      : 'A janela desta reserva terminou.'}
                   </Text>
                 ) : (
                   <Text className="mt-1 text-[14px] text-[#6F6F6F]">
                     {`Faltam cerca de ${sessionCountdown.minutesRoundedUp} minuto${
                       sessionCountdown.minutesRoundedUp === 1 ? '' : 's'
+                    } ${
+                      sessionCountdown.mode === 'toStart' ? 'para iniciar.' : 'para terminar.'
                     }`}
                   </Text>
                 )}
