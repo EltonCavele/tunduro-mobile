@@ -4,14 +4,8 @@ import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Button, SearchField } from 'heroui-native';
-import { CalendarDays, Clock3, Users } from 'lucide-react-native';
-import {
-  Linking,
-  type ListRenderItemInfo,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { CalendarDays, Clock3, Trash2, Users } from 'lucide-react-native';
+import { type ListRenderItemInfo, ScrollView, Text, TextInput, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -43,14 +37,13 @@ import {
   SLOT_DURATION_MINUTES,
 } from 'lib/booking-reservation';
 import { getUserDisplayName } from 'lib/auth-utils';
-import { getErrorMessage } from 'lib/error-utils';
+import { ApiClientError, getErrorMessage } from 'lib/error-utils';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { useCourtDayBookingsQuery } from 'hooks/useCourtDayBookingsQuery';
 import { useCourtsQuery } from 'hooks/useCourtsQuery';
 import { useStartBookingCheckoutMutation } from 'hooks/useCreateBookingMutation';
 import { useMyBookingsQuery } from 'hooks/useMyBookingsQuery';
 import { useUserSearchQuery } from 'hooks/useUserSearchQuery';
-import type { BookingCheckoutSession } from 'services/booking.service';
 import type { Court } from 'lib/court.types';
 
 const SLOT_GRADIENTS = [
@@ -59,6 +52,36 @@ const SLOT_GRADIENTS = [
   ['#FFD6D6', '#FF3F2E'],
   ['#E5E5E5', '#555555'],
 ] as const;
+
+const MOZ_MSISDN_REGEX = /^(\+?258)?\s?(8[2-7])\s?\d{3}\s?\d{4}$|^(8[2-7])\d{7}$/;
+
+function validateMozPhone(value: string) {
+  return MOZ_MSISDN_REGEX.test(value.trim());
+}
+
+function translateCheckoutError(error: unknown) {
+  if (error instanceof ApiClientError) {
+    if (error.statusCode === 409) {
+      return 'Este horario ja nao esta disponivel.';
+    }
+
+    if (error.statusCode === 503) {
+      return 'Pagamentos temporariamente indisponiveis. Tenta novamente.';
+    }
+
+    if (
+      error.statusCode === 400 &&
+      typeof error.data === 'object' &&
+      error.data &&
+      'message' in error.data &&
+      Reflect.get(error.data, 'message') === 'payment.error.invalidPhone'
+    ) {
+      return 'Numero M-Pesa invalido. Confere o formato (84xxxxxxx).';
+    }
+  }
+
+  return getErrorMessage(error, 'Nao foi possivel iniciar o checkout do pagamento.');
+}
 
 export function NewBookingScreen() {
   const insets = useSafeAreaInsets();
@@ -79,8 +102,8 @@ export function NewBookingScreen() {
   const [isGuestSheetOpen, setIsGuestSheetOpen] = useState(false);
   const [isDateSheetOpen, setIsDateSheetOpen] = useState(false);
   const [guestSearchQuery, setGuestSearchQuery] = useState('');
-  const [currentCheckoutSession, setCurrentCheckoutSession] =
-    useState<BookingCheckoutSession | null>(null);
+  const [phone, setPhone] = useState(user?.phone?.trim() ?? '');
+  const [phoneError, setPhoneError] = useState('');
   const [submissionError, setSubmissionError] = useState('');
   const deferredGuestSearchQuery = useDeferredValue(guestSearchQuery);
 
@@ -168,17 +191,45 @@ export function NewBookingScreen() {
   const selectedRangeLabel = selectedWindow
     ? formatTimeRangeLabel(selectedWindow.startAt, selectedWindow.endAt)
     : '';
+  const bookingTotalLabel = useMemo(() => {
+    if (!selectedCourt || !selectedWindow) {
+      return null;
+    }
+
+    const startMs = new Date(selectedWindow.startAt).getTime();
+    const endMs = new Date(selectedWindow.endAt).getTime();
+
+    if (Number.isNaN(startMs) || Number.isNaN(endMs) || endMs <= startMs) {
+      return null;
+    }
+
+    const totalHours = (endMs - startMs) / 3600000;
+    const totalPrice = selectedCourt.pricePerHour * totalHours;
+
+    try {
+      return new Intl.NumberFormat('pt-PT', {
+        style: 'currency',
+        currency: selectedCourt.currency || 'MZN',
+        minimumFractionDigits: 2,
+      }).format(totalPrice);
+    } catch {
+      return `${totalPrice.toFixed(2)} ${selectedCourt.currency || 'MZN'}`;
+    }
+  }, [selectedCourt, selectedWindow]);
+  const isPhoneValid = validateMozPhone(phone);
   const canSubmit =
     Boolean(selectedCourt && selectedWindow && user?.id) &&
+    isPhoneValid &&
     !startBookingCheckoutMutation.isPending &&
     !isAvailabilityLoading &&
     !courtDayBookingsQuery.isError &&
     !myBookingsQuery.isError &&
     selectedGuests.length <= maxGuestSlots;
-  const canReuseCheckoutSession = Boolean(
-    currentCheckoutSession?.checkoutUrl &&
-    ['OPEN', 'FINALIZING'].includes(currentCheckoutSession.status)
-  );
+  useEffect(() => {
+    if (!phone.trim() && user?.phone?.trim()) {
+      setPhone(user.phone.trim());
+    }
+  }, [phone, user?.phone]);
 
   useEffect(() => {
     if (selectedGuests.length <= maxGuestSlots) {
@@ -204,9 +255,6 @@ export function NewBookingScreen() {
     }
 
     setSubmissionError('');
-    if (currentCheckoutSession) {
-      setCurrentCheckoutSession(null);
-    }
     setSelectedSlotKeys((currentKeys) => {
       if (currentKeys.includes(slot.key)) {
         return currentKeys.filter((key) => key !== slot.key);
@@ -244,9 +292,6 @@ export function NewBookingScreen() {
 
   function handleToggleGuest(guest: UserProfile) {
     setSubmissionError('');
-    if (currentCheckoutSession) {
-      setCurrentCheckoutSession(null);
-    }
     setSelectedGuests((currentGuests) => {
       if (currentGuests.some((currentGuest) => currentGuest.id === guest.id)) {
         return currentGuests.filter((currentGuest) => currentGuest.id !== guest.id);
@@ -261,15 +306,8 @@ export function NewBookingScreen() {
   }
 
   async function handleCreateBooking() {
-    if (canReuseCheckoutSession && currentCheckoutSession?.checkoutUrl) {
-      try {
-        setSubmissionError('');
-        await Linking.openURL(currentCheckoutSession.checkoutUrl);
-      } catch (error) {
-        setSubmissionError(
-          getErrorMessage(error, 'Nao foi possivel abrir novamente o checkout do pagamento.')
-        );
-      }
+    if (!isPhoneValid) {
+      setPhoneError('Numero M-Pesa invalido. Use um numero Vodacom (82-87).');
       return;
     }
 
@@ -285,24 +323,25 @@ export function NewBookingScreen() {
 
     try {
       setSubmissionError('');
-      const checkoutSession = await startBookingCheckoutMutation.mutateAsync({
+      setPhoneError('');
+      await startBookingCheckoutMutation.mutateAsync({
         courtId: selectedCourt.id,
         endAt: selectedWindow.endAt,
+        phone: phone.trim(),
         participantUserIds: selectedGuests.map((guest) => guest.id),
         startAt: selectedWindow.startAt,
       });
-      setCurrentCheckoutSession(checkoutSession);
+    } catch (error) {
+      const message = translateCheckoutError(error);
+      setSubmissionError(message);
 
-      if (!checkoutSession.checkoutUrl) {
-        setSubmissionError('O checkout de pagamento nao devolveu um link valido.');
-        return;
+      if (error instanceof ApiClientError && error.statusCode === 409) {
+        void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
       }
 
-      await Linking.openURL(checkoutSession.checkoutUrl);
-    } catch (error) {
-      setSubmissionError(
-        getErrorMessage(error, 'Nao foi possivel iniciar o checkout do pagamento.')
-      );
+      if (message.includes('Numero M-Pesa invalido')) {
+        setPhoneError(message);
+      }
     }
   }
 
@@ -313,10 +352,6 @@ export function NewBookingScreen() {
 
     if (submissionError) {
       setSubmissionError('');
-    }
-
-    if (currentCheckoutSession) {
-      setCurrentCheckoutSession(null);
     }
   }
 
@@ -469,6 +504,33 @@ export function NewBookingScreen() {
           <Text className="mt-3 text-[12px] leading-[19px] text-[#D05B5B]">{submissionError}</Text>
         ) : null}
 
+        <View className="mt-4">
+          <Text className="mb-2 text-[13px] font-semibold text-[#181818]">Numero M-Pesa</Text>
+          <TextInput
+            autoComplete="tel"
+            className={`rounded-[18px] border bg-white px-4 py-3.5 text-[15px] text-[#171717] ${
+              phoneError ? 'border-[#D05B5B]' : 'border-[#E2E3E5]'
+            }`}
+            keyboardType="phone-pad"
+            maxLength={15}
+            onChangeText={(value) => {
+              setPhone(value);
+              if (phoneError) {
+                setPhoneError('');
+              }
+            }}
+            placeholder="84 123 4567"
+            textContentType="telephoneNumber"
+            value={phone}
+          />
+          {phoneError ? (
+            <Text className="mt-2 text-[12px] leading-5 text-[#D05B5B]">{phoneError}</Text>
+          ) : null}
+          <Text className="mt-2 text-[11px] leading-5 text-[#6C6C6C]">
+            Vodacom Mocambique. Vais receber um pedido de PIN no telemovel.
+          </Text>
+        </View>
+
         <Button
           className={`mt-4 h-[58px] rounded-full ${canSubmit ? 'bg-[#1F3125]' : 'bg-[#C9CDC8]'}`}
           feedbackVariant="none"
@@ -477,8 +539,8 @@ export function NewBookingScreen() {
           <Button.Label className="text-[16px] text-white">
             {startBookingCheckoutMutation.isPending
               ? 'A iniciar pagamento...'
-              : canReuseCheckoutSession
-                ? 'Continuar pagamento'
+              : bookingTotalLabel
+                ? `Pagar ${bookingTotalLabel} e reservar`
                 : 'Pagar e reservar'}
           </Button.Label>
         </Button>
@@ -487,6 +549,7 @@ export function NewBookingScreen() {
       <NewBookingSheet
         onClose={() => setIsCourtSheetOpen(false)}
         title="Selecionar quadra"
+        snapPoints={['70%']}
         visible={isCourtSheetOpen}>
         {courtsQuery.isLoading ? (
           <View className="py-10">
@@ -527,22 +590,17 @@ export function NewBookingScreen() {
       <NewBookingSheet
         onClose={() => setIsGuestSheetOpen(false)}
         title="Selecionar convidados"
-        visible={isGuestSheetOpen}>
+        visible={isGuestSheetOpen}
+        snapPoints={['80%']}>
         <SearchField className="mb-4" value={guestSearchQuery} onChange={setGuestSearchQuery}>
           <SearchField.Group className="rounded-[20px] bg-[#F1F2F4]">
             <SearchField.SearchIcon iconProps={{ color: '#71727A', size: 18 }} />
             <SearchField.Input
               autoCapitalize="none"
               autoCorrect={false}
-              className="h-12 flex-1 bg-transparent px-4 pl-11 pr-11 text-[14px] text-[#111111]"
               placeholder="Pesquisar membro"
               placeholderColorClassName="text-[#8F9099]"
-            />
-            <SearchField.ClearButton
-              className="absolute right-2 top-1/2 -translate-y-1/2"
-              feedbackVariant="none"
-              iconProps={{ color: '#71727A', size: 14 }}
-              variant="tertiary"
+              variant="secondary"
             />
           </SearchField.Group>
         </SearchField>
@@ -556,19 +614,18 @@ export function NewBookingScreen() {
           </View>
 
           {selectedGuests.length > 0 ? (
-            <Button
-              className="min-h-0 px-0"
-              feedbackVariant="none"
-              onPress={() => setSelectedGuests([])}
-              variant="tertiary">
-              <Button.Label className="text-[12px] text-[#1F3125]">Limpar</Button.Label>
+            <Button feedbackVariant="none" onPress={() => setSelectedGuests([])} variant="ghost">
+              <Trash2 size={20} stroke="red" color="red" strokeWidth={2.1} />
             </Button>
           ) : null}
         </View>
 
         {guestSearchQueryResult.isLoading ? (
-          <View className="py-10">
-            <LoadingIndicator size="small" />
+          <View className="items-center justify-center py-10">
+            <LoadingIndicator size="large" />
+            <Text className="mt-3 text-center text-[13px] text-[#6D6D6D]">
+              A pesquisar membros.
+            </Text>
           </View>
         ) : guestSearchQueryResult.error ? (
           <NewBookingEmptyStateCard

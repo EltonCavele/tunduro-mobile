@@ -6,6 +6,7 @@ import { Pressable } from 'react-native';
 import type { Court } from 'lib/court.types';
 
 import { DEFAULT_COURT_IMAGE } from './shared';
+import { getCourtImageUrl } from 'lib/court-utils';
 
 interface NewBookingCourtOptionRowProps {
   court: Court;
@@ -19,8 +20,10 @@ export function NewBookingCourtOptionRow({
   onPress,
 }: NewBookingCourtOptionRowProps) {
   const imageSource: ImageSourcePropType = court.images[0]?.url
-    ? { uri: court.images[0].url }
+    ? { uri: getCourtImageUrl(court.images[0].url) }
     : DEFAULT_COURT_IMAGE;
+
+
 
   return (
     <Pressable

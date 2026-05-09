@@ -19,20 +19,12 @@ export default function AuthLayout() {
     }
 
     const identifier = getPreferredIdentifier(user);
+    const verifyAccountHref = identifier
+      ? `/auth/verify-account?identifier=${encodeURIComponent(identifier)}`
+      : '/auth/verify-account';
 
     if (currentRoute !== 'verify-account') {
-      return (
-        <Redirect
-          href={
-            identifier
-              ? {
-                  pathname: '/auth/verify-account',
-                  params: { identifier },
-                }
-              : '/auth/verify-account'
-          }
-        />
-      );
+      return <Redirect href={verifyAccountHref} />;
     }
   }
 

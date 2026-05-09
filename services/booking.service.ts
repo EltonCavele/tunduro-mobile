@@ -12,6 +12,7 @@ const DEFAULT_BOOKINGS_PAGE_SIZE = 100;
 export interface CreateBookingPayload {
   courtId: string;
   endAt: string;
+  phone: string;
   participantUserIds?: string[];
   startAt: string;
 }
@@ -41,6 +42,7 @@ export interface BookingCheckoutSession {
   id: string;
   paidAt: string | null;
   paymentMethod: string | null;
+  phone: string | null;
   reference: string;
   refundedAt: string | null;
   startAt: string;
@@ -100,7 +102,7 @@ export function getBookingDetails(bookingId: string) {
 }
 
 export function startBookingCheckout(payload: CreateBookingPayload) {
-  return unwrapResponse<BookingCheckoutSession>(api.post('/v1/bookings/checkout', payload));
+  return unwrapResponse<BookingCheckoutSession>(api.post('/v1/bookings', payload));
 }
 
 export function getBookingCheckoutSession(sessionId: string) {

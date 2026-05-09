@@ -9,6 +9,8 @@ import { useEffect } from 'react';
 import { Text, TextInput, type TextInputProps, type TextProps } from 'react-native';
 
 import { AppProviders } from 'providers/AppProviders';
+import { usePushDeepLinking } from 'hooks/usePushDeepLinking';
+import { useResumeActiveCheckout } from 'hooks/useResumeActiveCheckout';
 
 import '../global.css';
 
@@ -41,6 +43,31 @@ function configureGlobalTypography() {
 
 void SplashScreen.preventAutoHideAsync();
 
+function AppNavigation() {
+  usePushDeepLinking();
+  useResumeActiveCheckout();
+
+  return (
+    <>
+      <StatusBar style="auto" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerBackTitleStyle: { fontFamily: APP_FONT_FAMILY },
+          headerTitleStyle: { fontFamily: APP_FONT_FAMILY },
+        }}>
+        <Stack.Screen name="bookings/new" />
+        <Stack.Screen name="bookings/[id]" />
+        <Stack.Screen name="checkout/[sessionId]" />
+        <Stack.Screen name="checkout/failed" />
+        <Stack.Screen name="checkout/expired" />
+        <Stack.Screen name="booking/[id]/success" />
+        <Stack.Screen name="payments/booking-return" />
+      </Stack>
+    </>
+  );
+}
+
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     Inter_900Black,
@@ -62,17 +89,7 @@ export default function RootLayout() {
 
   return (
     <AppProviders>
-      <StatusBar style="auto" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          headerBackTitleStyle: { fontFamily: APP_FONT_FAMILY },
-          headerTitleStyle: { fontFamily: APP_FONT_FAMILY },
-        }}>
-        <Stack.Screen name="bookings/[id]" />
-        <Stack.Screen name="bookings/new" />
-        <Stack.Screen name="payments/booking-return" />
-      </Stack>
+      <AppNavigation />
     </AppProviders>
   );
 }

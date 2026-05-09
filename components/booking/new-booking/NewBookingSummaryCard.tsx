@@ -5,6 +5,7 @@ import { formatReservationDateLabel } from 'lib/booking-reservation';
 import type { Court } from 'lib/court.types';
 
 import { DEFAULT_COURT_IMAGE } from './shared';
+import { getCourtImageUrl } from 'lib/court-utils';
 
 interface NewBookingSummaryCardProps {
   court: Court;
@@ -20,7 +21,7 @@ export function NewBookingSummaryCard({
   rangeLabel,
 }: NewBookingSummaryCardProps) {
   const imageSource: ImageSourcePropType = court.images[0]?.url
-    ? { uri: court.images[0].url }
+    ? { uri: getCourtImageUrl(court.images[0].url) }
     : DEFAULT_COURT_IMAGE;
 
   return (
