@@ -64,13 +64,13 @@ export default function SignUpScreen() {
         firstName,
         lastName,
       });
+      const identifier = getPreferredIdentifier(response.user, normalizedEmail);
 
-      router.replace({
-        pathname: '/auth/verify-account',
-        params: {
-          identifier: getPreferredIdentifier(response.user, normalizedEmail),
-        },
-      });
+      router.replace(
+        identifier
+          ? `/auth/verify-account?identifier=${encodeURIComponent(identifier)}`
+          : '/auth/verify-account'
+      );
     } catch (error) {
       setErrorMessage(getErrorMessage(error, 'Nao foi possivel criar a conta.'));
     }

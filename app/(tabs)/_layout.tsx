@@ -23,13 +23,12 @@ export default function TabsLayout() {
     }
 
     if (!isVerified) {
+      const verifyAccountHref = identifier
+        ? `/auth/verify-account?identifier=${encodeURIComponent(identifier)}`
+        : '/auth/verify-account';
+
       router.replace(
-        identifier
-          ? {
-              pathname: '/auth/verify-account',
-              params: { identifier },
-            }
-          : '/auth/verify-account'
+        verifyAccountHref
       );
     }
   }, [hasSession, identifier, isLoading, isVerified, router]);

@@ -42,7 +42,7 @@ export default function VerifyAccountScreen() {
         identifier,
         otp: code,
       });
-      router.replace('/(tabs)/index');
+      router.replace('/(tabs)');
     } catch (error) {
       setErrorMessage(getErrorMessage(error, 'Nao foi possivel verificar a conta.'));
     }

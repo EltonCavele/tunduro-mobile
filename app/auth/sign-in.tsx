@@ -37,13 +37,13 @@ export default function SignInScreen() {
         router.replace('/(tabs)');
         return;
       }
+      const identifier = getPreferredIdentifier(response.user, trimmedIdentifier);
 
-      router.replace({
-        pathname: '/auth/verify-account',
-        params: {
-          identifier: getPreferredIdentifier(response.user, trimmedIdentifier),
-        },
-      });
+      router.replace(
+        identifier
+          ? `/auth/verify-account?identifier=${encodeURIComponent(identifier)}`
+          : '/auth/verify-account'
+      );
     } catch (error) {
       setErrorMessage(getErrorMessage(error, 'Nao foi possivel entrar.'));
     }
