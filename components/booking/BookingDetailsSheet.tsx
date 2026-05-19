@@ -810,7 +810,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
           contentContainerStyle={{
             paddingBottom: Math.max(insets.bottom, 24) + 16,
             paddingHorizontal: 24,
-            paddingTop: 50,
+            paddingTop: 20,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>

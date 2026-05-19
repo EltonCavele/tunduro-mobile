@@ -54,7 +54,14 @@ export function CalendarScreen() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(getTodayDateKey());
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
-  const { data: bookings = [], error, isError, isLoading, isRefetching, refetch } = useMyBookingsQuery();
+  const {
+    data: bookings = [],
+    error,
+    isError,
+    isLoading,
+    isRefetching,
+    refetch,
+  } = useMyBookingsQuery();
   const todayDateKey = getTodayDateKey();
   const isTodaySelected = selectedDate === todayDateKey;
   const isRefreshing = isRefetching && !isLoading;
@@ -67,14 +74,14 @@ export function CalendarScreen() {
           accessibilityHint="Abre o formulario para criar uma nova reserva"
           accessibilityLabel="Adicionar reserva"
           accessibilityRole="button"
-          className="mr-4 rounded-full bg-[#1F3125] p-2"
+          className="mr-4 rounded-full bg-primary  p-2"
           onPress={() =>
             router.push({
               pathname: '/bookings/new',
               params: { date: selectedDate },
             })
           }>
-          <Plus size={18} stroke="#FFFFFF" strokeWidth={2.4} />
+          <Plus size={18} stroke="#000" strokeWidth={2.4} />
         </Pressable>
       ),
     });
