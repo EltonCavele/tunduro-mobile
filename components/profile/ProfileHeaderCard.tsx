@@ -16,7 +16,6 @@ export function ProfileHeaderCard({ user, onEditPress }: ProfileHeaderCardProps)
   const displayName = getUserDisplayName(user);
   const contactPhone = formatPhoneNumber(user.phone);
   const initials = (user.firstName?.[0] || '') + (user.lastName?.[1] || user.firstName?.[1] || '');
-  console.log(initials);
 
   return (
     <View className="bg-white">

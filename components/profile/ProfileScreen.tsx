@@ -83,7 +83,7 @@ export function ProfileScreen() {
 
                 <Separator className="mx-4 bg-[#F0F0F0]" />
 
-                <ListGroup.Item onPress={() => router.push('/profile/notifications')}>
+                <ListGroup.Item onPress={() => router.push('/notifications')}>
                   <ListGroup.ItemPrefix>
                     <View className="h-10 w-10 items-center justify-center rounded-xl bg-[#F5F7F6]">
                       <Bell size={20} strokeWidth={2} color="#1B3022" />
@@ -94,7 +94,7 @@ export function ProfileScreen() {
                       Notificações
                     </ListGroup.ItemTitle>
                     <ListGroup.ItemDescription className="font-label text-[12px] text-[#7E7E7E]">
-                      Sons e alertas
+                      Mensagens e alertas da app
                     </ListGroup.ItemDescription>
                   </ListGroup.ItemContent>
                   <ListGroup.ItemSuffix />

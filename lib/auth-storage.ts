@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 import type { AuthTokens } from './auth.types';
@@ -10,6 +11,46 @@ let currentTokens: AuthTokens | null = null;
 let hasHydratedStorage = false;
 
 const listeners = new Set<AuthStorageListener>();
+
+function isWebStorage() {
+  return Platform.OS === 'web';
+}
+
+async function readStoredTokens(): Promise<string | null> {
+  if (isWebStorage()) {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
+    return localStorage.getItem(AUTH_STORAGE_KEY);
+  }
+
+  return SecureStore.getItemAsync(AUTH_STORAGE_KEY);
+}
+
+async function writeStoredTokens(value: string) {
+  if (isWebStorage()) {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(AUTH_STORAGE_KEY, value);
+    }
+
+    return;
+  }
+
+  await SecureStore.setItemAsync(AUTH_STORAGE_KEY, value);
+}
+
+async function removeStoredTokens() {
+  if (isWebStorage()) {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+
+    return;
+  }
+
+  await SecureStore.deleteItemAsync(AUTH_STORAGE_KEY);
+}
 
 function emitAuthStorageChange() {
   listeners.forEach((listener) => {
@@ -41,12 +82,12 @@ function sanitizeTokens(value: unknown): AuthTokens | null {
 
 export async function hydrateAuthStorage() {
   try {
-    const rawTokens = await SecureStore.getItemAsync(AUTH_STORAGE_KEY);
+    const rawTokens = await readStoredTokens();
 
     currentTokens = rawTokens ? sanitizeTokens(JSON.parse(rawTokens)) : null;
 
     if (rawTokens && !currentTokens) {
-      await SecureStore.deleteItemAsync(AUTH_STORAGE_KEY);
+      await removeStoredTokens();
     }
   } catch {
     currentTokens = null;
@@ -68,7 +109,7 @@ export async function setAuthTokens(tokens: AuthTokens) {
   currentTokens = sanitizedTokens;
   hasHydratedStorage = true;
 
-  await SecureStore.setItemAsync(AUTH_STORAGE_KEY, JSON.stringify(sanitizedTokens));
+  await writeStoredTokens(JSON.stringify(sanitizedTokens));
 
   emitAuthStorageChange();
 
@@ -80,7 +121,7 @@ export async function clearAuthStorage() {
   hasHydratedStorage = true;
 
   try {
-    await SecureStore.deleteItemAsync(AUTH_STORAGE_KEY);
+    await removeStoredTokens();
   } finally {
     emitAuthStorageChange();
   }

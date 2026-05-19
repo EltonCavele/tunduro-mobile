@@ -15,6 +15,7 @@ import {
   authQueryKeys,
   bookingQueryKeys,
   courtQueryKeys,
+  notificationQueryKeys,
   userDirectoryQueryKeys,
 } from 'lib/query-keys';
 
@@ -58,6 +59,9 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         });
         queryClient.removeQueries({
           queryKey: userDirectoryQueryKeys.all,
+        });
+        queryClient.removeQueries({
+          queryKey: notificationQueryKeys.all,
         });
       }
     });
@@ -121,6 +125,9 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     });
     queryClient.removeQueries({
       queryKey: userDirectoryQueryKeys.all,
+    });
+    queryClient.removeQueries({
+      queryKey: notificationQueryKeys.all,
     });
   }, [queryClient]);
 

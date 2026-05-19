@@ -4,14 +4,20 @@ import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type { AuthTokens } from './auth.types';
 import { ApiClientError } from './error-utils';
 import type { ApiSuccessResponse } from './api.types';
-import { clearAuthStorage, getAccessToken, getRefreshToken, setAuthTokens } from './auth-storage';
+import {
+  clearAuthStorage,
+  getAccessToken,
+  getRefreshToken,
+  hydrateAuthStorage,
+  isAuthStorageHydrated,
+  setAuthTokens,
+} from './auth-storage';
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
 };
 
-export const baseURL = 'https://tunduro-backend-production.up.railway.app';
-// process.env.EXPO_PUBLIC_API_URL?.trim().replace(/\/+$/, '');
+export const baseURL = process.env.EXPO_PUBLIC_API_URL?.trim().replace(/\/+$/, '') ?? '';
 
 let refreshRequest: Promise<string | null> | null = null;
 
@@ -77,9 +83,15 @@ api.interceptors.request.use(
       throw new ApiClientError('EXPO_PUBLIC_API_URL nao esta configurado.');
     }
 
+    if (!isAuthStorageHydrated()) {
+      await hydrateAuthStorage();
+    }
+
     const token = getAccessToken();
 
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
     // Let the browser define the multipart boundary for FormData uploads.
     if (typeof FormData !== 'undefined' && config.data instanceof FormData) {

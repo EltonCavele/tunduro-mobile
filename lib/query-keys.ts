@@ -33,5 +33,10 @@ export const userDirectoryQueryKeys = {
 };
 
 export const notificationQueryKeys = {
+  all: ['notifications'] as const,
+  list: (paramsKey: string) => ['notifications', 'list', paramsKey] as const,
+  unreadCount: ['notifications', 'unread-count'] as const,
   preferences: ['notifications', 'preferences'] as const,
+  markRead: ['notifications', 'mark-read'] as const,
+  delete: ['notifications', 'delete'] as const,
 };
