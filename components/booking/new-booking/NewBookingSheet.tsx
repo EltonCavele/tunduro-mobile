@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react';
 
 import { BottomSheet } from 'heroui-native';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 interface NewBookingSheetProps extends PropsWithChildren {
   onClose: () => void;
@@ -37,7 +37,7 @@ export function NewBookingSheet({
           keyboardBehavior="interactive"
           snapPoints={snapPoints}>
           <View className="mb-4 flex-row items-center justify-between">
-            <BottomSheet.Title className="text-[18px] font-medium text-[#111111]">
+            <BottomSheet.Title className="font-title text-[18px] text-[#111111]">
               {title}
             </BottomSheet.Title>
 
@@ -47,7 +47,7 @@ export function NewBookingSheet({
             />
           </View>
 
-          <View className="flex-1">{children}</View>
+          <ScrollView className="min-h-0 flex-1">{children}</ScrollView>
         </BottomSheet.Content>
       </BottomSheet.Portal>
     </BottomSheet>

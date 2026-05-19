@@ -1,50 +1,80 @@
 import { Text } from 'components/app/Text';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Check, Clock3 } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 
 import type { SelectableTimeSlot } from './shared';
 
+function getSlotDescription(slot: SelectableTimeSlot) {
+  if (slot.isCourtBlocked) {
+    return 'Ja reservado nesta quadra';
+  }
+
+  if (slot.isOrganizerBlocked) {
+    return 'Conflito com outra reserva tua';
+  }
+
+  if (slot.isLeadTimeBlocked) {
+    return 'Disponivel apenas com 30 minutos de antecedencia';
+  }
+
+  return null;
+}
+
 interface NewBookingTimeSlotRowProps {
   onPress: () => void;
+  showDivider?: boolean;
   slot: SelectableTimeSlot;
 }
 
 export function NewBookingTimeSlotRow({
   onPress,
+  showDivider = true,
   slot,
 }: NewBookingTimeSlotRowProps) {
+  const description = getSlotDescription(slot);
+  const isDisabled = slot.isDisabled && !slot.isSelected;
+
   return (
-    <Pressable
-      accessibilityRole="button"
-      className={`mb-3 flex-row items-center rounded-[24px] px-4 py-4 ${
-        slot.isSelected ? 'bg-[#E9E9EC]' : 'bg-white'
-      } ${slot.isDisabled && !slot.isSelected ? 'opacity-50' : ''}`}
-      disabled={slot.isDisabled && !slot.isSelected}
-      onPress={onPress}>
-      <LinearGradient
-        className="h-12 w-12 rounded-full"
-        colors={slot.accentColors}
-        end={{ x: 1, y: 1 }}
-        start={{ x: 0, y: 0 }}
-      />
+    <View>
+      <Pressable
+        accessibilityRole="button"
+        className={`flex-row items-center py-4 ${isDisabled ? 'opacity-45' : ''}`}
+        disabled={isDisabled}
+        onPress={onPress}>
+        <View
+          className={`h-11 w-11 items-center justify-center rounded-full border ${
+            slot.isSelected ? 'border-[#1F3125] bg-[#EEF3EE]' : 'border-[#E8E8EC] bg-[#F4F6F4]'
+          }`}>
+          <Clock3
+            size={20}
+            stroke={slot.isSelected ? '#1F3125' : '#5A5A5A'}
+            strokeWidth={2}
+          />
+        </View>
 
-      <View className="ml-4 flex-1">
-        <Text className="text-[15px] font-medium text-[#191919]">{slot.label}</Text>
-
-        {slot.isCourtBlocked ? (
-          <Text className="mt-1 text-[11px] text-[#8A8A8A]">Ja reservado nesta quadra</Text>
-        ) : null}
-
-        {!slot.isCourtBlocked && slot.isOrganizerBlocked ? (
-          <Text className="mt-1 text-[11px] text-[#8A8A8A]">Conflito com outra reserva tua</Text>
-        ) : null}
-
-        {!slot.isCourtBlocked && !slot.isOrganizerBlocked && slot.isLeadTimeBlocked ? (
-          <Text className="mt-1 text-[11px] text-[#8A8A8A]">
-            Disponivel apenas com 30 minutos de antecedencia
+        <View className="ml-4 flex-1">
+          <Text
+            className={`font-label text-[15px] ${
+              slot.isSelected ? 'text-[#101010]' : 'text-[#3A3A3A]'
+            }`}>
+            {slot.label}
           </Text>
+
+          {description ? (
+            <Text className="font-label mt-1 text-[13px] leading-[19px] text-[#8A8A8A]">
+              {description}
+            </Text>
+          ) : null}
+        </View>
+
+        {slot.isSelected ? (
+          <View className="h-6 w-6 items-center justify-center rounded-full bg-[#1F3125]">
+            <Check color="#FFFFFF" size={14} strokeWidth={3} />
+          </View>
         ) : null}
-      </View>
-    </Pressable>
+      </Pressable>
+
+      {showDivider ? <View className="h-px bg-[#ECECEC]" /> : null}
+    </View>
   );
 }

@@ -3,11 +3,19 @@ import { TextInput } from 'components/app/TextInput';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Button, SearchField } from 'heroui-native';
-import { CalendarDays, Clock3, Trash2, Users } from 'lucide-react-native';
-import { ScrollView, View } from 'react-native';
+import {
+  CalendarDays,
+  ChevronLeft,
+  Clock3,
+  MapPin,
+  Phone,
+  Trash2,
+  Users,
+} from 'lucide-react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import type { ListRenderItemInfo } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,9 +25,12 @@ import { LoadingIndicator } from 'components/app/LoadingIndicator';
 import { NewBookingCourtOptionRow } from 'components/booking/new-booking/NewBookingCourtOptionRow';
 import { NewBookingEmptyStateCard } from 'components/booking/new-booking/NewBookingEmptyStateCard';
 import { NewBookingField } from 'components/booking/new-booking/NewBookingField';
+import { NewBookingFooter } from 'components/booking/new-booking/NewBookingFooter';
 import { NewBookingGuestOptionRow } from 'components/booking/new-booking/NewBookingGuestOptionRow';
+import { NewBookingInstructionRow } from 'components/booking/new-booking/NewBookingInstructionRow';
 import { NewBookingSelectedGuestChip } from 'components/booking/new-booking/NewBookingSelectedGuestChip';
 import { NewBookingSheet } from 'components/booking/new-booking/NewBookingSheet';
+import { NewBookingStepHeader } from 'components/booking/new-booking/NewBookingStepHeader';
 import { NewBookingSummaryCard } from 'components/booking/new-booking/NewBookingSummaryCard';
 import { NewBookingTimeSlotRow } from 'components/booking/new-booking/NewBookingTimeSlotRow';
 import type { SelectableTimeSlot } from 'components/booking/new-booking/shared';
@@ -48,14 +59,41 @@ import { useMyBookingsQuery } from 'hooks/useMyBookingsQuery';
 import { useUserSearchQuery } from 'hooks/useUserSearchQuery';
 import type { Court } from 'lib/court.types';
 
-const SLOT_GRADIENTS = [
-  ['#FFE5BE', '#FF6B1A'],
-  ['#D6FFD5', '#3C8DFF'],
-  ['#FFD6D6', '#FF3F2E'],
-  ['#E5E5E5', '#555555'],
-] as const;
-
 const MOZ_MSISDN_REGEX = /^(\+?258)?\s?(8[2-7])\s?\d{3}\s?\d{4}$|^(8[2-7])\d{7}$/;
+
+const BOOKING_STEPS = ['court', 'schedule', 'guests', 'payment', 'summary'] as const;
+const TOTAL_STEPS = BOOKING_STEPS.length;
+
+type BookingStep = (typeof BOOKING_STEPS)[number];
+
+const STEP_COPY: Record<
+  BookingStep,
+  {
+    subtitle?: string;
+    title: string;
+  }
+> = {
+  court: {
+    subtitle: 'Escolhe o campo onde queres jogar.',
+    title: 'Qual quadra queres reservar?',
+  },
+  schedule: {
+    subtitle: 'Define a data e o horario da tua partida.',
+    title: 'Quando queres jogar?',
+  },
+  guests: {
+    subtitle: 'Convida outros membros do clube ou continua sozinho.',
+    title: 'Quem mais vai jogar?',
+  },
+  payment: {
+    subtitle: 'Vais receber um pedido de PIN no telemovel M-Pesa.',
+    title: 'Como queres pagar?',
+  },
+  summary: {
+    subtitle: 'Revê tudo antes de confirmar o pagamento.',
+    title: 'Confirma a tua reserva',
+  },
+};
 
 function validateMozPhone(value: string) {
   return MOZ_MSISDN_REGEX.test(value.trim());
@@ -85,7 +123,12 @@ function translateCheckoutError(error: unknown) {
   return getErrorMessage(error, 'Nao foi possivel iniciar o checkout do pagamento.');
 }
 
+function getStepIndex(step: BookingStep) {
+  return BOOKING_STEPS.indexOf(step) + 1;
+}
+
 export function NewBookingScreen() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ courtId?: string; date?: string }>();
   const initialCourtId = typeof params.courtId === 'string' ? params.courtId.trim() : '';
@@ -107,7 +150,7 @@ export function NewBookingScreen() {
   const [phone, setPhone] = useState(user?.phone?.trim() ?? '');
   const [phoneError, setPhoneError] = useState('');
   const [submissionError, setSubmissionError] = useState('');
-  const [bookingStep, setBookingStep] = useState<'form' | 'payment' | 'summary'>('form');
+  const [bookingStep, setBookingStep] = useState<BookingStep>('court');
   const deferredGuestSearchQuery = useDeferredValue(guestSearchQuery);
 
   const activeCourts = useMemo(() => courtsQuery.data ?? [], [courtsQuery.data]);
@@ -135,7 +178,7 @@ export function NewBookingScreen() {
   const timeSlots = useMemo(() => buildHourlySlots(selectedDate), [selectedDate]);
 
   const selectableSlots = useMemo<SelectableTimeSlot[]>(() => {
-    return timeSlots.map((slot, index) => {
+    return timeSlots.map((slot) => {
       const isCourtBlocked = isSlotBlockedByCourt(courtDayBookingsQuery.data ?? [], slot);
       const isOrganizerBlocked = user?.id
         ? isSlotBlockedByOrganizer(myBookings, user.id, slot)
@@ -149,7 +192,7 @@ export function NewBookingScreen() {
 
       return {
         ...slot,
-        accentColors: SLOT_GRADIENTS[index % SLOT_GRADIENTS.length],
+        accentColors: ['#EEF3EE', '#EEF3EE'],
         isCourtBlocked,
         isDisabled,
         isLeadTimeBlocked,
@@ -227,13 +270,18 @@ export function NewBookingScreen() {
     !courtDayBookingsQuery.isError &&
     !myBookingsQuery.isError &&
     selectedGuests.length <= maxGuestSlots;
-  const canProceedToPayment =
-    Boolean(selectedCourt && selectedWindow && user?.id) &&
+  const canProceedFromCourt = Boolean(selectedCourtId);
+  const canProceedFromSchedule =
+    Boolean(selectedCourt && selectedWindow) &&
     !isAvailabilityLoading &&
     !courtDayBookingsQuery.isError &&
-    !myBookingsQuery.isError &&
-    selectedGuests.length <= maxGuestSlots;
-  const canProceedToSummary = canProceedToPayment && isPhoneValid;
+    !myBookingsQuery.isError;
+  const canProceedFromGuests = selectedGuests.length <= maxGuestSlots;
+  const canProceedFromPayment = isPhoneValid;
+
+  const stepCopy = STEP_COPY[bookingStep];
+  const currentStepIndex = getStepIndex(bookingStep);
+
   useEffect(() => {
     if (!phone.trim() && user?.phone?.trim()) {
       setPhone(user.phone.trim());
@@ -258,15 +306,22 @@ export function NewBookingScreen() {
     );
   }, [invalidSelectedSlotKeys]);
 
+  function resetSlotSelection() {
+    if (selectedSlotKeys.length > 0) {
+      setSelectedSlotKeys([]);
+    }
+
+    if (submissionError) {
+      setSubmissionError('');
+    }
+  }
+
   function handleSelectSlot(slot: SelectableTimeSlot) {
     if (slot.isDisabled && !slot.isSelected) {
       return;
     }
 
     setSubmissionError('');
-    if (bookingStep !== 'form') {
-      setBookingStep('form');
-    }
     setSelectedSlotKeys((currentKeys) => {
       if (currentKeys.includes(slot.key)) {
         return currentKeys.filter((key) => key !== slot.key);
@@ -304,9 +359,6 @@ export function NewBookingScreen() {
 
   function handleToggleGuest(guest: UserProfile) {
     setSubmissionError('');
-    if (bookingStep !== 'form') {
-      setBookingStep('form');
-    }
     setSelectedGuests((currentGuests) => {
       if (currentGuests.some((currentGuest) => currentGuest.id === guest.id)) {
         return currentGuests.filter((currentGuest) => currentGuest.id !== guest.id);
@@ -323,11 +375,13 @@ export function NewBookingScreen() {
   async function handleCreateBooking() {
     if (!isPhoneValid) {
       setPhoneError('Numero M-Pesa invalido. Use um numero Vodacom (82-87).');
+      setBookingStep('payment');
       return;
     }
 
     if (!selectedCourt || !selectedWindow) {
       setSubmissionError('Selecione uma quadra e um horario para continuar.');
+      setBookingStep('schedule');
       return;
     }
 
@@ -352,317 +406,363 @@ export function NewBookingScreen() {
 
       if (error instanceof ApiClientError && error.statusCode === 409) {
         void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
+        setBookingStep('schedule');
       }
 
       if (message.includes('Numero M-Pesa invalido')) {
         setPhoneError(message);
+        setBookingStep('payment');
       }
     }
   }
 
-  function resetSelectionState() {
-    if (selectedSlotKeys.length > 0) {
-      setSelectedSlotKeys([]);
+  function goToNextStep() {
+    if (bookingStep === 'court' && canProceedFromCourt) {
+      setBookingStep('schedule');
+      return;
     }
 
-    if (submissionError) {
-      setSubmissionError('');
+    if (bookingStep === 'schedule' && canProceedFromSchedule) {
+      setBookingStep('guests');
+      return;
     }
 
-    if (bookingStep !== 'form') {
-      setBookingStep('form');
+    if (bookingStep === 'guests' && canProceedFromGuests) {
+      setBookingStep('payment');
+      return;
+    }
+
+    if (bookingStep === 'payment') {
+      if (!isPhoneValid) {
+        setPhoneError('Numero M-Pesa invalido. Use um numero Vodacom (82-87).');
+        return;
+      }
+
+      setPhoneError('');
+      setBookingStep('summary');
     }
   }
 
+  function goToPreviousStep() {
+    if (bookingStep === 'court') {
+      router.back();
+      return;
+    }
+
+    const currentIndex = BOOKING_STEPS.indexOf(bookingStep);
+
+    if (currentIndex > 0) {
+      setBookingStep(BOOKING_STEPS[currentIndex - 1]);
+    }
+  }
+
+  function getContinueDisabled() {
+    switch (bookingStep) {
+      case 'court':
+        return !canProceedFromCourt;
+      case 'schedule':
+        return !canProceedFromSchedule;
+      case 'guests':
+        return !canProceedFromGuests;
+      case 'payment':
+        return !canProceedFromPayment;
+      case 'summary':
+        return !canSubmit;
+      default:
+        return true;
+    }
+  }
+
+  function getContinueLabel() {
+    if (bookingStep === 'summary') {
+      return startBookingCheckoutMutation.isPending
+        ? 'A iniciar pagamento...'
+        : bookingTotalLabel
+          ? `Pagar ${bookingTotalLabel}`
+          : 'Confirmar pagamento';
+    }
+
+    if (bookingStep === 'guests' && selectedGuests.length === 0) {
+      return 'Continuar sem convidados';
+    }
+
+    return 'Continuar';
+  }
+
+  function renderScheduleStep() {
+    return (
+      <>
+        <NewBookingField
+          label="Data"
+          onPress={() => setIsDateSheetOpen(true)}
+          placeholder="dd / mm / aaaa"
+          required
+          value={formatReservationDateLabel(selectedDate)}
+        />
+
+        <View className="mb-4">
+          <NewBookingInstructionRow
+            description={`Ainda podes reservar ${remainingDailyMinutes} min neste dia.`}
+            icon={Clock3}
+            label="Escolhe um ou dois horarios consecutivos"
+            showDivider
+          />
+          <NewBookingInstructionRow
+            description="Cada bloco corresponde a 1 hora de jogo."
+            icon={CalendarDays}
+            label="Horarios disponiveis"
+            showDivider={false}
+          />
+        </View>
+
+        {!selectedCourt ? (
+          <NewBookingEmptyStateCard
+            description="Volta ao passo anterior e escolhe uma quadra."
+            title="Quadra em falta"
+          />
+        ) : isAvailabilityLoading ? (
+          <View className="items-center rounded-2xl border border-[#ECECEC] bg-white px-5 py-10">
+            <LoadingIndicator size="small" />
+            <Text className="font-label mt-3 text-center text-[14px] text-[#6D6D6D]">
+              A verificar disponibilidade da quadra.
+            </Text>
+          </View>
+        ) : availabilityError ? (
+          <View className="rounded-2xl border border-[#F5D6D4] bg-[#FFF8F7] px-5 py-5">
+            <Text className="font-title text-[16px] text-[#171717]">
+              Nao foi possivel validar os horarios
+            </Text>
+            <Text className="font-label mt-2 text-[13px] leading-[19px] text-[#7C6F6F]">
+              {availabilityError}
+            </Text>
+            <Button
+              className="mt-4 self-start rounded-full bg-[#1F3125] px-4"
+              feedbackVariant="none"
+              onPress={() => {
+                void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
+              }}>
+              <Button.Label className="font-button text-[12px] text-white">
+                Tentar novamente
+              </Button.Label>
+            </Button>
+          </View>
+        ) : remainingDailyMinutes < SLOT_DURATION_MINUTES ? (
+          <NewBookingEmptyStateCard
+            description="Ja atingiste o limite de 2 horas de reserva para esta data."
+            title="Limite diario atingido"
+          />
+        ) : selectableSlots.every((slot) => slot.isDisabled) ? (
+          <NewBookingEmptyStateCard
+            description="Nao existem horarios livres para esta quadra na data escolhida."
+            title="Sem disponibilidade"
+          />
+        ) : (
+          <View className="rounded-2xl border border-[#ECECEC] bg-white px-4">
+            {selectableSlots.map((slot, index) => (
+              <NewBookingTimeSlotRow
+                key={slot.key}
+                onPress={() => handleSelectSlot(slot)}
+                showDivider={index < selectableSlots.length - 1}
+                slot={slot}
+              />
+            ))}
+          </View>
+        )}
+      </>
+    );
+  }
+
+  function renderGuestsStep() {
+    return (
+      <>
+        <NewBookingField
+          label="Convidados"
+          onPress={() => setIsGuestSheetOpen(true)}
+          placeholder="Adicionar membro do clube"
+          value={
+            selectedGuests.length
+              ? `${selectedGuests.length} convidado${selectedGuests.length > 1 ? 's' : ''} selecionado${selectedGuests.length > 1 ? 's' : ''}`
+              : undefined
+          }
+        />
+
+        {selectedGuests.length > 0 ? (
+          <View className="mb-4 flex-row flex-wrap">
+            {selectedGuests.map((guest) => (
+              <NewBookingSelectedGuestChip
+                key={guest.id}
+                guest={guest}
+                onRemove={(guestId) => {
+                  setSelectedGuests((currentGuests) =>
+                    currentGuests.filter((currentGuest) => currentGuest.id !== guestId)
+                  );
+                }}
+              />
+            ))}
+          </View>
+        ) : null}
+
+        <View className="rounded-2xl border border-[#ECECEC] bg-white px-4">
+          <NewBookingInstructionRow
+            description={`Podes convidar ate ${maxGuestSlots} jogador${maxGuestSlots === 1 ? '' : 'es'}.`}
+            icon={Users}
+            label="Convites sao opcionais"
+            showDivider
+          />
+          <NewBookingInstructionRow
+            description="Os convidados recebem notificacao quando confirmares a reserva."
+            icon={MapPin}
+            label="Organizador confirma o jogo"
+            showDivider={false}
+          />
+        </View>
+      </>
+    );
+  }
+
+  function renderPaymentStep() {
+    return (
+      <View>
+        <Text className="font-label mb-2 text-[15px] text-[#202020]">Numero M-Pesa</Text>
+        <TextInput
+          autoComplete="tel"
+          className={`font-input h-[52px] rounded-2xl border bg-white px-4 text-[15px] text-[#171717] ${
+            phoneError ? 'border-[#D05B5B]' : 'border-[#D8D8DE]'
+          }`}
+          keyboardType="phone-pad"
+          maxLength={15}
+          onChangeText={(value) => {
+            setPhone(value);
+            if (phoneError) {
+              setPhoneError('');
+            }
+          }}
+          placeholder="84 123 4567"
+          textContentType="telephoneNumber"
+          value={phone}
+        />
+        {phoneError ? (
+          <Text className="font-label mt-2 text-[13px] leading-5 text-[#D05B5B]">{phoneError}</Text>
+        ) : null}
+        <Text className="font-label mt-3 text-[13px] leading-[20px] text-[#8A8A8A]">
+          Vodacom Mocambique. Introduz o numero que vais usar para autorizar o pagamento.
+        </Text>
+
+        <View className="mt-6 rounded-2xl border border-[#ECECEC] bg-white px-4">
+          <NewBookingInstructionRow
+            description="O PIN e pedido apenas no momento do pagamento."
+            icon={Phone}
+            label="Pagamento seguro via M-Pesa"
+            showDivider={false}
+          />
+        </View>
+      </View>
+    );
+  }
+
+  function renderSummaryStep() {
+    return (
+      <>
+        {selectedCourt && selectedRangeLabel ? (
+          <NewBookingSummaryCard
+            court={selectedCourt}
+            dateKey={selectedDate}
+            rangeLabel={selectedRangeLabel}
+          />
+        ) : (
+          <NewBookingEmptyStateCard
+            description="Completa os passos anteriores para rever o resumo."
+            title="Resumo indisponivel"
+          />
+        )}
+
+        <View className="mt-4 rounded-2xl border border-[#ECECEC] bg-white px-4">
+          <NewBookingInstructionRow
+            description={phone.trim() || 'Numero em falta'}
+            icon={Phone}
+            label="Numero de pagamento"
+            showDivider
+          />
+          <NewBookingInstructionRow
+            description={
+              selectedGuests.length
+                ? `${selectedGuests.length} convidado${selectedGuests.length > 1 ? 's' : ''}`
+                : 'Sem convidados'
+            }
+            icon={Users}
+            label="Participantes"
+            showDivider={false}
+          />
+        </View>
+
+        {submissionError ? (
+          <Text className="font-label mt-4 text-[13px] leading-5 text-[#D05B5B]">
+            {submissionError}
+          </Text>
+        ) : null}
+      </>
+    );
+  }
+
   return (
-    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right', 'top']} className="flex-1 bg-white">
       <StatusBar style="dark" />
 
-      <Stack.Screen
-        options={{
-          headerShadowVisible: false,
-          headerShown: true,
-          headerTitle: 'Nova Reserva',
-          headerBackButtonDisplayMode: 'minimal',
-        }}
-      />
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <View className="flex-row items-center px-6 pb-2 pt-2">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Voltar"
+          className="h-11 w-11 items-center justify-center rounded-full border border-[#D8D8DE] bg-white"
+          onPress={goToPreviousStep}>
+          <ChevronLeft color="#101010" size={22} strokeWidth={2.2} />
+        </Pressable>
+      </View>
 
       <ScrollView
         className="flex-1"
         contentContainerClassName="px-6 pb-6"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
-        <View className="mb-6 mt-1 rounded-[20px] bg-[#F4F6F4] px-4 py-3">
-          <Text className="text-[12px] uppercase tracking-wider text-[#6D6D6D]">
-            Passo {bookingStep === 'form' ? '1' : bookingStep === 'payment' ? '2' : '3'} de 3
-          </Text>
-          <Text className="mt-1 text-[16px] font-semibold text-[#171717]">
-            {bookingStep === 'form'
-              ? 'Preenche os detalhes da reserva'
-              : bookingStep === 'payment'
-                ? 'Adiciona os dados de pagamento'
-                : 'Confirma os detalhes finais'}
-          </Text>
-        </View>
-
-        {bookingStep === 'form' ? (
-          <>
-            <NewBookingField
-              label="Quadra"
-              onPress={() => setIsCourtSheetOpen(true)}
-              placeholder="Selecione a quadra"
-              required
-              value={selectedCourt?.name}
-            />
-
-            <NewBookingField
-              label="Convidado(s)"
-              onPress={() => setIsGuestSheetOpen(true)}
-              placeholder="Adicione um membro"
-              value={
-                selectedGuests.length
-                  ? `${selectedGuests.length} convidado${selectedGuests.length > 1 ? 's' : ''}`
-                  : undefined
-              }
-            />
-
-            {selectedGuests.length > 0 ? (
-              <View className="-mt-4 mb-7 flex-row flex-wrap">
-                {selectedGuests.map((guest) => (
-                  <NewBookingSelectedGuestChip
-                    key={guest.id}
-                    guest={guest}
-                    onRemove={(guestId) => {
-                      resetSelectionState();
-                      setSelectedGuests((currentGuests) =>
-                        currentGuests.filter((currentGuest) => currentGuest.id !== guestId)
-                      );
-                    }}
-                  />
-                ))}
-              </View>
-            ) : null}
-
-            <NewBookingField
-              label="Data"
-              onPress={() => setIsDateSheetOpen(true)}
-              placeholder="dd / mm / yyyy"
-              required
-              value={formatReservationDateLabel(selectedDate)}
-            />
-
-            <View className="mb-4 flex-row items-center justify-between">
-              <Text className="text-[16px] font-semibold text-[#181818]">Horarios disponiveis</Text>
-              <View className="flex-row items-center rounded-full bg-[#F3F4F2] px-3 py-2">
-                <Clock3 size={15} stroke="#1F3125" strokeWidth={2.1} />
-                <Text className="ml-2 text-[11px] font-medium text-[#1F3125]">
-                  Restante: {remainingDailyMinutes} min
-                </Text>
-              </View>
-            </View>
-
-            {!selectedCourt ? (
-              <NewBookingEmptyStateCard
-                description="Escolhe primeiro uma quadra para ver os horarios livres nessa data."
-                title="Quadra em falta"
-              />
-            ) : isAvailabilityLoading ? (
-              <View className="rounded-3xl bg-[#F7F7F8] px-5 py-8">
-                <LoadingIndicator size="small" />
-                <Text className="mt-3 text-center text-[13px] text-[#6D6D6D]">
-                  A verificar disponibilidade da quadra.
-                </Text>
-              </View>
-            ) : availabilityError ? (
-              <View className="rounded-3xl bg-[#FFF4F4] px-5 py-6">
-                <Text className="text-[15px] font-semibold text-[#171717]">
-                  Nao foi possivel validar os horarios
-                </Text>
-                <Text className="leading-4.75 mt-2 text-[12px] text-[#7C6F6F]">
-                  {availabilityError}
-                </Text>
-
-                <Button
-                  className="mt-4 self-start rounded-full bg-[#1F3125] px-4"
-                  feedbackVariant="none"
-                  onPress={() => {
-                    void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
-                  }}>
-                  <Button.Label className="font-button text-[12px] text-white">
-                    Tentar novamente
-                  </Button.Label>
-                </Button>
-              </View>
-            ) : remainingDailyMinutes < SLOT_DURATION_MINUTES ? (
-              <NewBookingEmptyStateCard
-                description="Ja atingiste o limite de 2 horas de reserva para esta data."
-                title="Limite diario atingido"
-              />
-            ) : selectableSlots.every((slot) => slot.isDisabled) ? (
-              <NewBookingEmptyStateCard
-                description="Nao existem horarios livres para esta quadra na data escolhida."
-                title="Sem disponibilidade"
-              />
-            ) : (
-              <View>
-                {selectableSlots.map((slot) => (
-                  <NewBookingTimeSlotRow
-                    key={slot.key}
-                    onPress={() => handleSelectSlot(slot)}
-                    slot={slot}
-                  />
-                ))}
-              </View>
-            )}
-          </>
-        ) : bookingStep === 'payment' ? (
-          <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-5">
-            <Text className="text-[14px] leading-6 text-[#5D5D5D]">
-              Introduz o numero M-Pesa para seguir para o resumo final antes de pagar.
-            </Text>
-
-            <View className="mt-4">
-              <Text className="mb-2 text-[13px] font-semibold text-[#181818]">Numero M-Pesa</Text>
-              <TextInput
-                autoComplete="tel"
-                className={`rounded-[18px] border bg-white px-4 py-3.5 text-[15px] text-[#171717] ${
-                  phoneError ? 'border-[#D05B5B]' : 'border-[#E2E3E5]'
-                }`}
-                keyboardType="phone-pad"
-                maxLength={15}
-                onChangeText={(value) => {
-                  setPhone(value);
-                  if (phoneError) {
-                    setPhoneError('');
-                  }
-                }}
-                placeholder="84 123 4567"
-                textContentType="telephoneNumber"
-                value={phone}
-              />
-              {phoneError ? (
-                <Text className="mt-2 text-[12px] leading-5 text-[#D05B5B]">{phoneError}</Text>
-              ) : null}
-              <Text className="mt-2 text-[11px] leading-5 text-[#6C6C6C]">
-                Vodacom Mocambique. Vais receber um pedido de PIN no telemovel.
-              </Text>
-            </View>
-          </View>
-        ) : (
-          <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-5">
-            <Text className="text-[14px] leading-6 text-[#5D5D5D]">
-              Revê os detalhes da reserva e do pagamento antes de confirmar.
-            </Text>
-          </View>
-        )}
-
-        <View
-          style={{ height: bookingStep === 'form' ? 220 + Math.max(insets.bottom, 20) : 300 }}
+        <NewBookingStepHeader
+          currentStep={currentStepIndex}
+          subtitle={stepCopy.subtitle}
+          title={stepCopy.title}
+          totalSteps={TOTAL_STEPS}
         />
+
+        {bookingStep === 'court' ? (
+          <NewBookingField
+            label="Quadra"
+            onPress={() => setIsCourtSheetOpen(true)}
+            placeholder="Seleciona a quadra"
+            required
+            value={selectedCourt?.name}
+          />
+        ) : null}
+
+        {bookingStep === 'schedule' ? renderScheduleStep() : null}
+        {bookingStep === 'guests' ? renderGuestsStep() : null}
+        {bookingStep === 'payment' ? renderPaymentStep() : null}
+        {bookingStep === 'summary' ? renderSummaryStep() : null}
+
+        <View style={{ height: 120 + Math.max(insets.bottom, 20) }} />
       </ScrollView>
 
-      <View
-        className="border-t border-[#F0F0F0] bg-white px-6 pt-4"
-        style={{ paddingBottom: Math.max(insets.bottom, 20) }}>
-        {bookingStep === 'payment' ? (
-          <>
-            <View className="mt-1 flex-row gap-3">
-              <Button
-                className="h-[58px] flex-1 rounded-full border border-[#D5D7D4] bg-white"
-                feedbackVariant="none"
-                onPress={() => setBookingStep('form')}
-                variant="secondary">
-                <Button.Label className="font-button text-[15px] text-[#1F3125]">
-                  Voltar
-                </Button.Label>
-              </Button>
+      <NewBookingFooter
+        disabled={getContinueDisabled()}
+        isLoading={bookingStep === 'summary' && startBookingCheckoutMutation.isPending}
+        label={getContinueLabel()}
+        onPress={() => {
+          if (bookingStep === 'summary') {
+            void handleCreateBooking();
+            return;
+          }
 
-              <Button
-                className={`h-[58px] flex-1 rounded-full ${canProceedToSummary ? 'bg-[#1F3125]' : 'bg-[#C9CDC8]'}`}
-                feedbackVariant="none"
-                isDisabled={!canProceedToSummary}
-                onPress={() => {
-                  if (!isPhoneValid) {
-                    setPhoneError('Numero M-Pesa invalido. Use um numero Vodacom (82-87).');
-                    return;
-                  }
-
-                  setPhoneError('');
-                  setBookingStep('summary');
-                }}>
-                <Button.Label className="font-button text-[16px] text-white">
-                  Continuar
-                </Button.Label>
-              </Button>
-            </View>
-          </>
-        ) : bookingStep === 'summary' ? (
-          <>
-            {selectedCourt && selectedRangeLabel ? (
-              <NewBookingSummaryCard
-                court={selectedCourt}
-                dateKey={selectedDate}
-                rangeLabel={selectedRangeLabel}
-              />
-            ) : (
-              <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-5">
-                <Text className="text-[14px] font-medium text-[#181818]">
-                  Seleciona a quadra, a data e um horario para concluir a reserva.
-                </Text>
-              </View>
-            )}
-
-            <View className="mt-4 rounded-[18px] bg-[#F7F7F8] px-4 py-4">
-              <Text className="text-[12px] uppercase tracking-wider text-[#757575]">
-                Numero de pagamento
-              </Text>
-              <Text className="mt-1 text-[16px] font-semibold text-[#171717]">{phone.trim()}</Text>
-            </View>
-
-            {submissionError ? (
-              <Text className="mt-3 text-[12px] leading-[19px] text-[#D05B5B]">
-                {submissionError}
-              </Text>
-            ) : null}
-
-            <View className="mt-4 flex-row gap-3">
-              <Button
-                className="h-[58px] flex-1 rounded-full border border-[#D5D7D4] bg-white"
-                feedbackVariant="none"
-                onPress={() => setBookingStep('payment')}
-                variant="secondary">
-                <Button.Label className="font-button text-[15px] text-[#1F3125]">
-                  Voltar
-                </Button.Label>
-              </Button>
-
-              <Button
-                className={`h-[58px] flex-1 rounded-full ${canSubmit ? 'bg-[#1F3125]' : 'bg-[#C9CDC8]'}`}
-                feedbackVariant="none"
-                isDisabled={!canSubmit}
-                onPress={() => void handleCreateBooking()}>
-                <Button.Label className="font-button text-[16px] text-white">
-                  {startBookingCheckoutMutation.isPending
-                    ? 'A iniciar pagamento...'
-                    : bookingTotalLabel
-                      ? `Pagar ${bookingTotalLabel}`
-                      : 'Pagar'}
-                </Button.Label>
-              </Button>
-            </View>
-          </>
-        ) : (
-          <Button
-            className={`mt-1 h-[58px] rounded-full ${canProceedToPayment ? 'bg-[#1F3125]' : 'bg-[#C9CDC8]'}`}
-            feedbackVariant="none"
-            isDisabled={!canProceedToPayment}
-            onPress={() => setBookingStep('payment')}>
-            <Button.Label className="font-button text-[16px] text-white">
-              Continuar para pagamento
-            </Button.Label>
-          </Button>
-        )}
-      </View>
+          goToNextStep();
+        }}
+      />
 
       <NewBookingSheet
         onClose={() => setIsCourtSheetOpen(false)}
@@ -693,7 +793,7 @@ export function NewBookingScreen() {
                   court={item}
                   isSelected={item.id === selectedCourtId}
                   onPress={() => {
-                    resetSelectionState();
+                    resetSlotSelection();
                     setSelectedCourtId(item.id);
                     setIsCourtSheetOpen(false);
                   }}
@@ -726,7 +826,7 @@ export function NewBookingScreen() {
         <View className="mb-4 flex-row items-center justify-between">
           <View className="flex-row items-center">
             <Users size={16} stroke="#1F3125" strokeWidth={2.1} />
-            <Text className="ml-2 text-[12px] text-[#666666]">
+            <Text className="font-label ml-2 text-[12px] text-[#666666]">
               {selectedGuests.length}/{maxGuestSlots} convidados
             </Text>
           </View>
@@ -741,7 +841,7 @@ export function NewBookingScreen() {
         {guestSearchQueryResult.isLoading ? (
           <View className="items-center justify-center py-10">
             <LoadingIndicator size="large" />
-            <Text className="mt-3 text-center text-[13px] text-[#6D6D6D]">
+            <Text className="font-label mt-3 text-center text-[13px] text-[#6D6D6D]">
               A pesquisar membros.
             </Text>
           </View>
@@ -789,7 +889,7 @@ export function NewBookingScreen() {
         snapPoints={['70%']}>
         <View className="mb-4 flex-row items-center">
           <CalendarDays size={18} stroke="#1F3125" strokeWidth={2.1} />
-          <Text className="ml-2 text-[12px] text-[#666666]">
+          <Text className="font-label ml-2 text-[12px] text-[#666666]">
             Escolhe uma data ate {formatReservationDateLabel(getMaxBookableDateKey())}
           </Text>
         </View>
@@ -806,7 +906,7 @@ export function NewBookingScreen() {
           maxDate={getMaxBookableDateKey()}
           minDate={clampBookableDateKey()}
           onDayPress={(day) => {
-            resetSelectionState();
+            resetSlotSelection();
             setSelectedDate(clampBookableDateKey(day.dateString));
             setIsDateSheetOpen(false);
           }}
@@ -814,8 +914,10 @@ export function NewBookingScreen() {
             arrowColor: '#1F3125',
             dayTextColor: '#181818',
             monthTextColor: '#181818',
-            selectedDayBackgroundColor: '#1F3125',
+            selectedDayBackgroundColor: '#BDE111',
             selectedDayTextColor: '#181818',
+            textDayFontFamily: 'Poppins_400Regular',
+            textMonthFontFamily: 'Poppins_600SemiBold',
             textDayFontSize: 13,
             textMonthFontSize: 16,
             todayTextColor: '#1F3125',

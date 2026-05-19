@@ -10,7 +10,7 @@ export enum BookingStatus {
 
 export interface BookingParticipant {
   isOrganizer: boolean;
-  status: string;
+  status: 'INVITED' | 'ACCEPTED' | 'DECLINED' | 'REMOVED';
   userId: string;
 }
 
@@ -25,7 +25,7 @@ export interface BookingInvitation {
 
 export interface BookingStatusHistoryItem {
   createdAt: string;
-  fromStatus: BookingStatus;
+  fromStatus: BookingStatus | null;
   reason: string | null;
   toStatus: BookingStatus;
 }
@@ -48,13 +48,11 @@ export interface BookingItem {
   durationMinutes: number;
   endAt: string;
   id: string;
-  invitations: BookingInvitation[];
   organizerId: string;
   paidAmount: number;
   participants: BookingParticipant[];
   paymentDueAt: string | null;
   payments: BookingPayment[];
-  seriesId: string | null;
   startAt: string;
   status: BookingStatus;
   statusHistory: BookingStatusHistoryItem[];

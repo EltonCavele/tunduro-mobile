@@ -83,13 +83,8 @@ export function BookingSuccessScreen() {
         <CheckCircle2 size={68} stroke="#1F3125" strokeWidth={1.8} />
         <Text className="mt-6 text-[24px] font-semibold text-[#171717]">Reserva confirmada!</Text>
 
-        <View className="mt-6 w-full max-w-[340px] rounded-[24px] bg-[#F4F6F3] px-5 py-5">
-          <Text className="text-[18px] font-semibold text-[#171717]">{booking.courtId}</Text>
-          <Text className="mt-1 text-[14px] text-[#5E5E5E]">
-            {formatReservationDateLabel(booking.startAt.slice(0, 10))} •{' '}
-            {formatTimeRangeLabel(booking.startAt, booking.endAt)}
-          </Text>
-          <Text className="mt-3 text-[14px] text-[#2F2F2F]">
+        <View className="max-w-85 mt-6 w-full rounded-3xl bg-[#F4F6F3] px-5 py-5 text-center">
+          <Text className="mt-3 text-center text-[14px] text-[#2F2F2F]">
             Total pago: {formatCurrencyValue(booking.totalPrice, booking.currency)}
           </Text>
         </View>

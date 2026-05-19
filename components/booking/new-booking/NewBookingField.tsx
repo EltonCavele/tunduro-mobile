@@ -1,4 +1,4 @@
-import { Input, Label, TextField } from 'heroui-native';
+import { Text } from 'components/app/Text';
 import { ChevronDown } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 
@@ -20,23 +20,24 @@ export function NewBookingField({
   const hasValue = Boolean(value?.trim());
 
   return (
-    <TextField className="mb-7" isRequired={required}>
-      <Label className="font-label mb-3 text-[14px] text-[#181818]">{label}</Label>
-      <Pressable accessibilityRole="button" onPress={onPress}>
-        <View pointerEvents="none" className="relative">
-          <Input
-            editable={false}
-            variant="secondary"
-            placeholder={placeholder}
-            placeholderColorClassName="text-[#92939C]"
-            value={hasValue ? value : ''}
-          />
+    <View className="mb-6">
+      <Text className="font-label mb-2 text-[15px] text-[#202020]">
+        {label}
+        {required ? <Text className="text-[#C54D4D]"> *</Text> : null}
+      </Text>
 
-          <View className="absolute inset-y-0 right-0 justify-center pr-5">
-            <ChevronDown size={24} stroke="#7E8089" strokeWidth={2} />
-          </View>
+      <Pressable accessibilityRole="button" onPress={onPress}>
+        <View className="h-[52px] flex-row items-center rounded-2xl border border-[#D8D8DE] bg-white px-4">
+          <Text
+            className={`font-input flex-1 text-[15px] ${
+              hasValue ? 'text-[#171717]' : 'text-[#92939C]'
+            }`}>
+            {hasValue ? value : placeholder}
+          </Text>
+
+          <ChevronDown size={22} stroke="#7E8089" strokeWidth={2} />
         </View>
       </Pressable>
-    </TextField>
+    </View>
   );
 }

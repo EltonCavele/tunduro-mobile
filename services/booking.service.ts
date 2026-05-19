@@ -58,7 +58,13 @@ export interface CancelBookingPayload {
 export interface RespondToBookingInvitationPayload {
   action: 'accept' | 'decline';
   bookingId: string;
-  token: string;
+  token?: string;
+}
+
+export interface BookingInvitationRespondResult {
+  bookingId: string;
+  invitationId: string;
+  status: 'INVITED' | 'ACCEPTED' | 'DECLINED' | 'REMOVED';
 }
 
 export function getMyBookingsPage(params?: GetMyBookingsPageParams) {
@@ -132,9 +138,21 @@ export function cancelBooking(payload: CancelBookingPayload) {
 }
 
 export function respondToBookingInvitation(payload: RespondToBookingInvitationPayload) {
-  return unwrapResponse<BookingItem>(
-    api.post(`/v1/invitations/${payload.token}/respond`, {
-      action: payload.action,
+  const accept = payload.action === 'accept';
+  const normalizedToken = payload.token?.trim();
+
+  if (normalizedToken) {
+    return unwrapResponse<BookingInvitationRespondResult>(
+      api.post('/v1/bookings/invitations/respond', {
+        accept,
+        token: normalizedToken,
+      })
+    );
+  }
+
+  return unwrapResponse<BookingInvitationRespondResult>(
+    api.post(`/v1/bookings/${payload.bookingId}/invitation/respond`, {
+      accept,
     })
   );
 }
