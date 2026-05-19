@@ -89,11 +89,14 @@ export function HomeScreen() {
         className="flex-1"
         contentContainerClassName="px-6 pb-10"
         showsVerticalScrollIndicator={false}>
-        <View className="mb-6 mt-2">
+        <View className="mb-6 ">
           <Text className="text-[14px] uppercase tracking-wider text-[#7A7A7A]">
             Bem-vindo de volta,
           </Text>
-          <Text className="text-[32px] leading-10 text-[#202020]">{firstName}! 👋</Text>
+          <Text className="text-[14px]  uppercase tracking-wider text-[#7A7A7A]">
+            ao clube de ténis de <Text className="font-bold text-primary">tunduru!</Text>
+          </Text>
+          <Text className="mt-3 text-[32px] leading-10 text-[#202020]">{firstName}! 👋</Text>
         </View>
 
         <Pressable
