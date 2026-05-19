@@ -1,9 +1,10 @@
+import { Text } from 'components/app/Text';
 import { useEffect, useState } from 'react';
 
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Select } from 'heroui-native';
-import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, View } from 'react-native';
 
 import { AuthButton } from 'components/auth/AuthButton';
 import { AuthMinimalField } from 'components/auth/AuthMinimalField';
@@ -165,7 +166,7 @@ export default function EditProfileScreen() {
               onValueChange={(option) => setGender((option?.value as Gender | undefined) ?? null)}
               value={selectedGenderOption}>
               <Select.Trigger className="min-h-12.5 rounded-2xl bg-[#E9E9EC] px-4 shadow-none">
-                <Select.Value className="text-[15px]" placeholder="Selecione o genero" />
+                <Select.Value className="font-input text-[15px]" placeholder="Selecione o genero" />
                 <Select.TriggerIndicator iconProps={{ color: '#6D6D6D', size: 18 }} />
               </Select.Trigger>
 

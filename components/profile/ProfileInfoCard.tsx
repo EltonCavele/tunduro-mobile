@@ -1,7 +1,8 @@
+import { Text } from 'components/app/Text';
 import type { ReactNode } from 'react';
 
 import type { LucideIcon } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 interface ProfileInfoCardProps {
   title: string;

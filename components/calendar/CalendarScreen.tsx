@@ -1,7 +1,8 @@
+import { Text } from 'components/app/Text';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { LoadingIndicator } from 'components/app/LoadingIndicator';
 

@@ -1,4 +1,5 @@
-import { Text, View } from 'react-native';
+import { Text } from 'components/app/Text';
+import { View } from 'react-native';
 
 import { WelcomeActionButton } from './WelcomeActionButton';
 

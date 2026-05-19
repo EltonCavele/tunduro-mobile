@@ -3,7 +3,10 @@ import type { ReactNode } from 'react';
 
 import { Eye, EyeOff } from 'lucide-react-native';
 import type { KeyboardTypeOptions, TextInputProps } from 'react-native';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+
+import { Text } from 'components/app/Text';
+import { TextInput } from 'components/app/TextInput';
 
 interface AuthMinimalFieldProps {
   label: string;

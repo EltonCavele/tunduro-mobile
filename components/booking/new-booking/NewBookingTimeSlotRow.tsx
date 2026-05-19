@@ -1,5 +1,6 @@
+import { Text } from 'components/app/Text';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import type { SelectableTimeSlot } from './shared';
 

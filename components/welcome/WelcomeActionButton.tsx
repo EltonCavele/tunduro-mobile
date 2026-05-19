@@ -1,6 +1,8 @@
+import { Text } from 'components/app/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from 'react';
-import { Animated, Easing, type LayoutChangeEvent, Pressable, Text } from 'react-native';
+import { Animated, Easing, Pressable } from 'react-native';
+import type { LayoutChangeEvent } from 'react-native';
 
 interface WelcomeActionButtonProps {
   label: string;

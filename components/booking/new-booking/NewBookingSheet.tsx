@@ -37,7 +37,7 @@ export function NewBookingSheet({
           keyboardBehavior="interactive"
           snapPoints={snapPoints}>
           <View className="mb-4 flex-row items-center justify-between">
-            <BottomSheet.Title className="text-[18px] font-semibold text-[#111111]">
+            <BottomSheet.Title className="text-[18px] font-medium text-[#111111]">
               {title}
             </BottomSheet.Title>
 

@@ -1,7 +1,8 @@
+import { Text } from 'components/app/Text';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Clock3 } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
 

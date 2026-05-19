@@ -1,5 +1,6 @@
+import { Text } from 'components/app/Text';
 import { CalendarDays } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import type { CalendarReservation } from 'lib/calendar-bookings';
 

@@ -1,8 +1,9 @@
+import { Text } from 'components/app/Text';
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { ListGroup, Separator, Switch } from 'heroui-native';
 import { ArrowLeft, Bell, BellOff, Mail, MessageSquare } from 'lucide-react-native';
-import { AppState, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { AppState, Linking, Pressable, ScrollView, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { SafeAreaView } from 'components/app/SafeAreaView';
@@ -148,10 +149,10 @@ export default function NotificationsPreferencesRoute() {
                 </View>
               </ListGroup.ItemPrefix>
               <ListGroup.ItemContent>
-                <ListGroup.ItemTitle className="text-[15px] font-medium text-[#18181B]">
+                <ListGroup.ItemTitle className="text-[15px] font-semibold text-[#18181B]">
                   Notificações Push
                 </ListGroup.ItemTitle>
-                <ListGroup.ItemDescription className="text-[12px] text-[#71717A]">
+                <ListGroup.ItemDescription className="font-label text-[12px] text-[#71717A]">
                   Alertas diretos no telemóvel
                 </ListGroup.ItemDescription>
               </ListGroup.ItemContent>
@@ -173,10 +174,10 @@ export default function NotificationsPreferencesRoute() {
                 </View>
               </ListGroup.ItemPrefix>
               <ListGroup.ItemContent>
-                <ListGroup.ItemTitle className="text-[15px] font-medium text-[#18181B]">
+                <ListGroup.ItemTitle className="text-[15px] font-semibold text-[#18181B]">
                   SMS
                 </ListGroup.ItemTitle>
-                <ListGroup.ItemDescription className="text-[12px] text-[#71717A]">
+                <ListGroup.ItemDescription className="font-label text-[12px] text-[#71717A]">
                   Mensagens de texto
                 </ListGroup.ItemDescription>
               </ListGroup.ItemContent>
@@ -198,10 +199,10 @@ export default function NotificationsPreferencesRoute() {
                 </View>
               </ListGroup.ItemPrefix>
               <ListGroup.ItemContent>
-                <ListGroup.ItemTitle className="text-[15px] font-medium text-[#18181B]">
+                <ListGroup.ItemTitle className="text-[15px] font-semibold text-[#18181B]">
                   Email
                 </ListGroup.ItemTitle>
-                <ListGroup.ItemDescription className="text-[12px] text-[#71717A]">
+                <ListGroup.ItemDescription className="font-label text-[12px] text-[#71717A]">
                   Para o teu endereço registado
                 </ListGroup.ItemDescription>
               </ListGroup.ItemContent>

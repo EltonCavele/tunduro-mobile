@@ -1,10 +1,11 @@
+import { Text } from 'components/app/Text';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Bell, KeyRound, Signal } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { LoadingIndicator } from 'components/app/LoadingIndicator';
 import { SafeAreaView } from 'components/app/SafeAreaView';

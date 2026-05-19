@@ -1,7 +1,8 @@
+import { Text } from 'components/app/Text';
 import { useState } from 'react';
 
 import { Stack, useRouter } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { AuthButton } from 'components/auth/AuthButton';
 import { AuthMinimalField } from 'components/auth/AuthMinimalField';

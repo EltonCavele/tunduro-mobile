@@ -20,38 +20,47 @@
  */
 @utility font-normal {
   font-family: var(--font-sans);
+  font-weight: normal;
 }
 
 @utility font-medium {
   font-family: var(--font-button);
+  font-weight: normal;
 }
 
 @utility font-semibold {
   font-family: var(--font-title);
+  font-weight: normal;
 }
 
 @utility font-bold {
   font-family: var(--font-title-bold);
+  font-weight: normal;
 }
 
 @utility font-title {
   font-family: var(--font-title);
+  font-weight: normal;
 }
 
 @utility font-title-bold {
   font-family: var(--font-title-bold);
+  font-weight: normal;
 }
 
 @utility font-label {
   font-family: var(--font-label);
+  font-weight: normal;
 }
 
 @utility font-input {
   font-family: var(--font-input);
+  font-weight: normal;
 }
 
 @utility font-button {
   font-family: var(--font-button);
+  font-weight: normal;
 }
 
 @source './node_modules/heroui-native/lib';

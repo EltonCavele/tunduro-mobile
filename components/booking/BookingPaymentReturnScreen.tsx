@@ -1,8 +1,9 @@
+import { Text } from 'components/app/Text';
 import { useEffect, useMemo, useRef } from 'react';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
 import { LoadingIndicator } from 'components/app/LoadingIndicator';

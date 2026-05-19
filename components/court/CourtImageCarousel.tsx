@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 
 import type { ImageSourcePropType, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
-import { Image, ScrollView, Text, View } from 'react-native';
+import { Image, ScrollView, View } from 'react-native';
+
+import { Text } from 'components/app/Text';
 
 import { DEFAULT_COURT_IMAGE } from 'components/booking/new-booking/shared';
 import type { CourtImage } from 'lib/court.types';

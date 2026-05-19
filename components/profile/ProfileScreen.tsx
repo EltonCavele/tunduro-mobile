@@ -1,9 +1,10 @@
+import { Text } from 'components/app/Text';
 import { useState } from 'react';
 
 import { useRouter } from 'expo-router';
 import { ListGroup, Separator } from 'heroui-native';
 import { Bell, LogOut, Shield, Wallet } from 'lucide-react-native';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { SafeAreaView } from 'components/app/SafeAreaView';
@@ -70,10 +71,10 @@ export function ProfileScreen() {
                     </View>
                   </ListGroup.ItemPrefix>
                   <ListGroup.ItemContent>
-                    <ListGroup.ItemTitle className="text-[15px] font-medium tracking-[-0.3px] text-[#1A1A1A]">
+                    <ListGroup.ItemTitle className="text-[15px] font-semibold tracking-[-0.3px] text-[#1A1A1A]">
                       Pagamentos
                     </ListGroup.ItemTitle>
-                    <ListGroup.ItemDescription className="text-[12px] text-[#7E7E7E]">
+                    <ListGroup.ItemDescription className="font-label text-[12px] text-[#7E7E7E]">
                       Seu saldo e extrato
                     </ListGroup.ItemDescription>
                   </ListGroup.ItemContent>
@@ -89,10 +90,10 @@ export function ProfileScreen() {
                     </View>
                   </ListGroup.ItemPrefix>
                   <ListGroup.ItemContent>
-                    <ListGroup.ItemTitle className="text-[15px] font-medium tracking-[-0.3px] text-[#1A1A1A]">
+                    <ListGroup.ItemTitle className="text-[15px] font-semibold tracking-[-0.3px] text-[#1A1A1A]">
                       Notificações
                     </ListGroup.ItemTitle>
-                    <ListGroup.ItemDescription className="text-[12px] text-[#7E7E7E]">
+                    <ListGroup.ItemDescription className="font-label text-[12px] text-[#7E7E7E]">
                       Sons e alertas
                     </ListGroup.ItemDescription>
                   </ListGroup.ItemContent>
@@ -116,10 +117,10 @@ export function ProfileScreen() {
                     </View>
                   </ListGroup.ItemPrefix>
                   <ListGroup.ItemContent>
-                    <ListGroup.ItemTitle className="text-[15px] font-medium tracking-[-0.3px] text-[#1A1A1A]">
+                    <ListGroup.ItemTitle className="text-[15px] font-semibold tracking-[-0.3px] text-[#1A1A1A]">
                       Privacidade
                     </ListGroup.ItemTitle>
-                    <ListGroup.ItemDescription className="text-[12px] text-[#7E7E7E]">
+                    <ListGroup.ItemDescription className="font-label text-[12px] text-[#7E7E7E]">
                       Segurança da conta
                     </ListGroup.ItemDescription>
                   </ListGroup.ItemContent>
@@ -135,7 +136,7 @@ export function ProfileScreen() {
                     </View>
                   </ListGroup.ItemPrefix>
                   <ListGroup.ItemContent>
-                    <ListGroup.ItemTitle className="text-[15px] font-medium tracking-[-0.3px] text-[#EF5350]">
+                    <ListGroup.ItemTitle className="text-[15px] font-semibold tracking-[-0.3px] text-[#EF5350]">
                       {logoutMutation.isPending ? 'A sair...' : 'Sair da conta'}
                     </ListGroup.ItemTitle>
                   </ListGroup.ItemContent>

@@ -1,6 +1,7 @@
+import { Text } from 'components/app/Text';
 import { Calendar, Clock3, MapPin } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { BookingStatus, getBookingStatusLabel } from 'lib/calendar-bookings';
 
 interface UpcomingMatchCardProps {

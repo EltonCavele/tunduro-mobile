@@ -1,5 +1,6 @@
+import { Text } from 'components/app/Text';
 import { Pencil, Phone, ShieldCheck } from 'lucide-react-native';
-import { Image, ImageBackground, Pressable, Text, View } from 'react-native';
+import { Image, ImageBackground, Pressable, View } from 'react-native';
 
 import type { UserProfile } from 'lib/auth.types';
 import { formatPhoneNumber, getUserDisplayName } from 'lib/auth-utils';

@@ -1,9 +1,10 @@
+import { Text } from 'components/app/Text';
 import { useMemo, useState } from 'react';
 
 import { useRouter } from 'expo-router';
 import { ListGroup, Separator } from 'heroui-native';
 import { ArrowLeft, CreditCard, SlidersHorizontal } from 'lucide-react-native';
-import { FlatList, Pressable, ScrollView, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { SafeAreaView } from 'components/app/SafeAreaView';

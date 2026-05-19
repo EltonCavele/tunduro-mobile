@@ -1,18 +1,11 @@
+import { Text } from 'components/app/Text';
 import type { ReactNode } from 'react';
 
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { LucideIcon } from 'lucide-react-native';
 import { ArrowLeft } from 'lucide-react-native';
-import {
-  ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { ImageBackground, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 
 const START_PAGE_IMAGE = require('../../assets/imgs/startpage.png');
 

@@ -1,7 +1,8 @@
+import { Text } from 'components/app/Text';
 import type { ReactNode } from 'react';
 
 import { StatusBar } from 'expo-status-bar';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
 

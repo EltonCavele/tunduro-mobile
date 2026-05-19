@@ -1,6 +1,7 @@
+import { Text } from 'components/app/Text';
 import { ListGroup } from 'heroui-native';
 import { CreditCard } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import type { Payment } from 'lib/payments.types';
 

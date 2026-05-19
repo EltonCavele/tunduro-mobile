@@ -1,3 +1,5 @@
+import { Text } from 'components/app/Text';
+import { TextInput } from 'components/app/TextInput';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
@@ -5,7 +7,8 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Button, SearchField } from 'heroui-native';
 import { CalendarDays, Clock3, Trash2, Users } from 'lucide-react-native';
-import { type ListRenderItemInfo, ScrollView, Text, TextInput, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import type { ListRenderItemInfo } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -485,7 +488,9 @@ export function NewBookingScreen() {
                   onPress={() => {
                     void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
                   }}>
-                  <Button.Label className="text-[12px] text-white">Tentar novamente</Button.Label>
+                  <Button.Label className="font-button text-[12px] text-white">
+                    Tentar novamente
+                  </Button.Label>
                 </Button>
               </View>
             ) : remainingDailyMinutes < SLOT_DURATION_MINUTES ? (
@@ -551,7 +556,9 @@ export function NewBookingScreen() {
           </View>
         )}
 
-        <View style={{ height: bookingStep === 'form' ? 220 + Math.max(insets.bottom, 20) : 300 }} />
+        <View
+          style={{ height: bookingStep === 'form' ? 220 + Math.max(insets.bottom, 20) : 300 }}
+        />
       </ScrollView>
 
       <View
@@ -565,7 +572,9 @@ export function NewBookingScreen() {
                 feedbackVariant="none"
                 onPress={() => setBookingStep('form')}
                 variant="secondary">
-                <Button.Label className="text-[15px] text-[#1F3125]">Voltar</Button.Label>
+                <Button.Label className="font-button text-[15px] text-[#1F3125]">
+                  Voltar
+                </Button.Label>
               </Button>
 
               <Button
@@ -581,7 +590,9 @@ export function NewBookingScreen() {
                   setPhoneError('');
                   setBookingStep('summary');
                 }}>
-                <Button.Label className="text-[16px] text-white">Continuar</Button.Label>
+                <Button.Label className="font-button text-[16px] text-white">
+                  Continuar
+                </Button.Label>
               </Button>
             </View>
           </>
@@ -609,7 +620,9 @@ export function NewBookingScreen() {
             </View>
 
             {submissionError ? (
-              <Text className="mt-3 text-[12px] leading-[19px] text-[#D05B5B]">{submissionError}</Text>
+              <Text className="mt-3 text-[12px] leading-[19px] text-[#D05B5B]">
+                {submissionError}
+              </Text>
             ) : null}
 
             <View className="mt-4 flex-row gap-3">
@@ -618,7 +631,9 @@ export function NewBookingScreen() {
                 feedbackVariant="none"
                 onPress={() => setBookingStep('payment')}
                 variant="secondary">
-                <Button.Label className="text-[15px] text-[#1F3125]">Voltar</Button.Label>
+                <Button.Label className="font-button text-[15px] text-[#1F3125]">
+                  Voltar
+                </Button.Label>
               </Button>
 
               <Button
@@ -626,7 +641,7 @@ export function NewBookingScreen() {
                 feedbackVariant="none"
                 isDisabled={!canSubmit}
                 onPress={() => void handleCreateBooking()}>
-                <Button.Label className="text-[16px] text-white">
+                <Button.Label className="font-button text-[16px] text-white">
                   {startBookingCheckoutMutation.isPending
                     ? 'A iniciar pagamento...'
                     : bookingTotalLabel
@@ -642,7 +657,9 @@ export function NewBookingScreen() {
             feedbackVariant="none"
             isDisabled={!canProceedToPayment}
             onPress={() => setBookingStep('payment')}>
-            <Button.Label className="text-[16px] text-white">Continuar para pagamento</Button.Label>
+            <Button.Label className="font-button text-[16px] text-white">
+              Continuar para pagamento
+            </Button.Label>
           </Button>
         )}
       </View>
@@ -768,7 +785,8 @@ export function NewBookingScreen() {
       <NewBookingSheet
         onClose={() => setIsDateSheetOpen(false)}
         title="Selecionar data"
-        visible={isDateSheetOpen}>
+        visible={isDateSheetOpen}
+        snapPoints={['70%']}>
         <View className="mb-4 flex-row items-center">
           <CalendarDays size={18} stroke="#1F3125" strokeWidth={2.1} />
           <Text className="ml-2 text-[12px] text-[#666666]">
@@ -782,7 +800,7 @@ export function NewBookingScreen() {
           markedDates={{
             [selectedDate]: {
               selected: true,
-              selectedColor: '#1F3125',
+              selectedColor: '#BDE111',
             },
           }}
           maxDate={getMaxBookableDateKey()}
@@ -797,7 +815,7 @@ export function NewBookingScreen() {
             dayTextColor: '#181818',
             monthTextColor: '#181818',
             selectedDayBackgroundColor: '#1F3125',
-            selectedDayTextColor: '#FFFFFF',
+            selectedDayTextColor: '#181818',
             textDayFontSize: 13,
             textMonthFontSize: 16,
             todayTextColor: '#1F3125',

@@ -1,6 +1,7 @@
+import { Text } from 'components/app/Text';
 import { useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 interface AddReservationButtonProps {
   selectedDate: string;

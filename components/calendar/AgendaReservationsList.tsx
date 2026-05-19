@@ -1,5 +1,6 @@
+import { Text } from 'components/app/Text';
 import { CalendarDays, MapPin } from 'lucide-react-native';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 
 import { type CalendarReservation, getBookingStatusLabel } from 'lib/calendar-bookings';
 

@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Text, TextInput, type TextInputProps, type TextProps } from 'react-native';
 
+import { resolvePoppinsTextStyle } from 'lib/resolve-poppins-style';
 import { poppinsFontAssets, typography } from 'lib/typography';
 import { AppProviders } from 'providers/AppProviders';
 import { usePushDeepLinking } from 'hooks/usePushDeepLinking';
@@ -30,12 +31,12 @@ function configureGlobalTypography() {
 
   GlobalText.defaultProps = {
     ...textDefaultProps,
-    style: [{ fontFamily: typography.body }, textDefaultProps.style].filter(Boolean),
+    style: resolvePoppinsTextStyle(textDefaultProps.style, 'body'),
   };
 
   GlobalTextInput.defaultProps = {
     ...textInputDefaultProps,
-    style: [{ fontFamily: typography.input }, textInputDefaultProps.style].filter(Boolean),
+    style: resolvePoppinsTextStyle(textInputDefaultProps.style, 'input'),
   };
 
   hasConfiguredGlobalTypography = true;

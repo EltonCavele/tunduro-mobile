@@ -1,5 +1,6 @@
+import { Text } from 'components/app/Text';
 import { BottomSheet } from 'heroui-native';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 
 import type { PaymentStatus } from 'lib/payments.types';
 

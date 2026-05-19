@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Text } from 'components/app/Text';
+import { Pressable, ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
 import { CalendarDays, Plus } from 'lucide-react-native';
 import { ChevronRight } from 'lucide-react-native/icons';

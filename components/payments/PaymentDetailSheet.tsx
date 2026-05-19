@@ -1,3 +1,4 @@
+import { Text } from 'components/app/Text';
 import { BottomSheet } from 'heroui-native';
 import {
   ArrowDownLeft,
@@ -8,7 +9,7 @@ import {
   Loader,
   XCircle,
 } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import type { Payment, PaymentStatus } from 'lib/payments.types';
 import { LoadingIndicator } from 'components/app/LoadingIndicator';

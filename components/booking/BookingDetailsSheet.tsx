@@ -1,16 +1,9 @@
+import { Text } from 'components/app/Text';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { Button } from 'heroui-native';
 import { CheckCircle, Clock3, Phone, Share2 } from 'lucide-react-native';
-import {
-  Image,
-  Linking,
-  Pressable,
-  ScrollView,
-  Share,
-  Text,
-  View,
-} from 'react-native';
+import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConfirmationModal } from 'components/app/ConfirmationModal';
@@ -724,7 +717,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
             <View className="flex-row items-start justify-between pb-4">
               <View className="flex-1">
                 <Text className="text-[17px] text-[#202020]">{bookingDetails.dateLabel}</Text>
-                <Text className="mt-1 text-[32px] leading-[38px] text-[#202020]">
+                <Text className="leading-9.5 mt-1 text-[32px] text-[#202020]">
                   {bookingDetails.title}
                 </Text>
               </View>
@@ -787,9 +780,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                   <Text className="mt-1 text-[14px] text-[#6F6F6F]">
                     {`Faltam cerca de ${sessionCountdown.minutesRoundedUp} minuto${
                       sessionCountdown.minutesRoundedUp === 1 ? '' : 's'
-                    } ${
-                      sessionCountdown.mode === 'toStart' ? 'para iniciar.' : 'para terminar.'
-                    }`}
+                    } ${sessionCountdown.mode === 'toStart' ? 'para iniciar.' : 'para terminar.'}`}
                   </Text>
                 )}
               </View>
@@ -871,7 +862,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                     isDisabled={respondInvitationMutation.isPending}
                     onPress={() => setPendingConfirmationAction('decline-invitation')}
                     variant="secondary">
-                    <Button.Label className="text-[14px] text-[#232323]">
+                    <Button.Label className="font-button text-[14px] text-[#232323]">
                       {pendingInvitationAction === 'decline' && respondInvitationMutation.isPending
                         ? 'A negar...'
                         : 'Negar'}
@@ -883,7 +874,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                     feedbackVariant="none"
                     isDisabled={respondInvitationMutation.isPending}
                     onPress={() => void handleRespondToInvitation('accept')}>
-                    <Button.Label className="text-[14px] text-white">
+                    <Button.Label className="font-button text-[14px] text-white">
                       {pendingInvitationAction === 'accept' && respondInvitationMutation.isPending
                         ? 'A aceitar...'
                         : 'Aceitar convite'}
@@ -897,7 +888,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                     feedbackVariant="none"
                     isDisabled={!isCheckInTime || checkInBookingMutation.isPending}
                     onPress={() => void handleCheckIn()}>
-                    <Button.Label className="text-[14px] text-white">
+                    <Button.Label className="font-button text-[14px] text-white">
                       {checkInBookingMutation.isPending ? 'A fazer check-in...' : 'Fazer check-in'}
                     </Button.Label>
                   </Button>
@@ -915,7 +906,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                       isDisabled={cancelBookingMutation.isPending}
                       onPress={() => setPendingConfirmationAction('cancel-booking')}
                       variant="secondary">
-                      <Button.Label className="text-[14px] text-[#C54D4D]">
+                      <Button.Label className="font-button text-[14px] text-[#C54D4D]">
                         {cancelBookingMutation.isPending ? 'A cancelar...' : 'Cancelar reserva'}
                       </Button.Label>
                     </Button>
@@ -929,7 +920,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                     isDisabled={cancelBookingMutation.isPending}
                     onPress={() => setPendingConfirmationAction('cancel-booking')}
                     variant="secondary">
-                    <Button.Label className="text-[14px] text-[#C54D4D]">
+                    <Button.Label className="font-button text-[14px] text-[#C54D4D]">
                       {cancelBookingMutation.isPending ? 'A cancelar...' : 'Cancelar reserva'}
                     </Button.Label>
                   </Button>

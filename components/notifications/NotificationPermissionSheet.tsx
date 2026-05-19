@@ -1,6 +1,7 @@
+import { Text } from 'components/app/Text';
 import { useEffect, useState } from 'react';
 import { Bell } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { usePushNotificationSetup } from 'hooks/usePushNotificationSetup';
 import { NewBookingSheet } from 'components/booking/new-booking/NewBookingSheet';

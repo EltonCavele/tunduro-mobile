@@ -1,9 +1,10 @@
+import { Text } from 'components/app/Text';
 import { useMemo } from 'react';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { CheckCircle2 } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { LoadingIndicator } from 'components/app/LoadingIndicator';
 import { SafeAreaView } from 'components/app/SafeAreaView';

@@ -1,6 +1,7 @@
+import { Text } from 'components/app/Text';
 import { useRouter } from 'expo-router';
 import { Button } from 'heroui-native';
-import { Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, useWindowDimensions, View } from 'react-native';
 
 import { CourtImageCarousel } from 'components/court/CourtImageCarousel';
 import type { Court } from 'lib/court.types';
@@ -21,8 +22,6 @@ export function CourtHorizontalCard({ court }: CourtHorizontalCardProps) {
   const { width } = useWindowDimensions();
   const contentWidth = Math.max(width - 40, 280);
   const handleOpenDetails = () => router.push(`/courts/${court.id}`);
-
-
 
   return (
     <Pressable accessibilityRole="button" className="bg-white" onPress={handleOpenDetails}>
@@ -66,7 +65,7 @@ export function CourtHorizontalCard({ court }: CourtHorizontalCardProps) {
                   params: { courtId: court.id },
                 });
               }}>
-              <Button.Label className="text-[16px] text-black">Reservar</Button.Label>
+              <Button.Label className="font-button text-[16px] text-black">Reservar</Button.Label>
             </Button>
           </View>
         </View>

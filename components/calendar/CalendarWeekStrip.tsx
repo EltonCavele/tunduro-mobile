@@ -1,5 +1,6 @@
+import { Text } from 'components/app/Text';
 import { useEffect, useMemo, useRef } from 'react';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 
 import type { CalendarReservation } from 'lib/calendar-bookings';
 import {

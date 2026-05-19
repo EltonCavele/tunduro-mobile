@@ -1,4 +1,5 @@
-import { Image, Text, View } from 'react-native';
+import { Text } from 'components/app/Text';
+import { Image, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 
 import { formatReservationDateLabel } from 'lib/booking-reservation';

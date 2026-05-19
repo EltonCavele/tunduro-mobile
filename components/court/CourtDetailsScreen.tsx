@@ -1,7 +1,8 @@
+import { Text } from 'components/app/Text';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Button } from 'heroui-native';
 import { CalendarDays } from 'lucide-react-native';
-import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { ScrollView, View, useWindowDimensions } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { SafeAreaView } from 'components/app/SafeAreaView';
@@ -130,7 +131,7 @@ export function CourtDetailsScreen() {
             })
           }>
           <CalendarDays size={18} stroke="black" strokeWidth={2} />
-          <Button.Label className="text-black">Reservar</Button.Label>
+          <Button.Label className="font-button text-black">Reservar</Button.Label>
         </Button>
       </ScrollView>
     </SafeAreaView>

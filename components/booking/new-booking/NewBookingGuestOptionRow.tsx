@@ -1,5 +1,6 @@
+import { Text } from 'components/app/Text';
 import { Check } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import type { UserProfile } from 'lib/auth.types';
 import { getUserDisplayName } from 'lib/auth-utils';

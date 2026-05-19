@@ -1,6 +1,7 @@
+import { Text } from 'components/app/Text';
 import type { LucideIcon } from 'lucide-react-native';
 import { ChevronRight } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 interface ProfileActionRowProps {
   label: string;

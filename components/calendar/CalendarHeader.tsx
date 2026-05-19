@@ -1,6 +1,7 @@
+import { Text } from 'components/app/Text';
 import type { ComponentType } from 'react';
 import { PencilLine, Search } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { formatScheduleHeading } from 'lib/calendar-bookings';
 
 function HeaderAction({

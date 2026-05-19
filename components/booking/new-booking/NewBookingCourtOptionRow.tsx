@@ -1,5 +1,6 @@
+import { Text } from 'components/app/Text';
 import { Check } from 'lucide-react-native';
-import { Image, Text, View } from 'react-native';
+import { Image, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { Pressable } from 'react-native';
 
@@ -22,8 +23,6 @@ export function NewBookingCourtOptionRow({
   const imageSource: ImageSourcePropType = court.images[0]?.url
     ? { uri: getCourtImageUrl(court.images[0].url) }
     : DEFAULT_COURT_IMAGE;
-
-
 
   return (
     <Pressable

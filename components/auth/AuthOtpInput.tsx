@@ -1,5 +1,9 @@
 import { useRef } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+
+import { Pressable, View, type TextInput as RNTextInput } from 'react-native';
+
+import { Text } from 'components/app/Text';
+import { TextInput } from 'components/app/TextInput';
 
 interface AuthOtpInputProps {
   value: string;
@@ -32,7 +36,7 @@ export function AuthOtpInput({
   emptyCharacter = '•',
   autoFocus = false,
 }: AuthOtpInputProps) {
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<RNTextInput>(null);
   const digits = Array.from({ length }, (_, index) => value[index] ?? '');
   const activeIndex = value.length < length ? value.length : length - 1;
 

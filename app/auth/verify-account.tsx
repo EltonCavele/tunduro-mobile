@@ -1,9 +1,10 @@
+import { Text } from 'components/app/Text';
 import { useState } from 'react';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Lock, MessageCircle } from 'lucide-react-native';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
 import { AuthButton } from 'components/auth/AuthButton';
