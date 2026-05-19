@@ -12,6 +12,7 @@ import { SafeAreaView } from 'components/app/SafeAreaView';
 import type { Gender } from 'lib/auth.types';
 import { formatGenderLabel, splitFullName } from 'lib/auth-utils';
 import { getErrorMessage } from 'lib/error-utils';
+import { typography } from 'lib/typography';
 import { useUpdateProfileMutation } from 'hooks/useProfileMutation';
 import { useProfileQuery } from 'hooks/useProfileQuery';
 
@@ -115,9 +116,8 @@ export default function EditProfileScreen() {
           headerTransparent: false,
           headerStyle: { backgroundColor: '#FFFFFF' },
           headerTitleStyle: {
-            fontFamily: 'Inter_900Black',
+            fontFamily: typography.titleBold,
             fontSize: 16,
-            fontWeight: '600',
             color: '#101010',
           },
         }}

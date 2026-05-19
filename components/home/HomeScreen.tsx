@@ -80,7 +80,7 @@ export function HomeScreen() {
 
   return (
     <SafeAreaView edges={['right', 'left', 'top']} className="flex-1 bg-white">
-      <View className="px-6 pb-4 pt-4">
+      <View className="px-6 pb-4 pt-4 ">
         <HomeHeader />
       </View>
 
@@ -98,7 +98,7 @@ export function HomeScreen() {
         <Pressable
           accessibilityRole="button"
           onPress={() => router.push('/bookings/new')}
-          className="mb-8 flex-row items-center justify-between rounded-[28px] bg-[#BDE111] p-5">
+          className="mb-8 flex-row items-center justify-between rounded-[28px] bg-primary p-5">
           <View className="flex-1 pr-4">
             <Text className="text-[18px] text-[#171717]">Nova Reserva</Text>
             <Text className="mt-1 text-[13px] leading-5 text-[#3F4F19]">
@@ -112,10 +112,6 @@ export function HomeScreen() {
 
         <View className="mb-4 flex-row items-center justify-between">
           <Text className="text-[18px] text-[#232323]">Próximas partidas</Text>
-          <Pressable className="flex-row items-center px-2 py-1">
-            <Text className="text-[14px] text-[#1F3125]">Ver agenda</Text>
-            <ChevronRight size={16} stroke="#1F3125" strokeWidth={2.1} />
-          </Pressable>
         </View>
 
         {isLoadingBookings ? (

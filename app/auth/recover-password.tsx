@@ -9,6 +9,7 @@ import { AuthMinimalField } from 'components/auth/AuthMinimalField';
 import { SafeAreaView } from 'components/app/SafeAreaView';
 import { useForgotPasswordMutation } from 'hooks/useAuthMutations';
 import { getErrorMessage } from 'lib/error-utils';
+import { typography } from 'lib/typography';
 
 export default function RecoverPasswordScreen() {
   const router = useRouter();
@@ -58,9 +59,8 @@ export default function RecoverPasswordScreen() {
           headerStyle: { backgroundColor: '#FFFFFF' },
           sheetElevation: 0,
           headerTitleStyle: {
-            fontFamily: 'Inter_900Black',
+            fontFamily: typography.titleBold,
             fontSize: 16,
-            fontWeight: '500',
             color: '#101010',
           },
         }}

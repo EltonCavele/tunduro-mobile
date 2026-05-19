@@ -9,19 +9,19 @@ export function HomeHeader() {
   // Use a nice avatar color that fits the brand
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
     displayName
-  )}&font-size=0.35&background=1F3125&color=fff&rounded=true&bold=true`;
+  )}&font-size=0.35&background=BDE111&color=000&rounded=true&bold=true`;
 
   return (
     <View className="flex-row items-center justify-between">
-      <View className="rounded-full shadow-sm">
+      <View className="rounded-full">
         <Image
           source={{ uri: avatarUrl }}
-          className="h-[46px] w-[46px] overflow-hidden rounded-full bg-[#F3F4F2]"
+          className="w-11.5 h-11.5 overflow-hidden rounded-full bg-[#F3F4F2]"
           resizeMode="cover"
         />
       </View>
 
-      <View className="h-[46px] w-[46px] items-center justify-center rounded-full bg-[#F3F4F2]">
+      <View className="w-11.5 h-11.5 items-center justify-center rounded-full bg-[#F3F4F2]">
         <Bell size={20} stroke="#1F3125" strokeWidth={2} />
       </View>
     </View>

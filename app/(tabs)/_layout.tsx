@@ -7,6 +7,7 @@ import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { TabBarIcon } from 'components/navigation/TabBarIcon';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { getPreferredIdentifier } from 'lib/auth-utils';
+import { typography } from 'lib/typography';
 
 export default function TabsLayout() {
   const router = useRouter();
@@ -27,9 +28,7 @@ export default function TabsLayout() {
         ? `/auth/verify-account?identifier=${encodeURIComponent(identifier)}`
         : '/auth/verify-account';
 
-      router.replace(
-        verifyAccountHref
-      );
+      router.replace(verifyAccountHref);
     }
   }, [hasSession, identifier, isLoading, isVerified, router]);
 
@@ -49,16 +48,16 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: '#8B8B8B',
         tabBarHideOnKeyboard: true,
         headerBackTitleStyle: {
-          fontFamily: 'Inter_700Black',
+          fontFamily: typography.label,
         },
         headerTitleStyle: {
-          fontFamily: 'Inter_700Black',
+          fontFamily: typography.titleBold,
         },
         tabBarStyle: {
           paddingTop: 8,
         },
         tabBarLabelStyle: {
-          fontFamily: 'Inter_700Black',
+          fontFamily: typography.button,
         },
         sceneStyle: {
           backgroundColor: 'white',

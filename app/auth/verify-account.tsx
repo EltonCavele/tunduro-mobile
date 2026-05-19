@@ -2,17 +2,40 @@ import { useState } from 'react';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import { Lock, MessageCircle } from 'lucide-react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 
+import { SafeAreaView } from 'components/app/SafeAreaView';
 import { AuthButton } from 'components/auth/AuthButton';
 import { AuthOtpInput } from 'components/auth/AuthOtpInput';
-import { SafeAreaView } from 'components/app/SafeAreaView';
 import {
   useRequestVerificationOtpMutation,
   useVerifyAccountMutation,
 } from 'hooks/useAuthMutations';
-import { maskIdentifier } from 'lib/auth-utils';
 import { getErrorMessage } from 'lib/error-utils';
+
+const OTP_LENGTH = 6;
+const VERIFY_PURPLE = '#8B8FE8';
+const VERIFY_PURPLE_LIGHT = '#ECECF8';
+
+function VerifyAccountIcon() {
+  return (
+    <View className="items-center">
+      <View
+        className="h-[104px] w-[104px] items-center justify-center rounded-full"
+        style={{ backgroundColor: VERIFY_PURPLE_LIGHT }}>
+        <View
+          className="h-[72px] w-[72px] items-center justify-center rounded-full"
+          style={{ backgroundColor: VERIFY_PURPLE }}>
+          <MessageCircle color="#FFFFFF" size={30} strokeWidth={2} />
+          <View className="absolute -right-0.5 -top-0.5 rounded-full bg-white p-1">
+            <Lock color={VERIFY_PURPLE} size={14} strokeWidth={2.2} />
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
 
 export default function VerifyAccountScreen() {
   const router = useRouter();
@@ -23,7 +46,7 @@ export default function VerifyAccountScreen() {
   const [errorMessage, setErrorMessage] = useState('');
   const identifier =
     typeof params.identifier === 'string' && params.identifier.length > 0 ? params.identifier : '';
-  const maskedIdentifier = maskIdentifier(identifier) || 'o seu contacto';
+  const displayIdentifier = identifier || 'o seu contacto';
 
   async function handleVerifyAccount() {
     if (!identifier) {
@@ -31,8 +54,8 @@ export default function VerifyAccountScreen() {
       return;
     }
 
-    if (code.length < 6) {
-      setErrorMessage('Introduza o codigo completo de 6 digitos.');
+    if (code.length < OTP_LENGTH) {
+      setErrorMessage(`Introduza o codigo completo de ${OTP_LENGTH} digitos.`);
       return;
     }
 
@@ -71,55 +94,67 @@ export default function VerifyAccountScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1">
-        <View className="flex-1 px-6 pb-16 pt-20">
-          <View className="flex-1 justify-center">
-            <Text className="text-center text-[22px] font-bold tracking-[-0.3px] text-[#101010]">
-              Verificar conta
-            </Text>
+        <ScrollView
+          bounces={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <View className="flex-1 justify-between px-7 pb-10 pt-16">
+            <View className="items-center">
+              <VerifyAccountIcon />
 
-            <View className="mt-8 items-center">
-              <Text className="text-center text-[11px] leading-4 text-[#909090]">
-                Enviamos um codigo para {maskedIdentifier}
+              <Text className="mt-8 text-center text-[26px] font-bold tracking-[-0.4px] text-[#101010]">
+                Codigo de verificacao
               </Text>
-            </View>
 
-            <AuthOtpInput
-              cellClassName="h-11 w-11 items-center justify-center rounded-xl border"
-              className="mt-4 self-center"
-              emptyCellClassName="border-[#E6E6EA] bg-[#F2F2F5]"
-              emptyCharacter=""
-              filledCellClassName="border-[#82A8FF] bg-white"
-              length={6}
-              onChangeText={setCode}
-              rowClassName="flex-row items-center gap-2"
-              textClassName="text-[16px] font-semibold text-[#101010]"
-              value={code}
-            />
+              <Text className="mt-4 px-2 text-center text-[15px] leading-[22px] text-[#3A3A3A]">
+                Introduza o codigo de verificacao que enviamos para{' '}
+                <Text className="font-semibold text-[#101010]">{displayIdentifier}</Text>
+              </Text>
 
-            <View className="mt-4 flex-row items-center justify-center">
-              <Text className="text-[11px] text-[#8E8E8E]">Nao recebeu o codigo?</Text>
-              <Pressable accessibilityRole="button" className="ml-1" onPress={handleResendOtp}>
-                <Text className="text-[11px] font-semibold text-[#1F3125]">
-                  {resendOtpMutation.isPending ? 'A reenviar...' : 'Reenviar'}
+              <AuthOtpInput
+                activeCellClassName="border-[#8B8FE8] bg-[#8B8FE8]"
+                activeTextClassName="text-[22px] font-semibold text-white"
+                autoFocus
+                cellClassName="h-[56px] w-[46px] items-center justify-center rounded-full border"
+                className="mt-10"
+                emptyCellClassName="border-[#D8D8DE] bg-white"
+                emptyCharacter=""
+                filledCellClassName="border-[#D8D8DE] bg-white"
+                length={OTP_LENGTH}
+                onChangeText={setCode}
+                rowClassName="flex-row items-center justify-center gap-2.5"
+                textClassName="text-[22px] font-semibold text-[#101010]"
+                value={code}
+              />
+
+              <View className="mt-8 flex-row flex-wrap items-center justify-center">
+                <Text className="text-[14px] text-[#3A3A3A]">Nao recebeu o codigo? </Text>
+                <Pressable accessibilityRole="button" onPress={handleResendOtp}>
+                  <Text className="text-[14px] font-semibold" style={{ color: VERIFY_PURPLE }}>
+                    {resendOtpMutation.isPending ? 'A reenviar...' : 'Reenviar'}
+                  </Text>
+                </Pressable>
+              </View>
+
+              {errorMessage ? (
+                <Text className="mt-5 px-4 text-center text-[13px] leading-5 text-[#D05B5B]">
+                  {errorMessage}
                 </Text>
-              </Pressable>
+              ) : null}
             </View>
 
-            {errorMessage ? (
-              <Text className="mt-4 text-center text-[13px] text-[#D05B5B]">{errorMessage}</Text>
-            ) : null}
+            <AuthButton
+              className="mt-10 h-[52px] rounded-full"
+              disabled={code.length < OTP_LENGTH}
+              isLoading={verifyAccountMutation.isPending}
+              label="Confirmar"
+              loadingLabel="A verificar..."
+              onPress={handleVerifyAccount}
+              textClassName="text-[16px] font-bold"
+            />
           </View>
-
-          <AuthButton
-            className="h-[40px] rounded-full"
-            disabled={code.length < 6}
-            isLoading={verifyAccountMutation.isPending}
-            label="Finalizar"
-            loadingLabel="A verificar..."
-            onPress={handleVerifyAccount}
-            textClassName="text-[15px] font-medium"
-          />
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

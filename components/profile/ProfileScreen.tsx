@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { useRouter } from 'expo-router';
 import { ListGroup, Separator } from 'heroui-native';
-import { Bell, LogOut, Shield, Trophy, Users, Wallet } from 'lucide-react-native';
+import { Bell, LogOut, Shield, Wallet } from 'lucide-react-native';
 import { ScrollView, Text, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
@@ -47,12 +47,6 @@ export function ProfileScreen() {
     }
   }
 
-  const stats = [
-    { label: 'Jogos', value: '24', icon: Trophy },
-    { label: 'Vitórias', value: '18', icon: Shield },
-    { label: 'Amigos', value: '42', icon: Users },
-  ];
-
   return (
     <SafeAreaView edges={['right', 'left']} className="flex-1 bg-white">
       <ScrollView
@@ -61,23 +55,6 @@ export function ProfileScreen() {
         showsVerticalScrollIndicator={false}>
         <View>
           <ProfileHeaderCard user={user} onEditPress={() => router.push('/profile/edit')} />
-
-          {/* Stats Section */}
-          <View className="mt-6 flex-row justify-between px-5">
-            {stats.map((stat, index) => (
-              <View
-                key={index}
-                className="w-[30%] items-center rounded-2xl border border-[#F0F0F0] bg-white p-4">
-                <View className="mb-2 h-8 w-8 items-center justify-center rounded-full bg-[#F5F7F6]">
-                  <stat.icon size={16} color="#1B3022" />
-                </View>
-                <Text className="text-[18px] font-bold text-[#1A1A1A]">{stat.value}</Text>
-                <Text className="text-[11px] font-medium uppercase tracking-[0.5px] text-[#7E7E7E]">
-                  {stat.label}
-                </Text>
-              </View>
-            ))}
-          </View>
 
           {/* Actions Section - Account */}
           <View className="mt-8 px-5">

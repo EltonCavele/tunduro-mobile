@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useRouter } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 
 import { AuthButton } from 'components/auth/AuthButton';
 import { AuthMinimalField } from 'components/auth/AuthMinimalField';
@@ -9,6 +9,8 @@ import { AuthMinimalScreen } from 'components/auth/AuthMinimalScreen';
 import { useSignInMutation } from 'hooks/useAuthMutations';
 import { getPreferredIdentifier } from 'lib/auth-utils';
 import { getErrorMessage } from 'lib/error-utils';
+
+const SIGN_IN_LOGO = require('../../assets/imgs/startpage.png');
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -58,10 +60,27 @@ export default function SignInScreen() {
           accessibilityRole="button"
           className="items-center py-2"
           onPress={() => router.push('/auth/sign-up')}>
-          <Text className="text-[17px] font-normal text-[#181818]">Nao tenho uma conta</Text>
+          <View className="flex-row items-center gap-2 space-x-1">
+            <Text className="text-sm font-normal text-[#181818] ">Nao tenho conta!</Text>
+            <Text className="text-sm font-bold text-black  ">Criar </Text>
+          </View>
         </Pressable>
       }
-      title="Entrar">
+      edges={['bottom', 'left', 'top']}
+      title="">
+      <View className="mb-8 items-center">
+        <View className="h-36 w-36 overflow-hidden rounded-full ">
+          <Image className="h-full w-full" resizeMode="cover" source={SIGN_IN_LOGO} />
+        </View>
+
+        <Text className="mt-4 text-center text-[24px] font-bold text-[#101010]">
+          Seja bem-vindo
+        </Text>
+        <Text className="mt-2 text-center text-[14px] leading-5 text-[#626262]">
+          Entre para continuar no Clube de Tenis de Maputo.
+        </Text>
+      </View>
+
       <View>
         <AuthMinimalField
           autoCapitalize="none"
@@ -98,12 +117,14 @@ export default function SignInScreen() {
               : undefined,
           })
         }>
-        <Text className="text-[14px] font-medium text-[#1F3125]">Esqueceu a palavra-passe?</Text>
+        <Text className="underline-offset-8! text-[14px] font-medium text-[#1F3125] underline">
+          Esqueceu a palavra-passe?
+        </Text>
       </Pressable>
 
       <View>
         <AuthButton
-          className="h-[52px]"
+          className="h-13"
           isLoading={signInMutation.isPending}
           label="Entrar"
           loadingLabel="A entrar..."

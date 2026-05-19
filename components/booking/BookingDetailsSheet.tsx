@@ -20,6 +20,7 @@ import { useAuthStatus } from 'hooks/useAuthStatus';
 import { useBookingDetailsQuery } from 'hooks/useBookingDetailsQuery';
 import { useBookingUsersQuery } from 'hooks/useBookingUsersQuery';
 import { useCancelBookingMutation } from 'hooks/useCancelBookingMutation';
+import { useCheckInBookingMutation } from 'hooks/useCheckInBookingMutation';
 import { useCourtQuery } from 'hooks/useCourtQuery';
 import { useRespondBookingInvitationMutation } from 'hooks/useRespondBookingInvitationMutation';
 import {
@@ -282,6 +283,16 @@ function isUserParticipantOnBooking(booking: BookingItem, userId: string | undef
   return (booking.participants ?? []).some((participant) => participant.userId === userId);
 }
 
+function isBookingCheckInTime(startAt: string, nowMs: number) {
+  const startMs = new Date(startAt).getTime();
+
+  if (Number.isNaN(startMs)) {
+    return false;
+  }
+
+  return nowMs >= startMs;
+}
+
 function getSessionCountdownParts(targetAtIso: string, mode: 'toStart' | 'toEnd', nowMs: number) {
   const targetMs = new Date(targetAtIso).getTime();
 
@@ -452,6 +463,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
     enabled: Boolean(booking?.courtId),
   });
   const cancelBookingMutation = useCancelBookingMutation();
+  const checkInBookingMutation = useCheckInBookingMutation();
   const respondInvitationMutation = useRespondBookingInvitationMutation();
 
   useEffect(() => {
@@ -470,11 +482,14 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
     return () => clearInterval(intervalId);
   }, [booking, bookingId]);
 
+  const nowMs = Date.now();
+  void sessionClockTick;
+
   const sessionCountdown =
     booking && booking.status !== BookingStatus.CANCELLED
       ? booking.checkedInAt
-        ? getSessionCountdownParts(booking.endAt, 'toEnd', Date.now())
-        : getSessionCountdownParts(booking.startAt, 'toStart', Date.now())
+        ? getSessionCountdownParts(booking.endAt, 'toEnd', nowMs)
+        : getSessionCountdownParts(booking.startAt, 'toStart', nowMs)
       : null;
 
   const relatedUserIds = useMemo(() => {
@@ -548,7 +563,15 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
     booking &&
     [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
   );
-  const actionBarVisible = canRespondToInvitation || canCancelBooking;
+  const canPerformCheckIn = Boolean(
+    booking &&
+    user?.id &&
+    booking.status === BookingStatus.CONFIRMED &&
+    !booking.checkedInAt &&
+    isUserParticipantOnBooking(booking, user.id)
+  );
+  const isCheckInTime = booking ? isBookingCheckInTime(booking.startAt, nowMs) : false;
+  const actionBarVisible = canRespondToInvitation || canCancelBooking || canPerformCheckIn;
   const isDeclineMutationPending =
     pendingInvitationAction === 'decline' && respondInvitationMutation.isPending;
   const primaryErrorMessage = getErrorMessage(
@@ -624,6 +647,19 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
       setPendingConfirmationAction(null);
       // Optional: Close the bottom sheet when successfully cancelled.
       // But preserving the state is also fine because the Details will update Live.
+    }
+  }
+
+  async function handleCheckIn() {
+    if (!bookingId || !isCheckInTime) {
+      return;
+    }
+
+    try {
+      setActionError('');
+      await checkInBookingMutation.mutateAsync(bookingId);
+    } catch (error) {
+      setActionError(getErrorMessage(error, 'Nao foi possivel fazer check-in.'));
     }
   }
 
@@ -853,6 +889,37 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                         : 'Aceitar convite'}
                     </Button.Label>
                   </Button>
+                </View>
+              ) : canPerformCheckIn ? (
+                <View className="gap-3 px-6">
+                  <Button
+                    className="h-14 rounded-[20px] bg-[#1F1F1F]"
+                    feedbackVariant="none"
+                    isDisabled={!isCheckInTime || checkInBookingMutation.isPending}
+                    onPress={() => void handleCheckIn()}>
+                    <Button.Label className="text-[14px] text-white">
+                      {checkInBookingMutation.isPending ? 'A fazer check-in...' : 'Fazer check-in'}
+                    </Button.Label>
+                  </Button>
+
+                  {!isCheckInTime ? (
+                    <Text className="text-center text-[13px] leading-5 text-[#7A7A7A]">
+                      O check-in fica disponível à hora do jogo.
+                    </Text>
+                  ) : null}
+
+                  {canCancelBooking ? (
+                    <Button
+                      className="h-14 rounded-[20px] bg-[#FCE8E6]"
+                      feedbackVariant="none"
+                      isDisabled={cancelBookingMutation.isPending}
+                      onPress={() => setPendingConfirmationAction('cancel-booking')}
+                      variant="secondary">
+                      <Button.Label className="text-[14px] text-[#C54D4D]">
+                        {cancelBookingMutation.isPending ? 'A cancelar...' : 'Cancelar reserva'}
+                      </Button.Label>
+                    </Button>
+                  ) : null}
                 </View>
               ) : canCancelBooking ? (
                 <View className="px-6">

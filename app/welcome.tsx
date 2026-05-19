@@ -38,20 +38,7 @@ export default function WelcomeRoute() {
 
       <View className="flex-1 bg-white">
         <View className="flex-[1.35] bg-white">
-          <Image className="h-full w-full" resizeMode="cover" source={START_PAGE_IMAGE} />
-
-          <LinearGradient
-            colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.82)', 'rgba(255,255,255,1)']}
-            locations={[0.4, 0.78, 1]}
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 220,
-            }}
-          />
+          <Image className="h-full w-full" resizeMode="contain" source={START_PAGE_IMAGE} />
         </View>
 
         <View className="-mt-5">

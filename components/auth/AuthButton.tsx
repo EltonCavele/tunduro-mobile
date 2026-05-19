@@ -35,20 +35,20 @@ export function AuthButton({
         ghost
           ? `items-center justify-center py-3 ${className}`
           : `h-14 flex-row items-center justify-center rounded-full ${
-              primary ? 'bg-[#1F3125]' : 'bg-[#EEF3EE]'
+              primary ? ' bg-primary' : 'bg-[#EEF3EE]'
             } ${isDisabled ? 'opacity-50' : ''} ${className}`
       }
       disabled={isDisabled}
       onPress={onPress}>
       {Icon ? (
         <View className={ghost ? 'mr-2' : 'mr-3'}>
-          <Icon size={18} stroke={primary ? '#FFFFFF' : '#1F3125'} strokeWidth={2.1} />
+          <Icon size={18} stroke={primary ? '#1F3125' : '#1F3125'} strokeWidth={2.1} />
         </View>
       ) : null}
 
       <Text
-        className={`text-[16px] font-semibold ${
-          primary ? 'text-white' : ghost ? 'text-[#516252]' : 'text-[#1F3125]'
+        className={`font-button text-[16px] ${
+          primary ? 'text-black' : ghost ? 'text-[#516252]' : 'text-[#1F3125]'
         } ${textClassName}`}>
         {isLoading ? loadingLabel : label}
       </Text>

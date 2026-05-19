@@ -10,7 +10,8 @@ type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
 };
 
-export const baseURL = process.env.EXPO_PUBLIC_API_URL?.trim().replace(/\/+$/, '');
+export const baseURL = 'https://tunduro-backend-production.up.railway.app';
+// process.env.EXPO_PUBLIC_API_URL?.trim().replace(/\/+$/, '');
 
 let refreshRequest: Promise<string | null> | null = null;
 

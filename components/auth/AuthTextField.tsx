@@ -35,7 +35,7 @@ export function AuthTextField({
 
   return (
     <View className="mb-4">
-      <Text className="mb-2 text-[13px] font-semibold uppercase tracking-[0.9px] text-[#667066]">
+      <Text className="font-label mb-2 text-[13px] uppercase tracking-[0.9px] text-[#667066]">
         {label}
       </Text>
 
@@ -49,7 +49,7 @@ export function AuthTextField({
         <TextInput
           autoCapitalize={autoCapitalize}
           autoCorrect={false}
-          className="h-14 flex-1 text-[15px] text-[#111111]"
+          className="font-input h-14 flex-1 text-[15px] text-[#111111]"
           keyboardType={keyboardType}
           onChangeText={onChangeText}
           placeholder={placeholder}

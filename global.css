@@ -3,9 +3,55 @@
 @import 'heroui-native/styles';
 
 @theme {
-  --font-sans: 'Inter_700Black';
-  --font-display: 'Inter_700Black';
+  --font-sans: 'Poppins_400Regular';
+  --font-body: 'Poppins_400Regular';
+  --font-label: 'Poppins_400Regular';
+  --font-input: 'Poppins_400Regular';
+  --font-button: 'Poppins_500Medium';
+  --font-title: 'Poppins_600SemiBold';
+  --font-title-bold: 'Poppins_700Bold';
+  --font-display: 'Poppins_700Bold';
   --color-primary: #bde111;
+}
+
+/*
+ * React Native precisa do ficheiro de fonte correto por peso.
+ * Mapeia utilitários Tailwind para as variantes Poppins carregadas.
+ */
+@utility font-normal {
+  font-family: var(--font-sans);
+}
+
+@utility font-medium {
+  font-family: var(--font-button);
+}
+
+@utility font-semibold {
+  font-family: var(--font-title);
+}
+
+@utility font-bold {
+  font-family: var(--font-title-bold);
+}
+
+@utility font-title {
+  font-family: var(--font-title);
+}
+
+@utility font-title-bold {
+  font-family: var(--font-title-bold);
+}
+
+@utility font-label {
+  font-family: var(--font-label);
+}
+
+@utility font-input {
+  font-family: var(--font-input);
+}
+
+@utility font-button {
+  font-family: var(--font-button);
 }
 
 @source './node_modules/heroui-native/lib';

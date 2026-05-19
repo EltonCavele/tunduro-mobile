@@ -9,9 +9,12 @@ interface AuthOtpInputProps {
   rowClassName?: string;
   cellClassName?: string;
   filledCellClassName?: string;
+  activeCellClassName?: string;
   emptyCellClassName?: string;
   textClassName?: string;
+  activeTextClassName?: string;
   emptyCharacter?: string;
+  autoFocus?: boolean;
 }
 
 export function AuthOtpInput({
@@ -22,12 +25,16 @@ export function AuthOtpInput({
   rowClassName = 'flex-row justify-between gap-3',
   cellClassName = 'h-16 flex-1 items-center justify-center rounded-[20px] border',
   filledCellClassName = 'border-[#1F3125] bg-[#EEF3EE]',
+  activeCellClassName,
   emptyCellClassName = 'border-[#E4E7E1] bg-[#F7F8F5]',
   textClassName = 'text-[24px] font-semibold text-[#151515]',
+  activeTextClassName,
   emptyCharacter = '•',
+  autoFocus = false,
 }: AuthOtpInputProps) {
   const inputRef = useRef<TextInput>(null);
   const digits = Array.from({ length }, (_, index) => value[index] ?? '');
+  const activeIndex = value.length < length ? value.length : length - 1;
 
   return (
     <Pressable
@@ -35,22 +42,30 @@ export function AuthOtpInput({
       className={className}
       onPress={() => inputRef.current?.focus()}>
       <View className={rowClassName}>
-        {digits.map((digit, index) => (
-          <View
-            key={index}
-            className={`${cellClassName} ${
-              digit ? filledCellClassName : emptyCellClassName
-            }`}>
-            <Text className={textClassName}>
-              {digit || emptyCharacter}
-            </Text>
-          </View>
-        ))}
+        {digits.map((digit, index) => {
+          const isActive = index === activeIndex;
+          const cellStateClassName = isActive
+            ? (activeCellClassName ?? filledCellClassName)
+            : digit
+              ? filledCellClassName
+              : emptyCellClassName;
+
+          return (
+            <View key={index} className={`${cellClassName} ${cellStateClassName}`}>
+              <Text
+                className={
+                  isActive && activeTextClassName ? activeTextClassName : textClassName
+                }>
+                {digit || emptyCharacter}
+              </Text>
+            </View>
+          );
+        })}
       </View>
 
       <TextInput
         ref={inputRef}
-        autoFocus={false}
+        autoFocus={autoFocus}
         className="absolute opacity-0"
         keyboardType="number-pad"
         maxLength={length}

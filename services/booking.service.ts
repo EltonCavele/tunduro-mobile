@@ -138,3 +138,7 @@ export function respondToBookingInvitation(payload: RespondToBookingInvitationPa
     })
   );
 }
+
+export function checkInBooking(bookingId: string) {
+  return unwrapResponse<BookingItem>(api.post(`/v1/bookings/${bookingId}/checkin`));
+}

@@ -1,20 +1,20 @@
 import 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
-import { Inter_900Black, useFonts } from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Text, TextInput, type TextInputProps, type TextProps } from 'react-native';
 
+import { poppinsFontAssets, typography } from 'lib/typography';
 import { AppProviders } from 'providers/AppProviders';
 import { usePushDeepLinking } from 'hooks/usePushDeepLinking';
 import { useResumeActiveCheckout } from 'hooks/useResumeActiveCheckout';
 
 import '../global.css';
 
-const APP_FONT_FAMILY = 'Inter_500Black';
 const GlobalText = Text as typeof Text & { defaultProps?: TextProps };
 const GlobalTextInput = TextInput as typeof TextInput & { defaultProps?: TextInputProps };
 
@@ -30,12 +30,12 @@ function configureGlobalTypography() {
 
   GlobalText.defaultProps = {
     ...textDefaultProps,
-    style: [{ fontFamily: APP_FONT_FAMILY }, textDefaultProps.style].filter(Boolean),
+    style: [{ fontFamily: typography.body }, textDefaultProps.style].filter(Boolean),
   };
 
   GlobalTextInput.defaultProps = {
     ...textInputDefaultProps,
-    style: [{ fontFamily: APP_FONT_FAMILY }, textInputDefaultProps.style].filter(Boolean),
+    style: [{ fontFamily: typography.input }, textInputDefaultProps.style].filter(Boolean),
   };
 
   hasConfiguredGlobalTypography = true;
@@ -53,8 +53,8 @@ function AppNavigation() {
       <Stack
         screenOptions={{
           headerShown: false,
-          headerBackTitleStyle: { fontFamily: APP_FONT_FAMILY },
-          headerTitleStyle: { fontFamily: APP_FONT_FAMILY },
+          headerBackTitleStyle: { fontFamily: typography.title },
+          headerTitleStyle: { fontFamily: typography.titleBold },
         }}>
         <Stack.Screen name="bookings/new" />
         <Stack.Screen name="bookings/[id]" />
@@ -69,9 +69,7 @@ function AppNavigation() {
 }
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    Inter_900Black,
-  });
+  const [loaded, error] = useFonts(poppinsFontAssets);
 
   useEffect(() => {
     if (loaded) {

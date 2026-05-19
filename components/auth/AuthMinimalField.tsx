@@ -56,7 +56,7 @@ export function AuthMinimalField({
 
   return (
     <View className={`mb-6 ${containerClassName}`}>
-      <Text className={`mb-3 text-[15px] font-medium text-[#202020] ${labelClassName}`}>
+      <Text className={`font-label mb-3 text-[15px] text-[#202020] ${labelClassName}`}>
         {label}
       </Text>
 
@@ -64,7 +64,7 @@ export function AuthMinimalField({
         <TextInput
           autoCapitalize={autoCapitalize}
           autoCorrect={false}
-          className={`h-[48px] rounded-2xl bg-[#E9E9EC] px-4 text-[15px] text-[#171717] ${
+          className={`font-input h-[48px] rounded-2xl bg-[#E9E9EC] px-4 text-[15px] text-[#171717] ${
             resolvedRightElement ? 'pr-12' : ''
           } ${inputClassName}`}
           editable={editable}

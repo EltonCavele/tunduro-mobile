@@ -11,6 +11,7 @@ export const bookingQueryKeys = {
   detail: (bookingId: string) => ['bookings', 'detail', bookingId] as const,
   myReservations: ['bookings', 'me'] as const,
   cancel: ['bookings', 'cancel'] as const,
+  checkIn: ['bookings', 'check-in'] as const,
   confirmPayment: ['bookings', 'confirm-payment'] as const,
   create: ['bookings', 'create'] as const,
   respondInvitation: ['bookings', 'respond-invitation'] as const,

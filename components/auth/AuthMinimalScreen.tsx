@@ -9,11 +9,17 @@ interface AuthMinimalScreenProps {
   title: string;
   children: ReactNode;
   footer?: ReactNode;
+  edges?: ('top' | 'right' | 'bottom' | 'left')[];
 }
 
-export function AuthMinimalScreen({ title, children, footer }: AuthMinimalScreenProps) {
+export function AuthMinimalScreen({
+  title,
+  edges = ['right', 'left'],
+  children,
+  footer,
+}: AuthMinimalScreenProps) {
   return (
-    <SafeAreaView edges={['right', 'left']} className="flex-1 bg-white">
+    <SafeAreaView edges={edges} className="flex-1 bg-white">
       <StatusBar style="dark" />
 
       <KeyboardAvoidingView
@@ -30,9 +36,8 @@ export function AuthMinimalScreen({ title, children, footer }: AuthMinimalScreen
                 {title}
               </Text>
             ) : null}
-
             {children}
-            {footer ? <View className="mt-7">{footer}</View> : null}
+            {footer ? <View className="mt-7 ">{footer}</View> : null}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

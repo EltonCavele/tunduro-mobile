@@ -14,18 +14,19 @@ interface ProfileHeaderCardProps {
 export function ProfileHeaderCard({ user, onEditPress }: ProfileHeaderCardProps) {
   const displayName = getUserDisplayName(user);
   const contactPhone = formatPhoneNumber(user.phone);
-  const initials = (user.firstName?.[0] || '') + (user.lastName?.[0] || '');
+  const initials = (user.firstName?.[0] || '') + (user.lastName?.[1] || user.firstName?.[1] || '');
+  console.log(initials);
 
   return (
     <View className="bg-white">
-      <ImageBackground className="h-[140px] w-full" resizeMode="cover" source={START_PAGE_IMAGE}>
+      <ImageBackground className="h-35 w-full" resizeMode="cover" source={START_PAGE_IMAGE}>
         <View className="h-full w-full bg-black/10" />
       </ImageBackground>
 
       <View className="px-5">
         <View className="relative -mt-12 mb-3 flex-row items-end justify-between">
           <View className="relative">
-            <View className="h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-[#F5F7F6]">
+            <View className="h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-primary">
               {user.avatarUrl ? (
                 <Image source={{ uri: user.avatarUrl }} className="h-full w-full" />
               ) : (

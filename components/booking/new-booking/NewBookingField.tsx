@@ -21,7 +21,7 @@ export function NewBookingField({
 
   return (
     <TextField className="mb-7" isRequired={required}>
-      <Label className="mb-3 text-[14px] font-medium text-[#181818]">{label}</Label>
+      <Label className="font-label mb-3 text-[14px] text-[#181818]">{label}</Label>
       <Pressable accessibilityRole="button" onPress={onPress}>
         <View pointerEvents="none" className="relative">
           <Input

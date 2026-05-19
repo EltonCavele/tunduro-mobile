@@ -13,6 +13,7 @@ import {
   isValidEmail,
   splitFullName,
 } from 'lib/auth-utils';
+import { typography } from 'lib/typography';
 import { getErrorMessage } from 'lib/error-utils';
 
 export default function SignUpScreen() {
@@ -101,9 +102,8 @@ export default function SignUpScreen() {
             headerStyle: { backgroundColor: '#FFFFFF' },
             sheetElevation: 0,
             headerTitleStyle: {
-              fontFamily: 'Inter_900Black',
+              fontFamily: typography.titleBold,
               fontSize: 16,
-              fontWeight: '500',
               color: '#101010',
             },
           }}
