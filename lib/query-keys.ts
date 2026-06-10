@@ -14,6 +14,7 @@ export const bookingQueryKeys = {
   checkIn: ['bookings', 'check-in'] as const,
   confirmPayment: ['bookings', 'confirm-payment'] as const,
   create: ['bookings', 'create'] as const,
+  extend: ['bookings', 'extend'] as const,
   respondInvitation: ['bookings', 'respond-invitation'] as const,
 };
 

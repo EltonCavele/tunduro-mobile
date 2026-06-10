@@ -40,6 +40,13 @@ export interface BookingPayment {
   type: string;
 }
 
+export interface BookingExtensionEligibility {
+  amount?: number;
+  available: boolean;
+  newEndAt?: string;
+  reason?: string;
+}
+
 export interface BookingItem {
   checkedInAt: string | null;
   courtId: string;
@@ -47,6 +54,7 @@ export interface BookingItem {
   currency: string;
   durationMinutes: number;
   endAt: string;
+  extension?: BookingExtensionEligibility;
   id: string;
   organizerId: string;
   paidAmount: number;
@@ -263,7 +271,7 @@ export function buildMarkedDates(
       reservations.find((reservation) => reservation.status === BookingStatus.CONFIRMED)
         ?.accentColor ||
       reservations[0]?.accentColor ||
-      '#1F3125';
+      '#BDE111';
 
     markedDates[dateKey] = {
       dotColor: accentColor,

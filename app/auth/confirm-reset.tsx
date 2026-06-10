@@ -94,7 +94,7 @@ export default function ConfirmResetScreen() {
             <View className="mt-4 flex-row items-center justify-center">
               <Text className="text-[11px] text-[#8E8E8E]">Nao recebeu o codigo?</Text>
               <Pressable accessibilityRole="button" className="ml-1" onPress={handleResendCode}>
-                <Text className="text-[11px] font-semibold text-[#1F3125]">
+                <Text className="text-[11px] font-semibold text-[#BDE111]">
                   {forgotPasswordMutation.isPending ? 'A reenviar...' : 'Reenviar'}
                 </Text>
               </Pressable>

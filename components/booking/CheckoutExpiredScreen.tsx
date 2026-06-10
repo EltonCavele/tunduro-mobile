@@ -21,7 +21,7 @@ export function CheckoutExpiredScreen() {
 
         <Pressable
           accessibilityRole="button"
-          className="mt-7 w-full max-w-[320px] items-center rounded-full bg-[#1F3125] px-5 py-3.5"
+          className="mt-7 w-full max-w-[320px] items-center rounded-full bg-[#BDE111] px-5 py-3.5"
           onPress={() => router.replace('/bookings/new')}>
           <Text className="text-[14px] font-semibold text-white">Reservar novamente</Text>
         </Pressable>

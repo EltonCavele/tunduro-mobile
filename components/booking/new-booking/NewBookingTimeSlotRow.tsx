@@ -43,11 +43,11 @@ export function NewBookingTimeSlotRow({
         onPress={onPress}>
         <View
           className={`h-11 w-11 items-center justify-center rounded-full border ${
-            slot.isSelected ? 'border-[#1F3125] bg-[#EEF3EE]' : 'border-[#E8E8EC] bg-[#F4F6F4]'
+            slot.isSelected ? 'border-[#BDE111] bg-[#EEF3EE]' : 'border-[#E8E8EC] bg-[#F4F6F4]'
           }`}>
           <Clock3
             size={20}
-            stroke={slot.isSelected ? '#1F3125' : '#5A5A5A'}
+            stroke={slot.isSelected ? '#BDE111' : '#5A5A5A'}
             strokeWidth={2}
           />
         </View>
@@ -68,7 +68,7 @@ export function NewBookingTimeSlotRow({
         </View>
 
         {slot.isSelected ? (
-          <View className="h-6 w-6 items-center justify-center rounded-full bg-[#1F3125]">
+          <View className="h-6 w-6 items-center justify-center rounded-full bg-[#BDE111]">
             <Check color="#FFFFFF" size={14} strokeWidth={3} />
           </View>
         ) : null}

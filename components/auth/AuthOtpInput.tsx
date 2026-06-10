@@ -28,7 +28,7 @@ export function AuthOtpInput({
   className = 'mt-6',
   rowClassName = 'flex-row justify-between gap-3',
   cellClassName = 'h-16 flex-1 items-center justify-center rounded-[20px] border',
-  filledCellClassName = 'border-[#1F3125] bg-[#EEF3EE]',
+  filledCellClassName = 'border-[#BDE111] bg-[#EEF3EE]',
   activeCellClassName,
   emptyCellClassName = 'border-[#E4E7E1] bg-[#F7F8F5]',
   textClassName = 'text-[24px] font-semibold text-[#151515]',

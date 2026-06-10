@@ -21,7 +21,7 @@ function EmptyUpcomingMatch() {
   return (
     <View className="mb-3 items-center justify-center rounded-[24px] border border-dashed border-[#DEE4DE] bg-[#F9FAF8] px-6 py-8">
       <View className="mb-3 h-12 w-12 items-center justify-center rounded-full bg-[#E5EAE4]">
-        <CalendarDays size={20} stroke="#1F3125" strokeWidth={2} />
+        <CalendarDays size={20} stroke="#BDE111" strokeWidth={2} />
       </View>
       <Text className="text-[15px] font-bold text-[#121512]">Sem partidas marcadas</Text>
       <Text className="mt-1 text-center text-[13px] text-[#6B746D]">

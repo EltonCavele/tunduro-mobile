@@ -99,7 +99,7 @@ export default function NotificationsPreferencesRoute() {
           <View className="flex-row items-start">
             <View className="h-12 w-12 items-center justify-center rounded-2xl bg-white">
               {isDevicePushGranted ? (
-                <Bell size={22} strokeWidth={1.9} color="#1F3125" />
+                <Bell size={22} strokeWidth={1.9} color="#BDE111" />
               ) : (
                 <BellOff size={22} strokeWidth={1.9} color="#A75A5A" />
               )}
@@ -122,7 +122,7 @@ export default function NotificationsPreferencesRoute() {
           <Pressable
             accessibilityRole="button"
             className={`mt-4 items-center rounded-full px-5 py-3 ${
-              isDevicePushGranted ? 'bg-[#E5ECE7]' : 'bg-[#1F3125]'
+              isDevicePushGranted ? 'bg-[#E5ECE7]' : 'bg-[#BDE111]'
             }`}
             onPress={() => void handlePermissionAction()}>
             <Text

@@ -15,7 +15,7 @@ export function ReservationsTimeline({
     return (
       <View className="mt-6 items-center rounded-[28px] bg-white px-6 py-10">
         <View className="h-14 w-14 items-center justify-center rounded-full bg-[#EEF4EF]">
-          <CalendarDays size={24} stroke="#1F3125" strokeWidth={2.2} />
+          <CalendarDays size={24} stroke="#BDE111" strokeWidth={2.2} />
         </View>
 
         <Text className="mt-5 text-[18px] font-semibold text-[#171717]">

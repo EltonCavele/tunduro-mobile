@@ -19,6 +19,7 @@ import { useBookingDetailsQuery } from 'hooks/useBookingDetailsQuery';
 import { useBookingUsersQuery } from 'hooks/useBookingUsersQuery';
 import { useCancelBookingMutation } from 'hooks/useCancelBookingMutation';
 import { useCheckInBookingMutation } from 'hooks/useCheckInBookingMutation';
+import { useExtendBookingMutation } from 'hooks/useExtendBookingMutation';
 import { useCourtQuery } from 'hooks/useCourtQuery';
 import { useRespondBookingInvitationMutation } from 'hooks/useRespondBookingInvitationMutation';
 import {
@@ -57,7 +58,11 @@ interface BookingDetailsViewModel {
   title: string;
 }
 
-type PendingConfirmationAction = 'cancel-booking' | 'decline-invitation' | null;
+type PendingConfirmationAction =
+  | 'cancel-booking'
+  | 'decline-invitation'
+  | 'extend-booking'
+  | null;
 
 function ScreenState({
   actionLabel,
@@ -131,9 +136,9 @@ function CheckInStatusCard({
   return (
     <View className="mt-4 rounded-[20px] border border-[#C8E0C0] bg-[#EEF5ED] px-4 py-4">
       <View className="flex-row items-start gap-3">
-        <CheckCircle size={22} stroke="#1F3125" strokeWidth={2} />
+        <CheckCircle size={22} stroke="#BDE111" strokeWidth={2} />
         <View className="flex-1">
-          <Text className="text-[16px] font-semibold text-[#1F3125]">{title}</Text>
+          <Text className="text-[16px] font-semibold text-[#BDE111]">{title}</Text>
           {timeLabel ? (
             <Text className="mt-1 text-[14px] leading-5 text-[#3F5C45]">{`Às ${timeLabel}.`}</Text>
           ) : null}
@@ -174,7 +179,7 @@ function PersonAvatar({ avatarUrl, initials }: { avatarUrl: string | null; initi
 
   return (
     <View className="h-12 w-12 items-center justify-center rounded-full bg-[#DDE8DE]">
-      <Text className="text-[14px] text-[#1F3125]">{initials}</Text>
+      <Text className="text-[14px] text-[#BDE111]">{initials}</Text>
     </View>
   );
 }
@@ -258,6 +263,49 @@ function formatScreenDateLabel(value: string) {
 
 function formatCheckInTimeLabel(iso: string) {
   const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  return new Intl.DateTimeFormat('pt-PT', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
+function isAcceptedBookingMember(booking: BookingItem, userId: string | undefined) {
+  if (!userId) {
+    return false;
+  }
+
+  if (booking.organizerId === userId) {
+    return true;
+  }
+
+  return (booking.participants ?? []).some(
+    (participant) => participant.userId === userId && participant.status === 'ACCEPTED'
+  );
+}
+
+function isNearBookingEnd(endAt: string, nowMs: number) {
+  const endMs = new Date(endAt).getTime();
+
+  if (Number.isNaN(endMs)) {
+    return false;
+  }
+
+  const diffMs = endMs - nowMs;
+
+  return diffMs <= 15 * 60_000 && diffMs >= -10 * 60_000;
+}
+
+function formatExtensionEndLabel(value?: string) {
+  if (!value) {
+    return '';
+  }
+
+  const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
     return '';
@@ -460,6 +508,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   });
   const cancelBookingMutation = useCancelBookingMutation();
   const checkInBookingMutation = useCheckInBookingMutation();
+  const extendBookingMutation = useExtendBookingMutation();
   const respondInvitationMutation = useRespondBookingInvitationMutation();
 
   useEffect(() => {
@@ -481,9 +530,11 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   const nowMs = Date.now();
   void sessionClockTick;
 
+  const hasBookingStarted = booking ? isBookingCheckInTime(booking.startAt, nowMs) : false;
+
   const sessionCountdown =
     booking && booking.status !== BookingStatus.CANCELLED
-      ? booking.checkedInAt
+      ? hasBookingStarted
         ? getSessionCountdownParts(booking.endAt, 'toEnd', nowMs)
         : getSessionCountdownParts(booking.startAt, 'toStart', nowMs)
       : null;
@@ -560,8 +611,25 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
     !booking.checkedInAt &&
     isUserParticipantOnBooking(booking, user.id)
   );
-  const isCheckInTime = booking ? isBookingCheckInTime(booking.startAt, nowMs) : false;
-  const actionBarVisible = canRespondToInvitation || canCancelBooking || canPerformCheckIn;
+  const isCheckInTime = hasBookingStarted;
+  const canExtendBooking = Boolean(
+    booking?.extension?.available &&
+      isAcceptedBookingMember(booking, user?.id) &&
+      booking.status === BookingStatus.CONFIRMED
+  );
+  const showExtensionUnavailableHint = Boolean(
+    booking &&
+      booking.extension &&
+      !booking.extension.available &&
+      isAcceptedBookingMember(booking, user?.id) &&
+      isNearBookingEnd(booking.endAt, nowMs)
+  );
+  const actionBarVisible =
+    canRespondToInvitation ||
+    canCancelBooking ||
+    canPerformCheckIn ||
+    canExtendBooking ||
+    showExtensionUnavailableHint;
   const isDeclineMutationPending =
     pendingInvitationAction === 'decline' && respondInvitationMutation.isPending;
   const primaryErrorMessage = getErrorMessage(
@@ -596,8 +664,51 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
     onClose();
   }
 
+  async function handleExtendBooking() {
+    if (!booking || !user?.phone?.trim()) {
+      setActionError('Adiciona um numero M-Pesa valido no teu perfil para prolongar a reserva.');
+      setPendingConfirmationAction(null);
+      return;
+    }
+
+    setActionError('');
+
+    try {
+      await extendBookingMutation.mutateAsync({
+        bookingId: booking.id,
+        phone: user.phone.trim(),
+      });
+    } catch (error) {
+      setActionError(
+        getErrorMessage(error, 'Nao foi possivel iniciar o pagamento da extensao.')
+      );
+    } finally {
+      setPendingConfirmationAction(null);
+    }
+  }
+
   const confirmationModalConfig =
-    pendingConfirmationAction === 'cancel-booking'
+    pendingConfirmationAction === 'extend-booking'
+      ? {
+          confirmLabel: extendBookingMutation.isPending
+            ? 'A iniciar pagamento...'
+            : 'Confirmar extensao',
+          description: booking?.extension?.available
+            ? `Vais pagar ${formatCurrencyValue(
+                booking.extension.amount ?? 0,
+                booking.currency
+              )} para prolongar a reserva ate ${formatExtensionEndLabel(
+                booking.extension.newEndAt
+              ) || 'a nova hora'}. O pedido M-Pesa sera enviado para ${user?.phone?.trim() || 'o teu numero'}.`
+            : 'A extensao ja nao esta disponivel para esta reserva.',
+          isLoading: extendBookingMutation.isPending,
+          onConfirm: () => {
+            void handleExtendBooking();
+          },
+          title: 'Prolongar +1 hora',
+          tone: 'default' as const,
+        }
+      : pendingConfirmationAction === 'cancel-booking'
       ? {
           confirmLabel: cancelBookingMutation.isPending
             ? 'A cancelar reserva...'
@@ -748,7 +859,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
         ) : canPerformCheckIn ? (
           <View className="gap-3">
             <Button
-              className="h-14 rounded-[20px] bg-[#1F3125]"
+              className="h-14 rounded-[20px] bg-[#BDE111]"
               feedbackVariant="none"
               isDisabled={!isCheckInTime || checkInBookingMutation.isPending}
               onPress={() => void handleCheckIn()}>
@@ -761,6 +872,20 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
               <Text className="text-center text-[13px] leading-5 text-[#7A7A7A]">
                 O check-in fica disponível à hora do jogo.
               </Text>
+            ) : null}
+
+            {canExtendBooking ? (
+              <Button
+                className="h-14 rounded-[20px] bg-[#BDE111]"
+                feedbackVariant="none"
+                isDisabled={extendBookingMutation.isPending}
+                onPress={() => setPendingConfirmationAction('extend-booking')}>
+                <Button.Label className="font-button text-[14px] text-white">
+                  {extendBookingMutation.isPending
+                    ? 'A iniciar pagamento...'
+                    : 'Prolongar +1 hora'}
+                </Button.Label>
+              </Button>
             ) : null}
 
             {canCancelBooking ? (
@@ -776,6 +901,18 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
               </Button>
             ) : null}
           </View>
+        ) : canExtendBooking ? (
+          <Button
+            className="h-14 rounded-[20px] bg-[#BDE111]"
+            feedbackVariant="none"
+            isDisabled={extendBookingMutation.isPending}
+            onPress={() => setPendingConfirmationAction('extend-booking')}>
+            <Button.Label className="font-button text-[14px] text-white">
+              {extendBookingMutation.isPending
+                ? 'A iniciar pagamento...'
+                : 'Prolongar +1 hora'}
+            </Button.Label>
+          </Button>
         ) : canCancelBooking ? (
           <Button
             className="h-14 rounded-[20px] bg-[#FCE8E6]"
@@ -787,6 +924,12 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
               {cancelBookingMutation.isPending ? 'A cancelar...' : 'Cancelar reserva'}
             </Button.Label>
           </Button>
+        ) : showExtensionUnavailableHint ? (
+          <Text className="text-center text-[13px] leading-5 text-[#7A7A7A]">
+            {booking?.extension?.reason === 'booking.error.extensionSlotOccupied'
+              ? 'A proxima hora ja esta ocupada neste campo.'
+              : 'A extensao de +1 hora nao esta disponivel neste momento.'}
+          </Text>
         ) : null}
       </View>
     );

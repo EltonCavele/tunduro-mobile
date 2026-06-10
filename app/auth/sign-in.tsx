@@ -118,7 +118,7 @@ export default function SignInScreen() {
               : undefined,
           })
         }>
-        <Text className="underline-offset-8! text-[14px] font-medium text-[#1F3125] underline">
+        <Text className="underline-offset-8! text-[14px] font-medium text-[#BDE111] underline">
           Esqueceu a palavra-passe?
         </Text>
       </Pressable>

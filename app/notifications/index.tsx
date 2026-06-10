@@ -103,7 +103,7 @@ export default function NotificationsRoute() {
               key={filter.value}
               accessibilityRole="button"
               className={`h-10 rounded-full px-4 py-2 ${
-                isActive ? 'bg-[#1F3125]' : 'border border-[#ECECEC] bg-white'
+                isActive ? 'bg-[#BDE111]' : 'border border-[#ECECEC] bg-white'
               }`}
               onPress={() => setActiveFilter(filter.value)}>
               <Text
@@ -170,7 +170,7 @@ export default function NotificationsRoute() {
           ListFooterComponent={
             notificationsQuery.isFetchingNextPage ? (
               <View className="items-center py-4">
-                <ActivityIndicator color="#1F3125" />
+                <ActivityIndicator color="#BDE111" />
               </View>
             ) : null
           }

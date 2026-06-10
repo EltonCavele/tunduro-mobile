@@ -13,7 +13,7 @@ export function AddReservationButton({ selectedDate }: AddReservationButtonProps
   return (
     <Pressable
       accessibilityRole="button"
-      className="flex-row items-center justify-center rounded-full bg-[#1F3125] px-5 py-4"
+      className="flex-row items-center justify-center rounded-full bg-[#BDE111] px-5 py-4"
       onPress={() =>
         router.push({
           pathname: '/bookings/new',

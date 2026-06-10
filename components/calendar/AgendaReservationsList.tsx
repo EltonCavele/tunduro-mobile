@@ -8,7 +8,7 @@ function EmptyReservationsState() {
   return (
     <View className="items-center px-6 py-16">
       <View className="h-14 w-14 items-center justify-center rounded-full bg-[#F4F4F4]">
-        <CalendarDays size={24} stroke="#1F3125" strokeWidth={2.2} />
+        <CalendarDays size={24} stroke="#BDE111" strokeWidth={2.2} />
       </View>
 
       <Text className="mt-5 text-[18px] font-semibold text-[#171717]">Sem reservas nesta data</Text>
@@ -68,7 +68,7 @@ function getDurationLabel(startLabel: string, endLabel: string) {
   return `${minutes}m`;
 }
 
-const PARTICIPANT_COLORS = ['#1F3125', '#5E88FC', '#F2A65A', '#D45C7A'];
+const PARTICIPANT_COLORS = ['#BDE111', '#5E88FC', '#F2A65A', '#D45C7A'];
 
 function ParticipantStack({ participantCount }: { participantCount: number }) {
   const avatars = Math.min(participantCount, 4);

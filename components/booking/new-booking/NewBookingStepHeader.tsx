@@ -21,7 +21,7 @@ export function NewBookingStepHeader({
           <View
             key={index}
             className={`h-1 flex-1 rounded-full ${
-              index < currentStep ? 'bg-[#1F3125]' : 'bg-[#E8E8EC]'
+              index < currentStep ? 'bg-[#BDE111]' : 'bg-[#E8E8EC]'
             }`}
           />
         ))}

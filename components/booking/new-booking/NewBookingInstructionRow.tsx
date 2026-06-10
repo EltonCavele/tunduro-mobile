@@ -30,7 +30,7 @@ export function NewBookingInstructionRow({
         className={`h-11 w-11 items-center justify-center rounded-full ${
           isSelected ? 'bg-[#EEF3EE]' : 'bg-[#F4F6F4]'
         }`}>
-        <Icon size={20} stroke={isSelected ? '#1F3125' : '#5A5A5A'} strokeWidth={2} />
+        <Icon size={20} stroke={isSelected ? '#BDE111' : '#5A5A5A'} strokeWidth={2} />
       </View>
 
       <View className="ml-4 flex-1">

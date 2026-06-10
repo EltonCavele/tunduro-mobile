@@ -67,7 +67,7 @@ export function BookingSuccessScreen() {
           <Text className="text-center text-[14px] leading-6 text-[#A54D4D]">{errorMessage}</Text>
           <Pressable
             accessibilityRole="button"
-            className="mt-6 items-center rounded-full bg-[#1F3125] px-5 py-3.5"
+            className="mt-6 items-center rounded-full bg-[#BDE111] px-5 py-3.5"
             onPress={() => void bookingQuery.refetch()}>
             <Text className="text-[14px] font-semibold text-white">Tentar novamente</Text>
           </Pressable>
@@ -80,7 +80,7 @@ export function BookingSuccessScreen() {
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
       <View className="flex-1 items-center justify-center px-6">
-        <CheckCircle2 size={68} stroke="#1F3125" strokeWidth={1.8} />
+        <CheckCircle2 size={68} stroke="#BDE111" strokeWidth={1.8} />
         <Text className="mt-6 text-[24px] font-semibold text-[#171717]">Reserva confirmada!</Text>
 
         <View className="max-w-85 mt-6 w-full rounded-3xl bg-[#F4F6F3] px-5 py-5 text-center">
@@ -91,7 +91,7 @@ export function BookingSuccessScreen() {
 
         <Pressable
           accessibilityRole="button"
-          className="mt-7 w-full max-w-[320px] items-center rounded-full bg-[#1F3125] px-5 py-3.5"
+          className="mt-7 w-full max-w-[320px] items-center rounded-full bg-[#BDE111] px-5 py-3.5"
           onPress={() => router.replace('/(tabs)/reserve')}>
           <Text className="text-[14px] font-semibold text-white">Ver minhas reservas</Text>
         </Pressable>

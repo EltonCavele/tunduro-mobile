@@ -33,7 +33,7 @@ export function HomeHeader() {
         accessibilityLabel="Abrir notificações"
         className="h-11.5 w-11.5 relative items-center justify-center rounded-full bg-[#F3F4F2]"
         onPress={() => router.push('/notifications')}>
-        <Bell size={20} stroke="#1F3125" strokeWidth={2} />
+        <Bell size={20} stroke="#BDE111" strokeWidth={2} />
         {unreadCount > 0 ? (
           <View className="absolute -right-0.5 -top-0.5 min-h-5 min-w-5 items-center justify-center rounded-full bg-[#FF5E4F] px-1">
             <Text className="font-button text-[10px] text-white">

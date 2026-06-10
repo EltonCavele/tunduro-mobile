@@ -27,7 +27,7 @@ export function NewBookingGuestOptionRow({
       disabled={isDisabled}
       onPress={onPress}>
       <View className="h-11 w-11 items-center justify-center rounded-full bg-[#DCE9DD]">
-        <Text className="text-[13px] font-semibold text-[#1F3125]">
+        <Text className="text-[13px] font-semibold text-[#BDE111]">
           {getUserDisplayName(guest).slice(0, 1).toUpperCase()}
         </Text>
       </View>
@@ -39,7 +39,7 @@ export function NewBookingGuestOptionRow({
 
       <View
         className={`h-6 w-6 items-center justify-center rounded-full border ${
-          isSelected ? 'border-[#1F3125] bg-[#1F3125]' : 'border-[#C7CAD1] bg-white'
+          isSelected ? 'border-[#BDE111] bg-[#BDE111]' : 'border-[#C7CAD1] bg-white'
         }`}>
         {isSelected ? <Check size={14} stroke="#FFFFFF" strokeWidth={2.3} /> : null}
       </View>

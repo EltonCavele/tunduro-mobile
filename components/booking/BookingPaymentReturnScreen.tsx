@@ -124,7 +124,7 @@ export function BookingPaymentReturnScreen() {
           </Text>
           <Pressable
             accessibilityRole="button"
-            className="mt-6 rounded-full bg-[#1F3125] px-5 py-3.5"
+            className="mt-6 rounded-full bg-[#BDE111] px-5 py-3.5"
             onPress={() => router.replace('/(tabs)/reserve')}>
             <Text className="text-[14px] font-semibold text-white">Voltar as reservas</Text>
           </Pressable>
@@ -175,7 +175,7 @@ export function BookingPaymentReturnScreen() {
           {!isBusy && checkoutSession?.status !== BookingCheckoutSessionStatus.COMPLETED ? (
             <Pressable
               accessibilityRole="button"
-              className="mt-6 items-center rounded-full bg-[#1F3125] px-5 py-3.5"
+              className="mt-6 items-center rounded-full bg-[#BDE111] px-5 py-3.5"
               onPress={() => router.replace('/(tabs)/reserve')}>
               <Text className="text-[14px] font-semibold text-white">Voltar as reservas</Text>
             </Pressable>

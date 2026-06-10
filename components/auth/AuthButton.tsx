@@ -43,13 +43,13 @@ export function AuthButton({
       onPress={onPress}>
       {Icon ? (
         <View className={ghost ? 'mr-2' : 'mr-3'}>
-          <Icon size={18} stroke={primary ? '#1F3125' : '#1F3125'} strokeWidth={2.1} />
+          <Icon size={18} stroke={primary ? '#BDE111' : '#BDE111'} strokeWidth={2.1} />
         </View>
       ) : null}
 
       <Text
         className={`font-button text-[16px] ${
-          primary ? 'text-black' : ghost ? 'text-[#516252]' : 'text-[#1F3125]'
+          primary ? 'text-black' : ghost ? 'text-[#516252]' : 'text-[#BDE111]'
         } ${textClassName}`}>
         {isLoading ? loadingLabel : label}
       </Text>

@@ -160,3 +160,16 @@ export function respondToBookingInvitation(payload: RespondToBookingInvitationPa
 export function checkInBooking(bookingId: string) {
   return unwrapResponse<BookingItem>(api.post(`/v1/bookings/${bookingId}/checkin`));
 }
+
+export interface ExtendBookingPayload {
+  bookingId: string;
+  phone: string;
+}
+
+export function startBookingExtensionCheckout(payload: ExtendBookingPayload) {
+  return unwrapResponse<BookingCheckoutSession>(
+    api.post(`/v1/bookings/${payload.bookingId}/extend`, {
+      phone: payload.phone,
+    })
+  );
+}

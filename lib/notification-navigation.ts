@@ -25,5 +25,15 @@ export function navigateFromNotificationData(
       pathname: '/bookings/[id]',
       params: { id: bookingId },
     });
+    return;
+  }
+
+  const action = typeof data.action === 'string' ? data.action : undefined;
+
+  if (action === 'extend' && bookingId) {
+    router.push({
+      pathname: '/bookings/[id]',
+      params: { id: bookingId },
+    });
   }
 }

@@ -26,6 +26,7 @@ import { NewBookingCourtOptionRow } from 'components/booking/new-booking/NewBook
 import { NewBookingEmptyStateCard } from 'components/booking/new-booking/NewBookingEmptyStateCard';
 import { NewBookingField } from 'components/booking/new-booking/NewBookingField';
 import { NewBookingFooter } from 'components/booking/new-booking/NewBookingFooter';
+import { NewBookingPriceHighlight } from 'components/booking/new-booking/NewBookingPriceHighlight';
 import { NewBookingGuestOptionRow } from 'components/booking/new-booking/NewBookingGuestOptionRow';
 import { NewBookingInstructionRow } from 'components/booking/new-booking/NewBookingInstructionRow';
 import { NewBookingSelectedGuestChip } from 'components/booking/new-booking/NewBookingSelectedGuestChip';
@@ -536,7 +537,7 @@ export function NewBookingScreen() {
               {availabilityError}
             </Text>
             <Button
-              className="mt-4 self-start rounded-full bg-[#1F3125] px-4"
+              className="mt-4 self-start rounded-full bg-[#BDE111] px-4"
               feedbackVariant="none"
               onPress={() => {
                 void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
@@ -732,6 +733,14 @@ export function NewBookingScreen() {
           totalSteps={TOTAL_STEPS}
         />
 
+        {selectedCourt ? (
+          <NewBookingPriceHighlight
+            court={selectedCourt}
+            rangeLabel={selectedRangeLabel || undefined}
+            totalLabel={bookingTotalLabel}
+          />
+        ) : null}
+
         {bookingStep === 'court' ? (
           <NewBookingField
             label="Quadra"
@@ -825,7 +834,7 @@ export function NewBookingScreen() {
 
         <View className="mb-4 flex-row items-center justify-between">
           <View className="flex-row items-center">
-            <Users size={16} stroke="#1F3125" strokeWidth={2.1} />
+            <Users size={16} stroke="#BDE111" strokeWidth={2.1} />
             <Text className="font-label ml-2 text-[12px] text-[#666666]">
               {selectedGuests.length}/{maxGuestSlots} convidados
             </Text>
@@ -888,7 +897,7 @@ export function NewBookingScreen() {
         visible={isDateSheetOpen}
         snapPoints={['70%']}>
         <View className="mb-4 flex-row items-center">
-          <CalendarDays size={18} stroke="#1F3125" strokeWidth={2.1} />
+          <CalendarDays size={18} stroke="#BDE111" strokeWidth={2.1} />
           <Text className="font-label ml-2 text-[12px] text-[#666666]">
             Escolhe uma data ate {formatReservationDateLabel(getMaxBookableDateKey())}
           </Text>
@@ -911,7 +920,7 @@ export function NewBookingScreen() {
             setIsDateSheetOpen(false);
           }}
           theme={{
-            arrowColor: '#1F3125',
+            arrowColor: '#BDE111',
             dayTextColor: '#181818',
             monthTextColor: '#181818',
             selectedDayBackgroundColor: '#BDE111',
@@ -920,7 +929,7 @@ export function NewBookingScreen() {
             textMonthFontFamily: 'Poppins_600SemiBold',
             textDayFontSize: 13,
             textMonthFontSize: 16,
-            todayTextColor: '#1F3125',
+            todayTextColor: '#BDE111',
           }}
         />
       </NewBookingSheet>

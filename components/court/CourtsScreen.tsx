@@ -38,7 +38,7 @@ function CourtsEmptyState() {
     <Card className="rounded-[28px] bg-white p-6">
       <Card.Body className="items-center">
         <View className="rounded-full bg-[#EEF5ED] p-3">
-          <Club size={24} stroke="#1F3125" strokeWidth={2} />
+          <Club size={24} stroke="#BDE111" strokeWidth={2} />
         </View>
 
         <Card.Title className="mt-4 text-center text-[18px] text-[#171717]">

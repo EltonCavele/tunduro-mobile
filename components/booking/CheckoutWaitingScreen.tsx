@@ -80,17 +80,17 @@ function CheckoutWaitingContent({ session }: { session: BookingCheckoutSession }
 
       <View className="mt-6 gap-3">
         <View className="flex-row items-center">
-          <Bell size={16} stroke="#1F3125" strokeWidth={2} />
+          <Bell size={16} stroke="#BDE111" strokeWidth={2} />
           <Text className="ml-2 text-[13px] text-[#5E5E5E]">
             Mantenha o telemovel desbloqueado.
           </Text>
         </View>
         <View className="flex-row items-center">
-          <Signal size={16} stroke="#1F3125" strokeWidth={2} />
+          <Signal size={16} stroke="#BDE111" strokeWidth={2} />
           <Text className="ml-2 text-[13px] text-[#5E5E5E]">Garanta cobertura de rede.</Text>
         </View>
         <View className="flex-row items-center">
-          <KeyRound size={16} stroke="#1F3125" strokeWidth={2} />
+          <KeyRound size={16} stroke="#BDE111" strokeWidth={2} />
           <Text className="ml-2 text-[13px] text-[#5E5E5E]">Aceite o pedido e digite o PIN.</Text>
         </View>
       </View>
@@ -164,7 +164,7 @@ export function CheckoutWaitingScreen() {
           </Text>
           <Pressable
             accessibilityRole="button"
-            className="mt-6 rounded-full bg-[#1F3125] px-5 py-3.5"
+            className="mt-6 rounded-full bg-[#BDE111] px-5 py-3.5"
             onPress={() => router.replace('/bookings/new')}>
             <Text className="text-[14px] font-semibold text-white">Nova reserva</Text>
           </Pressable>

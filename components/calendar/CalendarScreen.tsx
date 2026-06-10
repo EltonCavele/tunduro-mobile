@@ -40,7 +40,7 @@ function CalendarErrorState({ message, onRetry }: { message: string; onRetry: ()
 
         <Pressable
           accessibilityRole="button"
-          className="mt-6 items-center rounded-full bg-[#1F3125] px-5 py-3"
+          className="mt-6 items-center rounded-full bg-[#BDE111] px-5 py-3"
           onPress={onRetry}>
           <Text className="text-[14px] font-semibold text-white">Tentar novamente</Text>
         </Pressable>
@@ -131,7 +131,7 @@ export function CalendarScreen() {
           accessibilityHint="Seleciona novamente o dia de hoje no calendario"
           accessibilityLabel="Voltar para hoje"
           accessibilityRole="button"
-          className="absolute bottom-6 right-5 rounded-full border border-[#2D4A37] bg-[#1F3125] px-5 py-3.5 shadow-sm"
+          className="absolute bottom-6 right-5 rounded-full border border-[#2D4A37] bg-[#BDE111] px-5 py-3.5 shadow-sm"
           onPress={() => setSelectedDate(getTodayDateKey())}>
           <Text className="text-[13px] font-semibold text-white">Voltar para hoje</Text>
         </Pressable>

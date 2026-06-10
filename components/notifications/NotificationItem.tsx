@@ -47,7 +47,7 @@ export function NotificationItem({ notification, onDelete, onPress }: Notificati
         className={`h-11 w-11 items-center justify-center rounded-full ${
           isUnread ? 'bg-[#EEF3EE]' : 'bg-[#F4F4F6]'
         }`}>
-        <Bell color={isUnread ? '#1F3125' : '#7A7A7A'} size={20} strokeWidth={2} />
+        <Bell color={isUnread ? '#BDE111' : '#7A7A7A'} size={20} strokeWidth={2} />
       </View>
 
       <View className="ml-3 flex-1">

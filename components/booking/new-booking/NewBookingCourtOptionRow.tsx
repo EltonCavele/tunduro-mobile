@@ -28,7 +28,7 @@ export function NewBookingCourtOptionRow({
     <Pressable
       accessibilityRole="button"
       className={`mb-3 flex-row items-center rounded-[24px] border px-4 py-4 ${
-        isSelected ? 'border-[#1F3125] bg-[#EEF3ED]' : 'border-[#ECECEF] bg-white'
+        isSelected ? 'border-[#BDE111] bg-[#EEF3ED]' : 'border-[#ECECEF] bg-white'
       }`}
       onPress={onPress}>
       <Image className="h-16 w-16 rounded-[18px]" resizeMode="cover" source={imageSource} />
@@ -44,7 +44,7 @@ export function NewBookingCourtOptionRow({
       </View>
 
       {isSelected ? (
-        <View className="h-8 w-8 items-center justify-center rounded-full bg-[#1F3125]">
+        <View className="h-8 w-8 items-center justify-center rounded-full bg-[#BDE111]">
           <Check size={16} stroke="#FFFFFF" strokeWidth={2.4} />
         </View>
       ) : null}
