@@ -33,6 +33,11 @@ export const userDirectoryQueryKeys = {
   search: (query: string) => ['user-directory', 'search', query] as const,
 };
 
+export const weatherQueryKeys = {
+  all: ['weather'] as const,
+  club: ['weather', 'club'] as const,
+};
+
 export const notificationQueryKeys = {
   all: ['notifications'] as const,
   list: (paramsKey: string) => ['notifications', 'list', paramsKey] as const,

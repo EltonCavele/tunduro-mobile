@@ -774,6 +774,7 @@ export function NewBookingScreen() {
       />
 
       <NewBookingSheet
+        enableScroll={false}
         onClose={() => setIsCourtSheetOpen(false)}
         title="Selecionar quadra"
         snapPoints={['70%']}
@@ -815,6 +816,7 @@ export function NewBookingScreen() {
       </NewBookingSheet>
 
       <NewBookingSheet
+        enableScroll={false}
         onClose={() => setIsGuestSheetOpen(false)}
         title="Selecionar convidados"
         visible={isGuestSheetOpen}

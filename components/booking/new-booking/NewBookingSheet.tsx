@@ -1,9 +1,11 @@
 import type { PropsWithChildren } from 'react';
 
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { BottomSheet } from 'heroui-native';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 
 interface NewBookingSheetProps extends PropsWithChildren {
+  enableScroll?: boolean;
   onClose: () => void;
   snapPoints?: string[];
   title: string;
@@ -12,6 +14,7 @@ interface NewBookingSheetProps extends PropsWithChildren {
 
 export function NewBookingSheet({
   children,
+  enableScroll = true,
   onClose,
   title,
   visible,
@@ -47,7 +50,16 @@ export function NewBookingSheet({
             />
           </View>
 
-          <ScrollView className="min-h-0 flex-1">{children}</ScrollView>
+          {enableScroll ? (
+            <BottomSheetScrollView
+              contentContainerStyle={{ paddingBottom: 16 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator>
+              {children}
+            </BottomSheetScrollView>
+          ) : (
+            <View className="min-h-0 flex-1">{children}</View>
+          )}
         </BottomSheet.Content>
       </BottomSheet.Portal>
     </BottomSheet>

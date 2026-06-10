@@ -16,7 +16,7 @@ import {
 import { getErrorMessage } from 'lib/error-utils';
 
 const OTP_LENGTH = 6;
-const VERIFY_PURPLE = '#8B8FE8';
+const VERIFY_PURPLE = '#BDE111';
 const VERIFY_PURPLE_LIGHT = '#ECECF8';
 
 function VerifyAccountIcon() {
@@ -114,7 +114,7 @@ export default function VerifyAccountScreen() {
               </Text>
 
               <AuthOtpInput
-                activeCellClassName="border-[#8B8FE8] bg-[#8B8FE8]"
+                activeCellClassName="border-[#BDE111] bg-[#BDE111]"
                 activeTextClassName="text-[22px] font-semibold text-white"
                 autoFocus
                 cellClassName="h-[56px] w-[46px] items-center justify-center rounded-full border"
