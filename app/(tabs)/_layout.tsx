@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { Tabs, useRouter } from 'expo-router';
-import { LayoutGrid, UserRound, Bookmark, Club } from 'lucide-react-native';
+import { Home, UserRound, CalendarCheck, LandPlot } from 'lucide-react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { TabBarIcon } from 'components/navigation/TabBarIcon';
@@ -44,7 +44,7 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#BDE111',
+        tabBarActiveTintColor: '#1B3022',
         tabBarInactiveTintColor: '#8B8B8B',
         tabBarHideOnKeyboard: true,
         headerBackTitleStyle: {
@@ -55,6 +55,8 @@ export default function TabsLayout() {
         },
         tabBarStyle: {
           paddingTop: 8,
+          borderTopWidth: 1,
+          borderTopColor: '#EFEFEF',
         },
         tabBarLabelStyle: {
           fontFamily: typography.button,
@@ -66,9 +68,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Inicio',
+          title: 'Início',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon color={color} focused={focused} icon={LayoutGrid} />
+            <TabBarIcon color={color} focused={focused} icon={Home} />
           ),
         }}
       />
@@ -84,7 +86,7 @@ export default function TabsLayout() {
           },
           title: 'Reservas',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon color={color} focused={focused} icon={Bookmark} />
+            <TabBarIcon color={color} focused={focused} icon={CalendarCheck} />
           ),
         }}
       />
@@ -101,7 +103,7 @@ export default function TabsLayout() {
           },
           title: 'Campos',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon color={color} focused={focused} icon={Club} />
+            <TabBarIcon color={color} focused={focused} icon={LandPlot} />
           ),
         }}
       />

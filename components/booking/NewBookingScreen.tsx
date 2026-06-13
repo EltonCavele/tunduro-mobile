@@ -21,6 +21,7 @@ import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
+import { ConfirmationModal } from 'components/app/ConfirmationModal';
 import { LoadingIndicator } from 'components/app/LoadingIndicator';
 import { NewBookingCourtOptionRow } from 'components/booking/new-booking/NewBookingCourtOptionRow';
 import { NewBookingEmptyStateCard } from 'components/booking/new-booking/NewBookingEmptyStateCard';
@@ -147,6 +148,7 @@ export function NewBookingScreen() {
   const [isCourtSheetOpen, setIsCourtSheetOpen] = useState(false);
   const [isGuestSheetOpen, setIsGuestSheetOpen] = useState(false);
   const [isDateSheetOpen, setIsDateSheetOpen] = useState(false);
+  const [isPaymentConfirmOpen, setIsPaymentConfirmOpen] = useState(false);
   const [guestSearchQuery, setGuestSearchQuery] = useState('');
   const [phone, setPhone] = useState(user?.phone?.trim() ?? '');
   const [phoneError, setPhoneError] = useState('');
@@ -404,6 +406,7 @@ export function NewBookingScreen() {
     } catch (error) {
       const message = translateCheckoutError(error);
       setSubmissionError(message);
+      setIsPaymentConfirmOpen(false);
 
       if (error instanceof ApiClientError && error.statusCode === 409) {
         void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
@@ -524,7 +527,7 @@ export function NewBookingScreen() {
         ) : isAvailabilityLoading ? (
           <View className="items-center rounded-2xl border border-[#ECECEC] bg-white px-5 py-10">
             <LoadingIndicator size="small" />
-            <Text className="font-label mt-3 text-center text-[14px] text-[#6D6D6D]">
+            <Text className="mt-3 text-center font-label text-[14px] text-[#6D6D6D]">
               A verificar disponibilidade da quadra.
             </Text>
           </View>
@@ -533,7 +536,7 @@ export function NewBookingScreen() {
             <Text className="font-title text-[16px] text-[#171717]">
               Nao foi possivel validar os horarios
             </Text>
-            <Text className="font-label mt-2 text-[13px] leading-[19px] text-[#7C6F6F]">
+            <Text className="mt-2 font-label text-[13px] leading-[19px] text-[#7C6F6F]">
               {availabilityError}
             </Text>
             <Button
@@ -624,10 +627,10 @@ export function NewBookingScreen() {
   function renderPaymentStep() {
     return (
       <View>
-        <Text className="font-label mb-2 text-[15px] text-[#202020]">Numero M-Pesa</Text>
+        <Text className="mb-2 font-label text-[15px] text-[#202020]">Numero M-Pesa</Text>
         <TextInput
           autoComplete="tel"
-          className={`font-input h-[52px] rounded-2xl border bg-white px-4 text-[15px] text-[#171717] ${
+          className={`h-[52px] rounded-2xl border bg-white px-4 font-input text-[15px] text-[#171717] ${
             phoneError ? 'border-[#D05B5B]' : 'border-[#D8D8DE]'
           }`}
           keyboardType="phone-pad"
@@ -643,9 +646,9 @@ export function NewBookingScreen() {
           value={phone}
         />
         {phoneError ? (
-          <Text className="font-label mt-2 text-[13px] leading-5 text-[#D05B5B]">{phoneError}</Text>
+          <Text className="mt-2 font-label text-[13px] leading-5 text-[#D05B5B]">{phoneError}</Text>
         ) : null}
-        <Text className="font-label mt-3 text-[13px] leading-[20px] text-[#8A8A8A]">
+        <Text className="mt-3 font-label text-[13px] leading-[20px] text-[#8A8A8A]">
           Vodacom Mocambique. Introduz o numero que vais usar para autorizar o pagamento.
         </Text>
 
@@ -697,7 +700,7 @@ export function NewBookingScreen() {
         </View>
 
         {submissionError ? (
-          <Text className="font-label mt-4 text-[13px] leading-5 text-[#D05B5B]">
+          <Text className="mt-4 font-label text-[13px] leading-5 text-[#D05B5B]">
             {submissionError}
           </Text>
         ) : null}
@@ -765,12 +768,33 @@ export function NewBookingScreen() {
         label={getContinueLabel()}
         onPress={() => {
           if (bookingStep === 'summary') {
-            void handleCreateBooking();
+            setIsPaymentConfirmOpen(true);
             return;
           }
 
           goToNextStep();
         }}
+      />
+
+      <ConfirmationModal
+        cancelLabel="Voltar"
+        confirmLabel={
+          startBookingCheckoutMutation.isPending
+            ? 'A processar...'
+            : bookingTotalLabel
+              ? `Sim, pagar ${bookingTotalLabel}`
+              : 'Sim, pagar'
+        }
+        description={`Vamos enviar um pedido de PIN do M-Pesa para o número ${phone.trim()}.${
+          bookingTotalLabel ? ` Vais pagar ${bookingTotalLabel}` : ''
+        } pela ${selectedCourt?.name ?? 'quadra'}, ${formatReservationDateLabel(selectedDate)}${
+          selectedRangeLabel ? `, das ${selectedRangeLabel}` : ''
+        }.`}
+        isLoading={startBookingCheckoutMutation.isPending}
+        isOpen={isPaymentConfirmOpen}
+        onClose={() => setIsPaymentConfirmOpen(false)}
+        onConfirm={() => void handleCreateBooking()}
+        title="Confirmar pagamento"
       />
 
       <NewBookingSheet
@@ -837,7 +861,7 @@ export function NewBookingScreen() {
         <View className="mb-4 flex-row items-center justify-between">
           <View className="flex-row items-center">
             <Users size={16} stroke="#BDE111" strokeWidth={2.1} />
-            <Text className="font-label ml-2 text-[12px] text-[#666666]">
+            <Text className="ml-2 font-label text-[12px] text-[#666666]">
               {selectedGuests.length}/{maxGuestSlots} convidados
             </Text>
           </View>
@@ -852,7 +876,7 @@ export function NewBookingScreen() {
         {guestSearchQueryResult.isLoading ? (
           <View className="items-center justify-center py-10">
             <LoadingIndicator size="large" />
-            <Text className="font-label mt-3 text-center text-[13px] text-[#6D6D6D]">
+            <Text className="mt-3 text-center font-label text-[13px] text-[#6D6D6D]">
               A pesquisar membros.
             </Text>
           </View>
@@ -900,7 +924,7 @@ export function NewBookingScreen() {
         snapPoints={['70%']}>
         <View className="mb-4 flex-row items-center">
           <CalendarDays size={18} stroke="#BDE111" strokeWidth={2.1} />
-          <Text className="font-label ml-2 text-[12px] text-[#666666]">
+          <Text className="ml-2 font-label text-[12px] text-[#666666]">
             Escolhe uma data ate {formatReservationDateLabel(getMaxBookableDateKey())}
           </Text>
         </View>

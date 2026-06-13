@@ -13,21 +13,21 @@ function mapMpesaErrorToUserMessage(failureReason: string) {
 
   switch (code) {
     case 'INS-5':
-      return 'Cancelaste o pagamento no telemovel.';
+      return 'Cancelaste o pagamento no telemóvel. Não te cobrámos nada.';
     case 'INS-6':
       return 'O pagamento falhou no M-Pesa. Tenta novamente.';
     case 'INS-9':
-      return 'Nao confirmaste o pagamento a tempo.';
+      return 'Não confirmaste o pagamento a tempo.';
     case 'INS-2006':
-      return 'Saldo M-Pesa insuficiente.';
+      return 'Não tens saldo suficiente no M-Pesa.';
     case 'INS-2051':
-      return 'Numero M-Pesa invalido.';
+      return 'O número M-Pesa não é válido.';
     case 'INS-10':
-      return 'Pagamento duplicado, tenta de novo.';
+      return 'Pagamento duplicado. Tenta de novo.';
     case 'GATEWAY_ERROR':
-      return 'O M-Pesa esta temporariamente indisponivel.';
+      return 'O M-Pesa está temporariamente indisponível. Tenta daqui a pouco.';
     default:
-      return failureReason || 'O pagamento falhou. Tenta novamente.';
+      return failureReason || 'O pagamento não foi concluído. Tenta novamente.';
   }
 }
 
@@ -49,13 +49,13 @@ export function CheckoutFailedScreen() {
           accessibilityRole="button"
           className="mt-7 w-full max-w-[320px] items-center rounded-full bg-[#BDE111] px-5 py-3.5"
           onPress={() => router.replace('/bookings/new')}>
-          <Text className="text-[14px] font-semibold text-white">Tentar novamente</Text>
+          <Text className="text-[14px] font-semibold text-[#171717]">Fazer nova reserva</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
           className="mt-3 w-full max-w-[320px] items-center rounded-full border border-[#DADADA] px-5 py-3.5"
           onPress={() => router.replace('/')}>
-          <Text className="text-[14px] font-semibold text-[#2A2A2A]">Voltar ao inicio</Text>
+          <Text className="text-[14px] font-semibold text-[#2A2A2A]">Voltar ao início</Text>
         </Pressable>
       </View>
     </SafeAreaView>

@@ -2,7 +2,6 @@ import { Text } from 'components/app/Text';
 import { Pressable, ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
 import { CalendarDays, Plus } from 'lucide-react-native';
-import { ChevronRight } from 'lucide-react-native/icons';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
 import { LoadingIndicator } from 'components/app/LoadingIndicator';
@@ -21,12 +20,23 @@ function EmptyUpcomingMatch() {
   return (
     <View className="mb-3 items-center justify-center rounded-[24px] border border-dashed border-[#DEE4DE] bg-[#F9FAF8] px-6 py-8">
       <View className="mb-3 h-12 w-12 items-center justify-center rounded-full bg-[#E5EAE4]">
-        <CalendarDays size={20} stroke="#BDE111" strokeWidth={2} />
+        <CalendarDays size={20} stroke="#1B3022" strokeWidth={2} />
       </View>
-      <Text className="text-[15px] font-bold text-[#121512]">Sem partidas marcadas</Text>
-      <Text className="mt-1 text-center text-[13px] text-[#6B746D]">
-        Convida um amigo ou marca uma quadra para começar a jogar.
+      <Text className="text-[15px] font-bold text-[#121512]">Ainda não tens reservas</Text>
+      <Text className="mt-1 text-center text-[13px] leading-5 text-[#6B746D]">
+        Marca a tua primeira quadra e começa a jogar.
       </Text>
+
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Marcar a minha primeira reserva"
+        onPress={() => router.push('/bookings/new')}
+        className="mt-4 flex-row items-center gap-2 rounded-full bg-primary px-5 py-3">
+        <Plus size={18} stroke="#171717" strokeWidth={2.4} />
+        <Text className="font-button text-[14px] text-[#171717]">
+          Marcar a minha primeira reserva
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -89,24 +99,23 @@ export function HomeScreen() {
         className="flex-1"
         contentContainerClassName="px-6 pb-10"
         showsVerticalScrollIndicator={false}>
-        <View className="mb-6 ">
-          <Text className="text-[14px] uppercase tracking-wider text-[#7A7A7A]">
-            Bem-vindo de volta,
+        <View className="mb-6">
+          <Text className="text-[28px] leading-9 text-[#202020]">Olá, {firstName}! 👋</Text>
+          <Text className="mt-1 text-[14px] text-[#7A7A7A]">
+            Bem-vindo ao Clube de Ténis Tunduru.
           </Text>
-          <Text className="text-[14px]  uppercase tracking-wider text-[#7A7A7A]">
-            ao clube de ténis de <Text className="font-bold text-primary">tunduru!</Text>
-          </Text>
-          <Text className="mt-3 text-[32px] leading-10 text-[#202020]">{firstName}! 👋</Text>
         </View>
 
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel="Marcar uma quadra"
+          accessibilityHint="Abre o formulário para reservar uma quadra"
           onPress={() => router.push('/bookings/new')}
           className="mb-8 flex-row items-center justify-between rounded-[28px] bg-primary p-5">
           <View className="flex-1 pr-4">
-            <Text className="text-[18px] text-[#171717]">Nova Reserva</Text>
+            <Text className="font-title text-[19px] text-[#171717]">Marcar uma quadra</Text>
             <Text className="mt-1 text-[13px] leading-5 text-[#3F4F19]">
-              Garante a tua quadra e convida os teus parceiros de jogo.
+              Escolhe o dia e a hora e convida quem quiseres.
             </Text>
           </View>
           <View className="h-14 w-14 items-center justify-center rounded-[20px] bg-white">

@@ -1,5 +1,5 @@
 import { Text } from 'components/app/Text';
-import { Calendar, Clock3, MapPin } from 'lucide-react-native';
+import { Calendar, MapPin } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { View } from 'react-native';
 import { BookingStatus, getBookingStatusLabel } from 'lib/calendar-bookings';
@@ -35,7 +35,7 @@ function MatchStat({
   return (
     <View className="flex-row items-center gap-2">
       <View className="items-center justify-center rounded-full bg-[#EEF3EE] p-2">
-        <Icon size={14} stroke="#BDE111" strokeWidth={2.5} />
+        <Icon size={14} stroke="#1B3022" strokeWidth={2.5} />
       </View>
       <View>
         <Text className="text-[10px] uppercase tracking-wider text-[#7A7A7A]">{label}</Text>
@@ -92,16 +92,14 @@ export function UpcomingMatchCard({
 
       <View className="flex-row items-center rounded-[18px] bg-[#F6F7F3] p-3">
         <View className="mr-3 h-10 w-10 items-center justify-center rounded-2xl bg-[#D2E4C6]">
-          <Text className="text-[13px] text-[#BDE111]">{getInitials(opponentName) || '?'}</Text>
+          <Text className="text-[13px] font-semibold text-[#1B3022]">
+            {getInitials(opponentName) || '?'}
+          </Text>
         </View>
 
         <View className="flex-1">
           <Text className="text-[11px] uppercase tracking-wider text-[#7A7A7A]">Adversário</Text>
           <Text className="text-[15px] text-[#121512]">{opponentName || 'Sem adversário'}</Text>
-        </View>
-
-        <View className="items-center justify-center rounded-full bg-white px-3 py-1.5 ">
-          <Text className="text-[11px] text-[#BDE111]">Pronto</Text>
         </View>
       </View>
     </View>

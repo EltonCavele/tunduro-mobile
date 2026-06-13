@@ -56,7 +56,7 @@ export default function EditProfileScreen() {
 
   async function handleSave() {
     if (!user) {
-      setErrorMessage('Nao foi possivel carregar o perfil.');
+      setErrorMessage('Não foi possível carregar o teu perfil.');
       return;
     }
 
@@ -82,7 +82,7 @@ export default function EditProfileScreen() {
 
       router.back();
     } catch (error) {
-      setErrorMessage(getErrorMessage(error, 'Nao foi possivel atualizar o perfil.'));
+      setErrorMessage(getErrorMessage(error, 'Não foi possível atualizar o teu perfil.'));
     }
   }
 
@@ -95,7 +95,7 @@ export default function EditProfileScreen() {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center px-6">
           <Text className="text-center text-[14px] text-[#4C4C4C]">
-            Nao foi possivel carregar o perfil.
+            Não foi possível carregar o teu perfil.
           </Text>
         </View>
       </SafeAreaView>
@@ -141,7 +141,7 @@ export default function EditProfileScreen() {
           <AuthMinimalField
             keyboardType="phone-pad"
             inputClassName="h-[50px] rounded-2xl text-[15px]"
-            label="Numero de telefone"
+            label="Número de telefone"
             labelClassName="mb-2 text-[13px] font-medium text-[#2B2B2B]"
             onChangeText={setPhone}
             placeholder="ex. 84 123 4567"
@@ -153,20 +153,23 @@ export default function EditProfileScreen() {
             editable={false}
             inputClassName="h-[50px] rounded-2xl text-[15px] text-[#8C8C8C]"
             keyboardType="email-address"
-            label="Endereco de e-mail"
+            label="Endereço de e-mail"
             labelClassName="mb-2 text-[13px] font-medium text-[#2B2B2B]"
             onChangeText={setEmail}
             placeholder="ex. seu@email.com"
             value={email}
           />
+          <Text className="-mt-4 mb-6 text-[12px] leading-4 text-[#8C8C8C]">
+            O e-mail não pode ser alterado aqui. Fala com o clube para o mudar.
+          </Text>
 
           <View className="mb-6">
-            <Text className="mb-2 text-[13px] font-medium text-[#2B2B2B]">Genero</Text>
+            <Text className="mb-2 text-[13px] font-medium text-[#2B2B2B]">Género</Text>
             <Select
               onValueChange={(option) => setGender((option?.value as Gender | undefined) ?? null)}
               value={selectedGenderOption}>
               <Select.Trigger className="min-h-12.5 rounded-2xl bg-[#E9E9EC] px-4 shadow-none">
-                <Select.Value className="font-input text-[15px]" placeholder="Selecione o genero" />
+                <Select.Value className="font-input text-[15px]" placeholder="Selecione o género" />
                 <Select.TriggerIndicator iconProps={{ color: '#6D6D6D', size: 18 }} />
               </Select.Trigger>
 
@@ -177,7 +180,7 @@ export default function EditProfileScreen() {
                   presentation="popover"
                   width="trigger">
                   <Select.ListLabel className="px-3 pt-2 text-[13px] font-medium text-[#2B2B2B]">
-                    Selecione o genero
+                    Selecione o género
                   </Select.ListLabel>
 
                   {GENDER_OPTIONS.map((option) => (
@@ -203,8 +206,8 @@ export default function EditProfileScreen() {
             <AuthButton
               className="h-13 rounded-full"
               isLoading={updateProfileMutation.isPending}
-              label="Salvar"
-              loadingLabel="A salvar..."
+              label="Guardar"
+              loadingLabel="A guardar..."
               onPress={handleSave}
             />
           </View>

@@ -3,14 +3,7 @@ import { useMemo, useState } from 'react';
 
 import { useRouter } from 'expo-router';
 import { ArrowLeft, BellOff, Settings } from 'lucide-react-native';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { ConfirmationModal } from 'components/app/ConfirmationModal';
@@ -88,6 +81,7 @@ export default function NotificationsRoute() {
 
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel="Definições de notificações"
           className="h-10 w-10 items-center justify-center rounded-full bg-[#FAFAFA]"
           onPress={() => router.push('/profile/notifications')}>
           <Settings color="#18181B" size={18} />
@@ -107,7 +101,7 @@ export default function NotificationsRoute() {
               }`}
               onPress={() => setActiveFilter(filter.value)}>
               <Text
-                className={`font-button text-[13px] ${isActive ? 'text-white' : 'text-[#3A3A3A]'}`}>
+                className={`font-button text-[13px] ${isActive ? 'text-[#171717]' : 'text-[#3A3A3A]'}`}>
                 {filter.label}
               </Text>
             </Pressable>
@@ -155,10 +149,10 @@ export default function NotificationsRoute() {
               <View className="mb-4 h-14 w-14 items-center justify-center rounded-full bg-[#F4F4F6]">
                 <BellOff color="#7A7A7A" size={24} strokeWidth={2} />
               </View>
-              <Text className="font-title text-center text-[17px] text-[#18181B]">
+              <Text className="text-center font-title text-[17px] text-[#18181B]">
                 Sem notificações
               </Text>
-              <Text className="font-label mt-2 text-center text-[14px] leading-5 text-[#71717A]">
+              <Text className="mt-2 text-center font-label text-[14px] leading-5 text-[#71717A]">
                 {activeFilter === 'unread'
                   ? 'Estás em dia — não tens notificações por ler.'
                   : activeFilter === 'read'

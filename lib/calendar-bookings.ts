@@ -154,9 +154,9 @@ export function getBookingStatusLabel(status: string) {
     case BookingStatus.CANCELLED:
       return 'Cancelado';
     case BookingStatus.NO_SHOW:
-      return 'Nao compareceu';
+      return 'Não compareceu';
     case BookingStatus.COMPLETED:
-      return 'Concluido';
+      return 'Concluído';
     default:
       return status;
   }
