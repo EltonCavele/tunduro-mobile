@@ -24,9 +24,26 @@ export interface Court {
   updatedAt: string;
 }
 
+export interface CourtBookingOrganizer {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  avatarUrl?: string | null;
+}
+
 export interface CourtBooking {
   id: string;
   startAt: string;
   endAt: string;
   status: string;
+  /**
+   * Optional richer fields. The court bookings endpoint currently only returns
+   * id/startAt/endAt/status, but the schedule UI renders the reserver's name and
+   * guest count as soon as the backend starts exposing any of these.
+   */
+  organizerId?: string | null;
+  organizer?: CourtBookingOrganizer | null;
+  participantCount?: number | null;
+  guestCount?: number | null;
 }

@@ -62,8 +62,12 @@ export function buildClubIso(dateKey: string, hour: number, minute = 0) {
 }
 
 export function getClubDayRange(dateKey: string) {
-  const startAt = new Date(`${dateKey}T00:00:00${CLUB_TIMEZONE_OFFSET}`);
-  const endAt = new Date(startAt.getTime() + 24 * 60 * 60 * 1000);
+  return getClubRange(dateKey, 1);
+}
+
+export function getClubRange(startDateKey: string, dayCount: number) {
+  const startAt = new Date(`${startDateKey}T00:00:00${CLUB_TIMEZONE_OFFSET}`);
+  const endAt = new Date(startAt.getTime() + dayCount * 24 * 60 * 60 * 1000);
 
   return {
     startAt: startAt.toISOString(),

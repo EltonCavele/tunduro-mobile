@@ -65,8 +65,7 @@ export function getCourtBookingsPage(courtId: string, params: CourtBookingsParam
   );
 }
 
-export async function getCourtDayBookings(courtId: string, dateKey: string) {
-  const { endAt, startAt } = getClubDayRange(dateKey);
+export async function getCourtBookingsBetween(courtId: string, startAt: string, endAt: string) {
   const uniqueBookings = new Map<string, CourtBooking>();
   let currentPage = 1;
   let totalPages = 1;
@@ -88,4 +87,10 @@ export async function getCourtDayBookings(courtId: string, dateKey: string) {
   }
 
   return Array.from(uniqueBookings.values());
+}
+
+export function getCourtDayBookings(courtId: string, dateKey: string) {
+  const { endAt, startAt } = getClubDayRange(dateKey);
+
+  return getCourtBookingsBetween(courtId, startAt, endAt);
 }

@@ -1,5 +1,5 @@
-import { CourtsScreen } from 'components/court/CourtsScreen';
+import { CourtScheduleScreen } from 'components/court/CourtScheduleScreen';
 
 export default function CourtsRoute() {
-  return <CourtsScreen />;
+  return <CourtScheduleScreen />;
 }
