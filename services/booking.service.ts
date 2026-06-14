@@ -1,5 +1,6 @@
 import type { ApiPaginatedData } from 'lib/api.types';
 import { api, unwrapResponse } from 'lib/api';
+import type { BookingPaymentMethod } from 'lib/booking-pricing';
 import type { BookingItem } from 'lib/calendar-bookings';
 
 interface GetMyBookingsPageParams {
@@ -12,7 +13,9 @@ const DEFAULT_BOOKINGS_PAGE_SIZE = 100;
 export interface CreateBookingPayload {
   courtId: string;
   endAt: string;
-  phone: string;
+  lightingRequested?: boolean;
+  paymentMethod?: BookingPaymentMethod;
+  phone?: string;
   participantUserIds?: string[];
   startAt: string;
 }
@@ -40,8 +43,9 @@ export interface BookingCheckoutSession {
   expiresAt: string;
   failureReason: string | null;
   id: string;
+  lightingRequested: boolean;
   paidAt: string | null;
-  paymentMethod: string | null;
+  paymentMethod: BookingPaymentMethod | string | null;
   phone: string | null;
   reference: string;
   refundedAt: string | null;

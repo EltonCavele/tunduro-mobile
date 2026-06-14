@@ -1,0 +1,163 @@
+import { ApiClientError, getErrorMessage } from 'lib/error-utils';
+import type { Role } from 'lib/auth.types';
+import { getBookingTotalPrice } from 'lib/booking-pricing';
+import type { Court } from 'lib/court.types';
+
+const MOZ_MSISDN_REGEX = /^(\+?258)?\s?(8[2-7])\s?\d{3}\s?\d{4}$|^(8[2-7])\d{7}$/;
+
+export const BOOKING_STEPS = ['court', 'schedule', 'guests', 'payment', 'summary'] as const;
+export const TOTAL_STEPS = BOOKING_STEPS.length;
+
+export type BookingStep = (typeof BOOKING_STEPS)[number];
+
+export const STEP_COPY: Record<
+  BookingStep,
+  {
+    subtitle?: string;
+    title: string;
+  }
+> = {
+  court: {
+    subtitle: 'Escolhe o campo onde queres jogar.',
+    title: 'Qual quadra queres reservar?',
+  },
+  schedule: {
+    subtitle: 'Define a data e o horario da tua partida.',
+    title: 'Quando queres jogar?',
+  },
+  guests: {
+    subtitle: 'Convida outros membros do clube ou continua sozinho.',
+    title: 'Quem mais vai jogar?',
+  },
+  payment: {
+    subtitle: 'Escolhe o metodo antes de confirmar.',
+    title: 'Como queres pagar?',
+  },
+  summary: {
+    subtitle: 'Revê tudo antes de confirmar o pagamento.',
+    title: 'Confirma a tua reserva',
+  },
+};
+
+export function validateMozPhone(value: string) {
+  return MOZ_MSISDN_REGEX.test(value.trim());
+}
+
+export function translateCheckoutError(error: unknown) {
+  if (error instanceof ApiClientError) {
+    if (error.statusCode === 409) {
+      return 'Este horario ja nao esta disponivel.';
+    }
+
+    if (error.statusCode === 503) {
+      return 'Pagamentos temporariamente indisponiveis. Tenta novamente.';
+    }
+
+    if (error.statusCode === 402) {
+      return 'Saldo do clube insuficiente para esta reserva.';
+    }
+
+    if (
+      error.statusCode === 400 &&
+      typeof error.data === 'object' &&
+      error.data &&
+      'message' in error.data &&
+      Reflect.get(error.data, 'message') === 'payment.error.invalidPhone'
+    ) {
+      return 'Numero M-Pesa invalido. Confere o formato (84xxxxxxx).';
+    }
+  }
+
+  return getErrorMessage(error, 'Nao foi possivel iniciar o checkout do pagamento.');
+}
+
+export function getStepIndex(step: BookingStep) {
+  return BOOKING_STEPS.indexOf(step) + 1;
+}
+
+export function getBookingTotalForWindow(
+  selectedCourt: Court | null,
+  selectedWindow: { startAt: string; endAt: string } | null,
+  role: Role | undefined,
+  lightingRequested: boolean
+) {
+  if (!selectedCourt || !selectedWindow) {
+    return null;
+  }
+
+  const startMs = new Date(selectedWindow.startAt).getTime();
+  const endMs = new Date(selectedWindow.endAt).getTime();
+
+  if (Number.isNaN(startMs) || Number.isNaN(endMs) || endMs <= startMs) {
+    return null;
+  }
+
+  const totalHours = (endMs - startMs) / 3600000;
+  return getBookingTotalPrice(selectedCourt, role, totalHours, lightingRequested);
+}
+
+export function formatBookingTotalValue(amount: number | null, currency?: string) {
+  if (amount === null) {
+    return null;
+  }
+
+  try {
+    return new Intl.NumberFormat('pt-PT', {
+      style: 'currency',
+      currency: currency || 'MZN',
+      minimumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${amount.toFixed(2)} ${currency || 'MZN'}`;
+  }
+}
+
+export function getContinueDisabledForStep(
+  step: BookingStep,
+  values: {
+    canProceedFromCourt: boolean;
+    canProceedFromGuests: boolean;
+    canProceedFromPayment: boolean;
+    canProceedFromSchedule: boolean;
+    canSubmit: boolean;
+  }
+) {
+  switch (step) {
+    case 'court':
+      return !values.canProceedFromCourt;
+    case 'schedule':
+      return !values.canProceedFromSchedule;
+    case 'guests':
+      return !values.canProceedFromGuests;
+    case 'payment':
+      return !values.canProceedFromPayment;
+    case 'summary':
+      return !values.canSubmit;
+    default:
+      return true;
+  }
+}
+
+export function getContinueLabelForStep(args: {
+  bookingStep: BookingStep;
+  bookingTotalLabel: string | null;
+  isStartingCheckout: boolean;
+  paymentMethod: 'MPESA' | 'CLUB_BALANCE';
+  selectedGuestsCount: number;
+}) {
+  if (args.bookingStep === 'summary') {
+    return args.isStartingCheckout
+      ? 'A iniciar pagamento...'
+      : args.paymentMethod === 'CLUB_BALANCE' && args.bookingTotalLabel
+        ? `Reservar com saldo ${args.bookingTotalLabel}`
+        : args.bookingTotalLabel
+          ? `Pagar ${args.bookingTotalLabel}`
+          : 'Confirmar pagamento';
+  }
+
+  if (args.bookingStep === 'guests' && args.selectedGuestsCount === 0) {
+    return 'Continuar sem convidados';
+  }
+
+  return 'Continuar';
+}

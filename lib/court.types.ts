@@ -12,8 +12,12 @@ export interface Court {
   type: CourtType;
   surface: string;
   hasLighting: boolean;
+  lightingDeviceId?: string[];
+  lightingEnabled?: boolean;
   rules: string | null;
   pricePerHour: number;
+  memberPricePerHour: number;
+  lightingPricePerHour: number;
   currency: string;
   maxPlayers: number;
   isActive: boolean;

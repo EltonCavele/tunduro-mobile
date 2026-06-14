@@ -80,7 +80,7 @@ export default function NotificationsPreferencesRoute() {
     ? 'Vais receber alertas de reservas, convites e atualizações importantes.'
     : isDevicePushDenied
       ? 'Para voltar a receber alertas, permite notificações nas definições do telemóvel.'
-      : 'Recebe lembretes de jogos, alterações de estado da reserva e mensagens importantes.';
+      : 'Recebe lembretes de campos, alterações de estado da reserva e mensagens importantes.';
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">

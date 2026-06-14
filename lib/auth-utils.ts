@@ -104,6 +104,10 @@ export function formatRoleLabel(role?: UserProfile['role'] | null) {
       return 'Administrador';
     case 'TRAINER':
       return 'Treinador';
+    case 'MEMBER':
+      return 'Sócio';
+    case 'EMPLOYEE':
+      return 'Funcionário';
     case 'USER':
       return 'Jogador';
     default:

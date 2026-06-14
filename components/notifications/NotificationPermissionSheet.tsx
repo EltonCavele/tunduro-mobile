@@ -33,7 +33,7 @@ export function NotificationPermissionSheet() {
           Fica a par de tudo
         </Text>
         <Text className="mb-8 text-center text-[15px] leading-6 text-[#71717A]">
-          Recebe atualizações sobre as tuas reservas, lembretes de jogos e alertas importantes.
+          Recebe atualizações sobre as tuas reservas, lembretes de campos e alertas importantes.
           Podes desativar a qualquer momento.
         </Text>
 

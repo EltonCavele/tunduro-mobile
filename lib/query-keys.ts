@@ -40,6 +40,11 @@ export const weatherQueryKeys = {
   club: ['weather', 'club'] as const,
 };
 
+export const walletQueryKeys = {
+  all: ['wallet'] as const,
+  me: ['wallet', 'me'] as const,
+};
+
 export const notificationQueryKeys = {
   all: ['notifications'] as const,
   list: (paramsKey: string) => ['notifications', 'list', paramsKey] as const,

@@ -6,7 +6,7 @@ import type { SelectableTimeSlot } from './shared';
 
 function getSlotDescription(slot: SelectableTimeSlot) {
   if (slot.isCourtBlocked) {
-    return 'Ja reservado nesta quadra';
+    return 'Campo ja reservado';
   }
 
   if (slot.isOrganizerBlocked) {

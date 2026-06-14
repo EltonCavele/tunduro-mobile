@@ -22,7 +22,7 @@ export function ReservationsTimeline({
           Sem reservas nesta data
         </Text>
         <Text className="mt-2 text-center text-[13px] leading-5 text-[#787878]">
-          Escolha outro dia no calendário para ver os jogos reservados.
+          Escolha outro dia no calendário para ver os campos reservados.
         </Text>
       </View>
     );

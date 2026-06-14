@@ -4,7 +4,11 @@ const ACTIVE_CHECKOUT_KEY = 'active_checkout_session_id';
 let inMemorySessionId: string | null = null;
 
 function isAsyncStorageAvailable() {
-  return Boolean(AsyncStorage?.getItem && AsyncStorage?.setItem && AsyncStorage?.removeItem);
+  return (
+    typeof AsyncStorage?.getItem === 'function' &&
+    typeof AsyncStorage?.setItem === 'function' &&
+    typeof AsyncStorage?.removeItem === 'function'
+  );
 }
 
 export async function setActiveCheckoutSessionId(sessionId: string) {

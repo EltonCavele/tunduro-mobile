@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 
 import { setActiveCheckoutSessionId } from 'lib/active-checkout-storage';
-import { bookingQueryKeys, courtQueryKeys } from 'lib/query-keys';
+import { bookingQueryKeys, courtQueryKeys, walletQueryKeys } from 'lib/query-keys';
 import type { BookingCheckoutSession } from 'services/booking.service';
 import { startBookingCheckout } from 'services/booking.service';
 
@@ -22,6 +22,9 @@ export function useStartBookingCheckoutMutation() {
 
       await queryClient.invalidateQueries({
         queryKey: courtQueryKeys.bookings,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: walletQueryKeys.me,
       });
 
       router.replace({

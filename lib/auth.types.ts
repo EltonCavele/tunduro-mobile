@@ -1,6 +1,6 @@
 export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
 
-export type Role = 'USER' | 'ADMIN' | 'TRAINER';
+export type Role = 'USER' | 'MEMBER' | 'ADMIN' | 'EMPLOYEE' | 'TRAINER';
 
 export type OtpChannel = 'EMAIL' | 'SMS';
 

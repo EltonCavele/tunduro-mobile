@@ -4,25 +4,30 @@ import { Image, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { Pressable } from 'react-native';
 
+import type { Role } from 'lib/auth.types';
+import { getBookingHourlyPrice } from 'lib/booking-pricing';
 import type { Court } from 'lib/court.types';
 
 import { DEFAULT_COURT_IMAGE } from './shared';
-import { getCourtImageUrl } from 'lib/court-utils';
+import { formatCourtPrice, getCourtImageUrl } from 'lib/court-utils';
 
 interface NewBookingCourtOptionRowProps {
   court: Court;
   isSelected: boolean;
   onPress: () => void;
+  role?: Role | null;
 }
 
 export function NewBookingCourtOptionRow({
   court,
   isSelected,
   onPress,
+  role,
 }: NewBookingCourtOptionRowProps) {
   const imageSource: ImageSourcePropType = court.images[0]?.url
     ? { uri: getCourtImageUrl(court.images[0].url) }
     : DEFAULT_COURT_IMAGE;
+  const hourlyPrice = getBookingHourlyPrice(court, role);
 
   return (
     <Pressable
@@ -39,7 +44,7 @@ export function NewBookingCourtOptionRow({
           {court.surface} • {court.type === 'INDOOR' ? 'Indoor' : 'Outdoor'}
         </Text>
         <Text className="mt-1 text-[11px] text-[#8A8A8A]">
-          {court.pricePerHour} {court.currency}/hora • {court.maxPlayers} jogadores
+          {formatCourtPrice(hourlyPrice, court.currency)}/hora • {court.maxPlayers} jogadores
         </Text>
       </View>
 

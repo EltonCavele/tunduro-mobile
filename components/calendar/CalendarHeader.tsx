@@ -27,7 +27,7 @@ export function CalendarHeader({ selectedDate }: { selectedDate: string }) {
   return (
     <View className="flex-row items-center justify-between">
       <Text className="text-[24px] font-semibold tracking-[-0.4px] text-[#141414]">
-        {selectedDate ? formatScheduleHeading(selectedDate) : 'Agenda de jogos'}
+        {selectedDate ? formatScheduleHeading(selectedDate) : 'Agenda de campos'}
       </Text>
 
       <View className="flex-row gap-3">

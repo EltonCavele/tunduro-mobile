@@ -1,37 +1,33 @@
 import { Text } from 'components/app/Text';
 import { View } from 'react-native';
 
+import type { Role } from 'lib/auth.types';
+import { getBookingHourlyPrice } from 'lib/booking-pricing';
 import type { Court } from 'lib/court.types';
-
-function formatCourtPrice(amount: number, currency: string) {
-  try {
-    return new Intl.NumberFormat('pt-PT', {
-      style: 'currency',
-      currency: currency || 'MZN',
-      minimumFractionDigits: 2,
-    }).format(amount);
-  } catch {
-    return `${amount.toFixed(2)} ${currency || 'MZN'}`;
-  }
-}
+import { formatCourtPrice } from 'lib/court-utils';
 
 interface NewBookingPriceHighlightProps {
   court: Court;
+  lightingRequested?: boolean;
   rangeLabel?: string;
+  role?: Role | null;
   totalLabel?: string | null;
 }
 
 export function NewBookingPriceHighlight({
   court,
+  lightingRequested = false,
   rangeLabel,
+  role,
   totalLabel,
 }: NewBookingPriceHighlightProps) {
-  const hourlyLabel = formatCourtPrice(court.pricePerHour, court.currency);
+  const hourlyPrice = getBookingHourlyPrice(court, role, lightingRequested);
+  const hourlyLabel = formatCourtPrice(hourlyPrice, court.currency);
   const hasTotal = Boolean(totalLabel);
 
   return (
     <View className="mb-6 overflow-hidden rounded-[24px] bg-[#BDE111] px-5 py-5">
-      <Text className="text-[12px] font-semibold uppercase tracking-[1.2px]">
+      <Text className="text-[12px] font-semibold">
         {hasTotal ? 'Total da reserva' : 'Preco por hora'}
       </Text>
 

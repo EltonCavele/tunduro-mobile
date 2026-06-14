@@ -232,7 +232,7 @@ export function adaptBookingsToCalendarReservations(bookings: BookingItem[]) {
         startLabel: formatTimeLabel(startDate),
         status: item.status,
         timeRangeLabel: `${formatTimeLabel(startDate)} - ${formatTimeLabel(endDate)}`,
-        title: 'Jogo reservado',
+        title: 'Campo reservado',
       };
     })
     .sort((left, right) => left.startAt.localeCompare(right.startAt));

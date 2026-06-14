@@ -870,7 +870,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
 
             {!isCheckInTime ? (
               <Text className="text-center text-[13px] leading-5 text-[#7A7A7A]">
-                O check-in fica disponível à hora do jogo.
+                O check-in fica disponível à hora do campo marcado.
               </Text>
             ) : null}
 
