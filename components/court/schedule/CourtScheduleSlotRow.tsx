@@ -21,6 +21,8 @@ function ReservationContent({
 
   return (
     <View
+      accessible
+      accessibilityLabel={`Reserva de ${reservation.displayTitle}, ${reservation.timeRangeLabel}, ${reservation.statusLabel}`}
       className="flex-1 flex-row items-center rounded-2xl px-3 py-3"
       style={{ backgroundColor: reservation.accentColor }}>
       <View
@@ -31,7 +33,7 @@ function ReservationContent({
 
       <View className="ml-3 flex-1">
         <Text className="font-title text-[14px] text-white" numberOfLines={1}>
-          {reservation.displayTitle}
+          {reservation.displayTitle} 
         </Text>
         <Text className="mt-0.5 text-[12px] text-white/85">{reservation.timeRangeLabel}</Text>
       </View>
