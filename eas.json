@@ -11,5 +11,13 @@
       "distribution": "internal"
     },
     "production": {}
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleTeamId": "S7Z499JNP8",
+        "companyName": "ARCUSTECH, LIMITADA"
+      }
+    }
   }
 }
