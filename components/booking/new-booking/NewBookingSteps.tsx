@@ -1,15 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Button } from 'heroui-native';
-import {
-  CalendarDays,
-  Clock3,
-  Lightbulb,
-  LightbulbOff,
-  Phone,
-  Smartphone,
-  Users,
-  Wallet,
-} from 'lucide-react-native';
+import { Lightbulb, LightbulbOff, Phone, Smartphone, Users, Wallet } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { Text } from 'components/app/Text';
@@ -67,25 +58,16 @@ export function NewBookingScheduleStep({
         value={formatReservationDateLabel(selectedDate)}
       />
 
-      <View className="mb-4">
-        <NewBookingInstructionRow
-          description={`Ainda podes reservar ${remainingDailyMinutes} min neste dia.`}
-          icon={Clock3}
-          label="Escolhe um ou dois horarios consecutivos"
-          showDivider
-        />
-        <NewBookingInstructionRow
-          description="Cada bloco corresponde a 1 hora de campo."
-          icon={CalendarDays}
-          label="Horarios disponiveis"
-          showDivider={false}
-        />
+      <View className="mb-4 rounded-2xl bg-[#F7F7F8] px-4 py-3">
+        <Text className="font-label text-[17px] text-[#202020]">Escolha 1 ou 2 horas</Text>
+        <Text className="mt-1 font-label text-[14px] text-[#6D6D6D]">
+          Restam {remainingDailyMinutes} min neste dia
+        </Text>
       </View>
 
       {selectedCourt ? (
         <View className="mb-4 rounded-2xl border border-[#ECECEC] bg-white px-4">
           <NewBookingInstructionRow
-            description="Sem valor extra de iluminacao."
             icon={LightbulbOff}
             isSelected={!lightingRequested}
             label="Sem iluminacao"
@@ -119,23 +101,21 @@ export function NewBookingScheduleStep({
       ) : isAvailabilityLoading ? (
         <View className="items-center rounded-2xl border border-[#ECECEC] bg-white px-5 py-10">
           <LoadingIndicator size="small" />
-          <Text className="mt-3 text-center font-label text-[14px] text-[#6D6D6D]">
-            A verificar disponibilidade da quadra.
+          <Text className="mt-3 text-center font-label text-[16px] text-[#6D6D6D]">
+            A verificar horarios.
           </Text>
         </View>
       ) : availabilityError ? (
         <View className="rounded-2xl border border-[#F5D6D4] bg-[#FFF8F7] px-5 py-5">
-          <Text className="font-title text-[16px] text-[#171717]">
-            Nao foi possivel validar os horarios
-          </Text>
-          <Text className="mt-2 font-label text-[13px] leading-[19px] text-[#7C6F6F]">
+          <Text className="font-title text-[18px] text-[#171717]">Erro nos horarios</Text>
+          <Text className="mt-2 font-label text-[14px] leading-5 text-[#7C6F6F]">
             {availabilityError}
           </Text>
           <Button
             className="mt-4 self-start rounded-full bg-[#BDE111] px-4"
             feedbackVariant="none"
             onPress={onRetryAvailability}>
-            <Button.Label className="font-button text-[12px] text-white">
+            <Button.Label className="font-button text-[14px] text-white">
               Tentar novamente
             </Button.Label>
           </Button>
@@ -167,14 +147,12 @@ export function NewBookingScheduleStep({
 }
 
 type NewBookingGuestsStepProps = {
-  maxGuestSlots: number;
   onOpenGuestSheet: () => void;
   onRemoveGuest: (guestId: string) => void;
   selectedGuests: UserProfile[];
 };
 
 export function NewBookingGuestsStep({
-  maxGuestSlots,
   onOpenGuestSheet,
   onRemoveGuest,
   selectedGuests,
@@ -184,7 +162,7 @@ export function NewBookingGuestsStep({
       <NewBookingField
         label="Convidados"
         onPress={onOpenGuestSheet}
-        placeholder="Adicionar membro do clube"
+        placeholder="Adicionar pessoa"
         value={
           selectedGuests.length
             ? `${selectedGuests.length} convidado${selectedGuests.length > 1 ? 's' : ''} selecionado${selectedGuests.length > 1 ? 's' : ''}`
@@ -199,21 +177,6 @@ export function NewBookingGuestsStep({
           ))}
         </View>
       ) : null}
-
-      {/*<View className="rounded-2xl border border-[#ECECEC] bg-white px-4">
-        <NewBookingInstructionRow
-          description={`Podes convidar ate ${maxGuestSlots} jogador${maxGuestSlots === 1 ? '' : 'es'}.`}
-          icon={Users}
-          label="Convites sao opcionais"
-          showDivider
-        />
-        <NewBookingInstructionRow
-          description="Os convidados recebem notificacao quando confirmares a reserva."
-          icon={MapPin}
-          label="Organizador confirma o campo"
-          showDivider={false}
-        />
-      </View>*/}
     </>
   );
 }
@@ -249,7 +212,7 @@ export function NewBookingPaymentStep({
     <View>
       <View className="mb-5 rounded-2xl border border-[#ECECEC] bg-white px-4">
         <NewBookingInstructionRow
-          description="Recebes um pedido de PIN no telemovel."
+          description="PIN no telemovel"
           icon={Smartphone}
           isSelected={paymentMethod === 'MPESA'}
           label="M-Pesa"
@@ -278,10 +241,10 @@ export function NewBookingPaymentStep({
 
       {paymentMethod === 'MPESA' ? (
         <>
-          <Text className="mb-2 font-label text-[15px] text-[#202020]">Numero M-Pesa</Text>
+          <Text className="mb-2 font-label text-[16px] text-[#202020]">Numero M-Pesa</Text>
           <TextInput
             autoComplete="tel"
-            className={`h-[52px] rounded-2xl border bg-white px-4 font-input text-[15px] text-[#171717] ${
+            className={`h-[60px] rounded-2xl border bg-white px-4 font-input text-[16px] text-[#171717] ${
               phoneError ? 'border-[#D05B5B]' : 'border-[#D8D8DE]'
             }`}
             keyboardType="phone-pad"
@@ -297,36 +260,21 @@ export function NewBookingPaymentStep({
             value={phone}
           />
           {phoneError ? (
-            <Text className="mt-2 font-label text-[13px] leading-5 text-[#D05B5B]">
+            <Text className="mt-2 font-label text-[14px] leading-5 text-[#D05B5B]">
               {phoneError}
             </Text>
           ) : null}
-          <Text className="mt-3 font-label text-[13px] leading-[20px] text-[#8A8A8A]">
-            Vodacom Mocambique. Introduz o numero que vais usar para autorizar o pagamento.
+          <Text className="mt-3 font-label text-[14px] leading-5 text-[#7A7A7A]">
+            Numero Vodacom para pagar.
           </Text>
         </>
       ) : null}
 
       {paymentMethod === 'CLUB_BALANCE' && !hasEnoughWalletBalance ? (
-        <Text className="font-label text-[13px] leading-5 text-[#D05B5B]">
+        <Text className="font-label text-[14px] leading-5 text-[#D05B5B]">
           Saldo do clube insuficiente para esta reserva.
         </Text>
       ) : null}
-
-      <View className="mt-6 rounded-2xl border border-[#ECECEC] bg-white px-4">
-        <NewBookingInstructionRow
-          description={
-            paymentMethod === 'CLUB_BALANCE'
-              ? 'A reserva e confirmada usando o saldo pre-carregado no clube.'
-              : 'O PIN e pedido apenas no momento do pagamento.'
-          }
-          icon={paymentMethod === 'CLUB_BALANCE' ? Wallet : Phone}
-          label={
-            paymentMethod === 'CLUB_BALANCE' ? 'Pagamento por saldo' : 'Pagamento seguro via M-Pesa'
-          }
-          showDivider={false}
-        />
-      </View>
     </View>
   );
 }
@@ -401,7 +349,7 @@ export function NewBookingSummaryStep({
       </View>
 
       {submissionError ? (
-        <Text className="mt-4 font-label text-[13px] leading-5 text-[#D05B5B]">
+        <Text className="mt-4 font-label text-[14px] leading-5 text-[#D05B5B]">
           {submissionError}
         </Text>
       ) : null}

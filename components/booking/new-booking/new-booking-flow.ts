@@ -18,24 +18,19 @@ export const STEP_COPY: Record<
   }
 > = {
   court: {
-    subtitle: 'Escolhe o campo onde queres jogar.',
-    title: 'Qual quadra queres reservar?',
+    title: 'Escolha o campo',
   },
   schedule: {
-    subtitle: 'Define a data e o horario da tua partida.',
-    title: 'Quando queres jogar?',
+    title: 'Escolha dia e hora',
   },
   guests: {
-    subtitle: 'Convida outros membros do clube ou continua sozinho.',
-    title: 'Quem mais vai jogar?',
+    title: 'Vai jogar com alguém?',
   },
   payment: {
-    subtitle: 'Escolhe o metodo antes de confirmar.',
-    title: 'Como queres pagar?',
+    title: 'Como vai pagar?',
   },
   summary: {
-    subtitle: 'Revê tudo antes de confirmar o pagamento.',
-    title: 'Confirma a tua reserva',
+    title: 'Confirme a reserva',
   },
 };
 
@@ -156,7 +151,7 @@ export function getContinueLabelForStep(args: {
   }
 
   if (args.bookingStep === 'guests' && args.selectedGuestsCount === 0) {
-    return 'Continuar sem convidados';
+    return 'Jogar sozinho';
   }
 
   return 'Continuar';

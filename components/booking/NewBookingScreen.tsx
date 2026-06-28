@@ -93,7 +93,7 @@ export function NewBookingScreen() {
   const myBookings = useMemo(() => myBookingsQuery.data ?? [], [myBookingsQuery.data]);
   const selectedCourt = activeCourts.find((court) => court.id === selectedCourtId) ?? null;
   const canUseLighting = Boolean(
-    selectedCourt?.hasLighting && (selectedCourt.lightingDeviceId?.length ?? 1) > 0
+    selectedCourt?.hasLighting && (selectedCourt.lightingDeviceId?.length ?? 0) > 0
   );
   const walletBalance = walletQuery.data?.balance ?? 0;
   const walletCurrency = walletQuery.data?.currency ?? selectedCourt?.currency ?? 'MZN';
@@ -458,7 +458,6 @@ export function NewBookingScreen() {
 
         {bookingStep === 'guests' ? (
           <NewBookingGuestsStep
-            maxGuestSlots={maxGuestSlots}
             onOpenGuestSheet={() => setIsGuestSheetOpen(true)}
             onRemoveGuest={(guestId) => {
               setSelectedGuests((currentGuests) =>

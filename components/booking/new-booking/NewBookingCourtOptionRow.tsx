@@ -1,15 +1,14 @@
 import { Text } from 'components/app/Text';
 import { Check } from 'lucide-react-native';
-import { Image, View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
-import { Pressable } from 'react-native';
 
 import type { Role } from 'lib/auth.types';
 import { getBookingHourlyPrice } from 'lib/booking-pricing';
 import type { Court } from 'lib/court.types';
+import { formatCourtPrice, getCourtImageUrl } from 'lib/court-utils';
 
 import { DEFAULT_COURT_IMAGE } from './shared';
-import { formatCourtPrice, getCourtImageUrl } from 'lib/court-utils';
 
 interface NewBookingCourtOptionRowProps {
   court: Court;
@@ -36,14 +35,14 @@ export function NewBookingCourtOptionRow({
         isSelected ? 'border-[#BDE111] bg-[#EEF3ED]' : 'border-[#ECECEF] bg-white'
       }`}
       onPress={onPress}>
-      <Image className="h-16 w-16 rounded-[18px]" resizeMode="cover" source={imageSource} />
+      <Image className="h-[72px] w-[72px] rounded-[18px]" resizeMode="cover" source={imageSource} />
 
       <View className="ml-4 flex-1">
-        <Text className="text-[15px] font-semibold text-[#171717]">{court.name}</Text>
-        <Text className="mt-1 text-[12px] text-[#757575]">
+        <Text className="text-[17px] font-semibold text-[#171717]">{court.name}</Text>
+        <Text className="mt-1 text-[14px] text-[#757575]">
           {court.surface} • {court.type === 'INDOOR' ? 'Indoor' : 'Outdoor'}
         </Text>
-        <Text className="mt-1 text-[11px] text-[#8A8A8A]">
+        <Text className="mt-1 text-[14px] text-[#6D6D6D]">
           {formatCourtPrice(hourlyPrice, court.currency)}/hora • {court.maxPlayers} jogadores
         </Text>
       </View>

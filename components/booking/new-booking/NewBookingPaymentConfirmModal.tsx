@@ -34,29 +34,23 @@ export function NewBookingPaymentConfirmModal({
         isLoading
           ? 'A processar...'
           : paymentMethod === 'CLUB_BALANCE'
-            ? 'Sim, usar saldo'
+            ? 'Usar saldo'
             : bookingTotalLabel
-              ? `Sim, pagar`
-              : 'Sim, pagar'
+              ? 'Pagar'
+              : 'Pagar'
       }
       description={
         paymentMethod === 'CLUB_BALANCE'
-          ? `Vamos confirmar a reserva usando o saldo do clube${
-              bookingTotalLabel ? ` (${bookingTotalLabel})` : ''
-            } pela ${selectedCourtName ?? 'quadra'}, ${formatReservationDateLabel(
-              selectedDate
-            )}${selectedRangeLabel ? `, das ${selectedRangeLabel}` : ''}.`
-          : `Vamos enviar um pedido de PIN do M-Pesa para o número ${phone.trim()}.${
-              bookingTotalLabel ? ` Vais pagar ${bookingTotalLabel}` : ''
-            } pela ${selectedCourtName ?? 'quadra'}, ${formatReservationDateLabel(
-              selectedDate
-            )}${selectedRangeLabel ? `, das ${selectedRangeLabel}` : ''}.`
+          ? `${selectedCourtName ?? 'Campo'} - ${formatReservationDateLabel(selectedDate)}${
+              selectedRangeLabel ? `, ${selectedRangeLabel}` : ''
+            }. Total: ${bookingTotalLabel ?? 'por confirmar'}.`
+          : `Vai receber o PIN no ${phone.trim()}. Total: ${bookingTotalLabel ?? 'por confirmar'}.`
       }
       isLoading={isLoading}
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
-      title="Confirmar pagamento"
+      title="Confirmar"
     />
   );
 }

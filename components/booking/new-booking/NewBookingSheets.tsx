@@ -45,7 +45,7 @@ export function NewBookingCourtSheet({
     <NewBookingSheet
       enableScroll={false}
       onClose={onClose}
-      title="Selecionar quadra"
+      title="Escolher campo"
       snapPoints={['70%']}
       visible={visible}>
       {isLoading ? (
@@ -54,8 +54,8 @@ export function NewBookingCourtSheet({
         </View>
       ) : error ? (
         <NewBookingEmptyStateCard
-          description={getErrorMessage(error, 'Nao foi possivel carregar a lista de quadras.')}
-          title="Erro ao carregar quadras"
+          description={getErrorMessage(error, 'Nao foi possivel carregar os campos.')}
+          title="Erro ao carregar"
         />
       ) : (
         <BottomSheetFlatList<Court>
@@ -111,7 +111,7 @@ export function NewBookingGuestSheet({
     <NewBookingSheet
       enableScroll={false}
       onClose={onClose}
-      title="Selecionar convidados"
+      title="Convidados"
       visible={visible}
       snapPoints={['80%']}>
       <SearchField className="mb-4" value={guestSearchQuery} onChange={onChangeGuestSearchQuery}>
@@ -120,7 +120,7 @@ export function NewBookingGuestSheet({
           <SearchField.Input
             autoCapitalize="none"
             autoCorrect={false}
-            placeholder="Pesquisar membro"
+            placeholder="Nome do membro"
             placeholderColorClassName="text-[#8F9099]"
             variant="secondary"
           />
@@ -130,7 +130,7 @@ export function NewBookingGuestSheet({
       <View className="mb-4 flex-row items-center justify-between">
         <View className="flex-row items-center">
           <Users size={16} stroke="#BDE111" strokeWidth={2.1} />
-          <Text className="ml-2 font-label text-[12px] text-[#666666]">
+          <Text className="ml-2 font-label text-[14px] text-[#666666]">
             {selectedGuests.length}/{maxGuestSlots} convidados
           </Text>
         </View>
@@ -145,20 +145,17 @@ export function NewBookingGuestSheet({
       {isLoading ? (
         <View className="items-center justify-center py-10">
           <LoadingIndicator size="large" />
-          <Text className="mt-3 text-center font-label text-[13px] text-[#6D6D6D]">
-            A pesquisar membros.
+          <Text className="mt-3 text-center font-label text-[16px] text-[#6D6D6D]">
+            A pesquisar.
           </Text>
         </View>
       ) : error ? (
         <NewBookingEmptyStateCard
           description={getErrorMessage(error, 'Nao foi possivel carregar os membros.')}
-          title="Erro ao carregar membros"
+          title="Erro ao carregar"
         />
       ) : guestOptions.length === 0 ? (
-        <NewBookingEmptyStateCard
-          description="Nenhum membro encontrado para a pesquisa atual."
-          title="Sem resultados"
-        />
+        <NewBookingEmptyStateCard description="Tente outro nome." title="Sem resultados" />
       ) : (
         <BottomSheetFlatList<UserProfile>
           data={guestOptions}
@@ -199,15 +196,11 @@ export function NewBookingDateSheet({
   visible,
 }: NewBookingDateSheetProps) {
   return (
-    <NewBookingSheet
-      onClose={onClose}
-      title="Selecionar data"
-      visible={visible}
-      snapPoints={['70%']}>
+    <NewBookingSheet onClose={onClose} title="Escolher data" visible={visible} snapPoints={['70%']}>
       <View className="mb-4 flex-row items-center">
         <CalendarDays size={18} stroke="#BDE111" strokeWidth={2.1} />
-        <Text className="ml-2 font-label text-[12px] text-[#666666]">
-          Escolhe uma data ate {formatReservationDateLabel(getMaxBookableDateKey())}
+        <Text className="ml-2 font-label text-[14px] text-[#666666]">
+          Ate {formatReservationDateLabel(getMaxBookableDateKey())}
         </Text>
       </View>
 
@@ -231,8 +224,8 @@ export function NewBookingDateSheet({
           selectedDayTextColor: '#181818',
           textDayFontFamily: 'Poppins_400Regular',
           textMonthFontFamily: 'Poppins_600SemiBold',
-          textDayFontSize: 13,
-          textMonthFontSize: 16,
+          textDayFontSize: 16,
+          textMonthFontSize: 18,
           todayTextColor: '#BDE111',
         }}
       />

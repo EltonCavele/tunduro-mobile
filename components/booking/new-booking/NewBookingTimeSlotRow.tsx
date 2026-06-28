@@ -6,15 +6,15 @@ import type { SelectableTimeSlot } from './shared';
 
 function getSlotDescription(slot: SelectableTimeSlot) {
   if (slot.isCourtBlocked) {
-    return 'Campo ja reservado';
+    return 'Campo ocupado';
   }
 
   if (slot.isOrganizerBlocked) {
-    return 'Conflito com outra reserva tua';
+    return 'Ja tem reserva';
   }
 
   if (slot.isLeadTimeBlocked) {
-    return 'Disponivel apenas com 30 minutos de antecedencia';
+    return 'Muito perto da hora';
   }
 
   return null;
@@ -38,38 +38,34 @@ export function NewBookingTimeSlotRow({
     <View>
       <Pressable
         accessibilityRole="button"
-        className={`flex-row items-center py-4 ${isDisabled ? 'opacity-45' : ''}`}
+        className={`flex-row items-center py-5 ${isDisabled ? 'opacity-45' : ''}`}
         disabled={isDisabled}
         onPress={onPress}>
         <View
-          className={`h-11 w-11 items-center justify-center rounded-full border ${
+          className={`h-12 w-12 items-center justify-center rounded-full border ${
             slot.isSelected ? 'border-[#BDE111] bg-[#EEF3EE]' : 'border-[#E8E8EC] bg-[#F4F6F4]'
           }`}>
-          <Clock3
-            size={20}
-            stroke={slot.isSelected ? '#BDE111' : '#5A5A5A'}
-            strokeWidth={2}
-          />
+          <Clock3 size={22} stroke={slot.isSelected ? '#BDE111' : '#5A5A5A'} strokeWidth={2} />
         </View>
 
         <View className="ml-4 flex-1">
           <Text
-            className={`font-label text-[15px] ${
+            className={`font-label text-[17px] ${
               slot.isSelected ? 'text-[#101010]' : 'text-[#3A3A3A]'
             }`}>
             {slot.label}
           </Text>
 
           {description ? (
-            <Text className="font-label mt-1 text-[13px] leading-[19px] text-[#8A8A8A]">
+            <Text className="mt-1 font-label text-[14px] leading-5 text-[#7A7A7A]">
               {description}
             </Text>
           ) : null}
         </View>
 
         {slot.isSelected ? (
-          <View className="h-6 w-6 items-center justify-center rounded-full bg-[#BDE111]">
-            <Check color="#FFFFFF" size={14} strokeWidth={3} />
+          <View className="h-7 w-7 items-center justify-center rounded-full bg-[#BDE111]">
+            <Check color="#FFFFFF" size={16} strokeWidth={3} />
           </View>
         ) : null}
       </Pressable>

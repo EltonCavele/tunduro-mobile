@@ -33,11 +33,11 @@ export function NewBookingFooter({
       {secondaryAction ? <View className="mb-3">{secondaryAction}</View> : null}
 
       <Button
-        className={`h-[52px] rounded-full ${disabled ? 'bg-[#C9CDC8]' : 'bg-primary'}`}
+        className={`h-[58px] rounded-full ${disabled ? 'bg-[#C9CDC8]' : 'bg-primary'}`}
         feedbackVariant="none"
         isDisabled={disabled || isLoading}
         onPress={onPress}>
-        <Button.Label className="font-button text-[16px] text-black">
+        <Button.Label className="font-button text-[17px] text-black">
           {isLoading ? loadingLabel : label}
         </Button.Label>
       </Button>

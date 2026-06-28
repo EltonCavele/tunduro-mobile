@@ -12,11 +12,11 @@ interface NewBookingSelectedGuestChipProps {
 
 export function NewBookingSelectedGuestChip({ guest, onRemove }: NewBookingSelectedGuestChipProps) {
   return (
-    <View className="mr-2 mt-2 flex-row items-center rounded-full bg-primary px-3 py-2">
-      <Text className="text-[12px] font-medium ">{getUserDisplayName(guest)}</Text>
+    <View className="mr-2 mt-2 flex-row items-center rounded-full bg-primary px-4 py-3">
+      <Text className="text-[14px] font-medium">{getUserDisplayName(guest)}</Text>
 
       <Pressable accessibilityRole="button" className="ml-2" onPress={() => onRemove(guest.id)}>
-        <X size={14} stroke="black" strokeWidth={2.2} />
+        <X size={16} stroke="black" strokeWidth={2.2} />
       </Pressable>
     </View>
   );

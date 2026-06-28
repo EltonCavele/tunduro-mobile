@@ -27,21 +27,21 @@ export function NewBookingInstructionRow({
   const content = (
     <>
       <View
-        className={`h-11 w-11 items-center justify-center rounded-full ${
+        className={`h-12 w-12 items-center justify-center rounded-full ${
           isSelected ? 'bg-[#EEF3EE]' : 'bg-[#F4F6F4]'
         }`}>
-        <Icon size={20} stroke={isSelected ? '#BDE111' : '#5A5A5A'} strokeWidth={2} />
+        <Icon size={22} stroke={isSelected ? '#BDE111' : '#5A5A5A'} strokeWidth={2} />
       </View>
 
       <View className="ml-4 flex-1">
         <Text
-          className={`font-label text-[15px] leading-[22px] ${
+          className={`font-label text-[17px] leading-[24px] ${
             isSelected ? 'text-[#101010]' : 'text-[#3A3A3A]'
           }`}>
           {label}
         </Text>
         {description ? (
-          <Text className="font-label mt-1 text-[13px] leading-[19px] text-[#8A8A8A]">
+          <Text className="mt-1 font-label text-[14px] leading-[20px] text-[#7A7A7A]">
             {description}
           </Text>
         ) : null}
@@ -56,13 +56,13 @@ export function NewBookingInstructionRow({
       {onPress ? (
         <Pressable
           accessibilityRole="button"
-          className={`flex-row items-center py-4 ${isDisabled ? 'opacity-45' : ''}`}
+          className={`flex-row items-center py-5 ${isDisabled ? 'opacity-45' : ''}`}
           disabled={isDisabled}
           onPress={onPress}>
           {content}
         </Pressable>
       ) : (
-        <View className="flex-row items-center py-4">{content}</View>
+        <View className="flex-row items-center py-5">{content}</View>
       )}
 
       {showDivider ? <View className="h-px bg-[#ECECEC]" /> : null}
