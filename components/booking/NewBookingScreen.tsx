@@ -15,10 +15,12 @@ import {
   NewBookingGuestSheet,
 } from 'components/booking/new-booking/NewBookingSheets';
 import {
+  NewBookingDateStep,
   NewBookingGuestsStep,
+  NewBookingLightingStep,
   NewBookingPaymentStep,
-  NewBookingScheduleStep,
   NewBookingSummaryStep,
+  NewBookingTimeStep,
 } from 'components/booking/new-booking/NewBookingSteps';
 import { NewBookingStepHeader } from 'components/booking/new-booking/NewBookingStepHeader';
 import {
@@ -193,11 +195,13 @@ export function NewBookingScreen() {
     !myBookingsQuery.isError &&
     selectedGuests.length <= maxGuestSlots;
   const canProceedFromCourt = Boolean(selectedCourtId);
-  const canProceedFromSchedule =
+  const canProceedFromDate = Boolean(selectedCourt && selectedDate);
+  const canProceedFromTime =
     Boolean(selectedCourt && selectedWindow) &&
     !isAvailabilityLoading &&
     !courtDayBookingsQuery.isError &&
     !myBookingsQuery.isError;
+  const canProceedFromLighting = Boolean(selectedCourt) && (!lightingRequested || canUseLighting);
   const canProceedFromGuests = selectedGuests.length <= maxGuestSlots;
   const canProceedFromPayment =
     paymentMethod === 'CLUB_BALANCE' ? hasEnoughWalletBalance : isPhoneValid;
@@ -206,9 +210,11 @@ export function NewBookingScreen() {
   const currentStepIndex = getStepIndex(bookingStep);
   const continueDisabled = getContinueDisabledForStep(bookingStep, {
     canProceedFromCourt,
+    canProceedFromDate,
     canProceedFromGuests,
+    canProceedFromLighting,
     canProceedFromPayment,
-    canProceedFromSchedule,
+    canProceedFromTime,
     canSubmit,
   });
   const continueLabel = getContinueLabelForStep({
@@ -313,7 +319,7 @@ export function NewBookingScreen() {
     }
     if (!selectedCourt || !selectedWindow) {
       setSubmissionError('Selecione uma quadra e um horario para continuar.');
-      setBookingStep('schedule');
+      setBookingStep('time');
       return;
     }
     if (!user?.id) {
@@ -338,7 +344,7 @@ export function NewBookingScreen() {
       setIsPaymentConfirmOpen(false);
       if (error instanceof ApiClientError && error.statusCode === 409) {
         void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
-        setBookingStep('schedule');
+        setBookingStep('time');
       }
       if (message.includes('Numero M-Pesa invalido')) {
         setPhoneError(message);
@@ -349,10 +355,18 @@ export function NewBookingScreen() {
 
   function goToNextStep() {
     if (bookingStep === 'court' && canProceedFromCourt) {
-      setBookingStep('schedule');
+      setBookingStep('date');
       return;
     }
-    if (bookingStep === 'schedule' && canProceedFromSchedule) {
+    if (bookingStep === 'date' && canProceedFromDate) {
+      setBookingStep('time');
+      return;
+    }
+    if (bookingStep === 'time' && canProceedFromTime) {
+      setBookingStep('lighting');
+      return;
+    }
+    if (bookingStep === 'lighting' && canProceedFromLighting) {
       setBookingStep('guests');
       return;
     }
@@ -412,7 +426,6 @@ export function NewBookingScreen() {
         showsVerticalScrollIndicator={false}>
         <NewBookingStepHeader
           currentStep={currentStepIndex}
-          subtitle={stepCopy.subtitle}
           title={stepCopy.title}
           totalSteps={TOTAL_STEPS}
         />
@@ -429,30 +442,41 @@ export function NewBookingScreen() {
 
         {bookingStep === 'court' ? (
           <NewBookingField
-            label="Quadra"
+            label="Campo"
             onPress={() => setIsCourtSheetOpen(true)}
-            placeholder="Seleciona a quadra"
+            placeholder="Seleciona o campo"
             required
             value={selectedCourt?.name}
           />
         ) : null}
 
-        {bookingStep === 'schedule' ? (
-          <NewBookingScheduleStep
-            availabilityError={availabilityError}
-            canUseLighting={canUseLighting}
-            isAvailabilityLoading={isAvailabilityLoading}
-            lightingRequested={lightingRequested}
+        {bookingStep === 'date' ? (
+          <NewBookingDateStep
             onOpenDateSheet={() => setIsDateSheetOpen(true)}
+            selectedDate={selectedDate}
+          />
+        ) : null}
+
+        {bookingStep === 'time' ? (
+          <NewBookingTimeStep
+            availabilityError={availabilityError}
+            isAvailabilityLoading={isAvailabilityLoading}
             onRetryAvailability={() => {
               void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
             }}
             onSelectSlot={handleSelectSlot}
-            onChangeLightingRequested={setLightingRequested}
             remainingDailyMinutes={remainingDailyMinutes}
             selectableSlots={selectableSlots}
             selectedCourt={selectedCourt}
-            selectedDate={selectedDate}
+          />
+        ) : null}
+
+        {bookingStep === 'lighting' ? (
+          <NewBookingLightingStep
+            canUseLighting={canUseLighting}
+            lightingRequested={lightingRequested}
+            onChangeLightingRequested={setLightingRequested}
+            selectedCourt={selectedCourt}
           />
         ) : null}
 

@@ -5,7 +5,15 @@ import type { Court } from 'lib/court.types';
 
 const MOZ_MSISDN_REGEX = /^(\+?258)?\s?(8[2-7])\s?\d{3}\s?\d{4}$|^(8[2-7])\d{7}$/;
 
-export const BOOKING_STEPS = ['court', 'schedule', 'guests', 'payment', 'summary'] as const;
+export const BOOKING_STEPS = [
+  'court',
+  'date',
+  'time',
+  'lighting',
+  'guests',
+  'payment',
+  'summary',
+] as const;
 export const TOTAL_STEPS = BOOKING_STEPS.length;
 
 export type BookingStep = (typeof BOOKING_STEPS)[number];
@@ -20,8 +28,14 @@ export const STEP_COPY: Record<
   court: {
     title: 'Escolha o campo',
   },
-  schedule: {
-    title: 'Escolha dia e hora',
+  date: {
+    title: 'Escolha a data',
+  },
+  time: {
+    title: 'Escolha a hora',
+  },
+  lighting: {
+    title: 'Quer iluminacao?',
   },
   guests: {
     title: 'Vai jogar com alguém?',
@@ -111,17 +125,23 @@ export function getContinueDisabledForStep(
   step: BookingStep,
   values: {
     canProceedFromCourt: boolean;
+    canProceedFromDate: boolean;
     canProceedFromGuests: boolean;
+    canProceedFromLighting: boolean;
     canProceedFromPayment: boolean;
-    canProceedFromSchedule: boolean;
+    canProceedFromTime: boolean;
     canSubmit: boolean;
   }
 ) {
   switch (step) {
     case 'court':
       return !values.canProceedFromCourt;
-    case 'schedule':
-      return !values.canProceedFromSchedule;
+    case 'date':
+      return !values.canProceedFromDate;
+    case 'time':
+      return !values.canProceedFromTime;
+    case 'lighting':
+      return !values.canProceedFromLighting;
     case 'guests':
       return !values.canProceedFromGuests;
     case 'payment':

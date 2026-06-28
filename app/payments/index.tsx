@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 
 import { useRouter } from 'expo-router';
 import { Separator } from 'heroui-native';
-import { ArrowLeft, CreditCard, SlidersHorizontal } from 'lucide-react-native';
+import { ArrowLeft, CreditCard, Plus, SlidersHorizontal, Wallet } from 'lucide-react-native';
 import { FlatList, Pressable, ScrollView, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
@@ -15,20 +15,31 @@ import {
   type StatusFilter,
 } from 'components/payments/PaymentFilterSheet';
 import { PaymentItem } from 'components/payments/PaymentItem';
+import { WalletTopUpSheet } from 'components/payments/WalletTopUpSheet';
 import { usePaymentByIdQuery } from 'hooks/usePaymentByIdQuery';
 import { usePayments } from 'hooks/usePayments';
+import { useProfileQuery } from 'hooks/useProfileQuery';
+import { useWalletQuery } from 'hooks/useWalletQuery';
+import { useWalletTopUpMutation } from 'hooks/useWalletTopUpMutation';
+import { formatCourtPrice } from 'lib/court-utils';
+import { getErrorMessage } from 'lib/error-utils';
 
 export default function PaymentsIndexRoute() {
   const router = useRouter();
   const { data, isLoading, isError, error, refetch } = usePayments();
+  const profileQuery = useProfileQuery();
+  const walletQuery = useWalletQuery();
+  const walletTopUpMutation = useWalletTopUpMutation();
 
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('ALL');
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
+  const [topUpSheetOpen, setTopUpSheetOpen] = useState(false);
+  const [topUpSuccessMessage, setTopUpSuccessMessage] = useState('');
 
   const paymentQuery = usePaymentByIdQuery(selectedPaymentId);
 
-  const payments = data?.items || [];
+  const payments = useMemo(() => data?.items ?? [], [data?.items]);
 
   const filteredPayments = useMemo(() => {
     if (activeFilter === 'ALL') return payments;
@@ -63,9 +74,31 @@ export default function PaymentsIndexRoute() {
     style: 'currency',
     currency: 'MZN',
   }).format(totalAmount);
+  const wallet = walletQuery.data;
+  const formattedWalletBalance = formatCourtPrice(wallet?.balance ?? 0, wallet?.currency ?? 'MZN');
 
   const activeLabel = STATUS_FILTERS.find((f) => f.value === activeFilter)?.label ?? 'Todos';
   const hasActiveFilter = activeFilter !== 'ALL';
+  const topUpErrorMessage = walletTopUpMutation.error
+    ? getErrorMessage(walletTopUpMutation.error, 'Nao foi possivel recarregar.')
+    : undefined;
+  const readableTopUpError =
+    topUpErrorMessage === 'payment.error.invalidPhone'
+      ? 'Numero M-Pesa invalido.'
+      : topUpErrorMessage === 'payment.error.gatewayUnavailable'
+        ? 'M-Pesa indisponivel. Tenta novamente.'
+        : topUpErrorMessage;
+
+  async function handleTopUp(payload: { amount: number; phone: string }) {
+    setTopUpSuccessMessage('');
+    try {
+      await walletTopUpMutation.mutateAsync(payload);
+      setTopUpSheetOpen(false);
+      setTopUpSuccessMessage('Carteira recarregada com sucesso.');
+    } catch {
+      setTopUpSuccessMessage('');
+    }
+  }
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
@@ -90,6 +123,41 @@ export default function PaymentsIndexRoute() {
         keyExtractor={() => 'unused'}
         ListHeaderComponent={() => (
           <View className="pb-4 pt-6">
+            <View className="px-5 pb-5">
+              <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-5">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center">
+                    <View className="h-12 w-12 items-center justify-center rounded-full bg-white">
+                      <Wallet size={22} color="#18181B" strokeWidth={2} />
+                    </View>
+                    <View className="ml-4">
+                      <Text className="text-[14px] text-[#71717A]">Carteira</Text>
+                      <Text className="mt-1 text-[24px] font-bold text-[#18181B]">
+                        {walletQuery.isLoading ? '...' : formattedWalletBalance}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Pressable
+                    accessibilityRole="button"
+                    className="h-12 flex-row items-center rounded-full bg-primary px-4"
+                    onPress={() => {
+                      walletTopUpMutation.reset();
+                      setTopUpSheetOpen(true);
+                    }}>
+                    <Plus size={18} color="#111111" strokeWidth={2.4} />
+                    <Text className="ml-2 text-[14px] font-semibold text-[#111111]">
+                      Recarregar
+                    </Text>
+                  </Pressable>
+                </View>
+
+                {topUpSuccessMessage ? (
+                  <Text className="mt-4 text-[13px] text-[#3F6B22]">{topUpSuccessMessage}</Text>
+                ) : null}
+              </View>
+            </View>
+
             {/* Summary */}
             <View className="items-center px-5 pb-8">
               <Text className="text-[11px] font-semibold uppercase tracking-widest text-[#A1A1AA]">
@@ -171,6 +239,16 @@ export default function PaymentsIndexRoute() {
         payment={paymentQuery.data}
         isLoading={paymentQuery.isLoading}
         onClose={() => setSelectedPaymentId(null)}
+      />
+
+      <WalletTopUpSheet
+        apiErrorMessage={readableTopUpError}
+        initialPhone={profileQuery.data?.phone}
+        isLoading={walletTopUpMutation.isPending}
+        onClose={() => setTopUpSheetOpen(false)}
+        onResetError={() => walletTopUpMutation.reset()}
+        onSubmit={(payload) => void handleTopUp(payload)}
+        visible={topUpSheetOpen}
       />
     </SafeAreaView>
   );

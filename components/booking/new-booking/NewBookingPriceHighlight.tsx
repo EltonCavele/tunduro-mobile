@@ -26,15 +26,19 @@ export function NewBookingPriceHighlight({
   const hasTotal = Boolean(totalLabel);
 
   return (
-    <View className="mb-5 overflow-hidden rounded-[22px] bg-[#BDE111] px-5 py-4">
-      <Text className="text-[15px] font-semibold">{hasTotal ? 'Total' : 'Preco por hora'}</Text>
+    <View className="mb-4 flex-row items-center justify-between rounded-2xl bg-primary px-4 py-3">
+      <View className="flex-1 pr-3">
+        <Text className="text-[13px] font-semibold">{hasTotal ? 'Total' : 'Preco por hora'}</Text>
 
-      <Text className="mt-1 text-[34px] font-semibold leading-[40px] text-[#101010]">
+        <Text className="mt-1 text-[13px] leading-5 text-[#303030]" numberOfLines={1}>
+          {court.name}
+        </Text>
+      </View>
+
+      <Text
+        className="max-w-[48%] text-right text-[22px] font-semibold leading-[28px] text-[#101010]"
+        numberOfLines={1}>
         {hasTotal ? totalLabel : hourlyLabel}
-      </Text>
-
-      <Text className="mt-1 text-[15px] leading-6">
-        {hasTotal ? `${rangeLabel} - ${hourlyLabel}/hora` : court.name}
       </Text>
     </View>
   );

@@ -19,79 +19,50 @@ import { formatReservationDateLabel, SLOT_DURATION_MINUTES } from 'lib/booking-r
 import type { Court } from 'lib/court.types';
 import { formatCourtPrice } from 'lib/court-utils';
 
-type NewBookingScheduleStepProps = {
-  availabilityError: string;
-  canUseLighting: boolean;
-  isAvailabilityLoading: boolean;
-  lightingRequested: boolean;
+type NewBookingDateStepProps = {
   onOpenDateSheet: () => void;
-  onRetryAvailability: () => void;
-  onSelectSlot: (slot: SelectableTimeSlot) => void;
-  onChangeLightingRequested: (value: boolean) => void;
-  remainingDailyMinutes: number;
-  selectableSlots: SelectableTimeSlot[];
-  selectedCourt: Court | null;
   selectedDate: string;
 };
 
-export function NewBookingScheduleStep({
+export function NewBookingDateStep({ onOpenDateSheet, selectedDate }: NewBookingDateStepProps) {
+  return (
+    <NewBookingField
+      label="Data"
+      onPress={onOpenDateSheet}
+      placeholder="dd / mm / aaaa"
+      required
+      value={formatReservationDateLabel(selectedDate)}
+    />
+  );
+}
+
+type NewBookingTimeStepProps = {
+  availabilityError: string;
+  isAvailabilityLoading: boolean;
+  onRetryAvailability: () => void;
+  onSelectSlot: (slot: SelectableTimeSlot) => void;
+  remainingDailyMinutes: number;
+  selectableSlots: SelectableTimeSlot[];
+  selectedCourt: Court | null;
+};
+
+export function NewBookingTimeStep({
   availabilityError,
-  canUseLighting,
   isAvailabilityLoading,
-  lightingRequested,
-  onOpenDateSheet,
   onRetryAvailability,
   onSelectSlot,
-  onChangeLightingRequested,
   remainingDailyMinutes,
   selectableSlots,
   selectedCourt,
-  selectedDate,
-}: NewBookingScheduleStepProps) {
+}: NewBookingTimeStepProps) {
   return (
     <>
-      <NewBookingField
-        label="Data"
-        onPress={onOpenDateSheet}
-        placeholder="dd / mm / aaaa"
-        required
-        value={formatReservationDateLabel(selectedDate)}
-      />
-
       <View className="mb-4 rounded-2xl bg-[#F7F7F8] px-4 py-3">
         <Text className="font-label text-[17px] text-[#202020]">Escolha 1 ou 2 horas</Text>
         <Text className="mt-1 font-label text-[14px] text-[#6D6D6D]">
           Restam {remainingDailyMinutes} min neste dia
         </Text>
       </View>
-
-      {selectedCourt ? (
-        <View className="mb-4 rounded-2xl border border-[#ECECEC] bg-white px-4">
-          <NewBookingInstructionRow
-            icon={LightbulbOff}
-            isSelected={!lightingRequested}
-            label="Sem iluminacao"
-            onPress={() => onChangeLightingRequested(false)}
-            showDivider
-          />
-          <NewBookingInstructionRow
-            description={
-              canUseLighting
-                ? `+${formatCourtPrice(
-                    selectedCourt.lightingPricePerHour,
-                    selectedCourt.currency
-                  )}/hora`
-                : 'Este campo nao tem iluminacao disponivel para reserva.'
-            }
-            icon={Lightbulb}
-            isDisabled={!canUseLighting}
-            isSelected={lightingRequested && canUseLighting}
-            label="Com iluminacao"
-            onPress={() => onChangeLightingRequested(true)}
-            showDivider={false}
-          />
-        </View>
-      ) : null}
 
       {!selectedCourt ? (
         <NewBookingEmptyStateCard
@@ -143,6 +114,54 @@ export function NewBookingScheduleStep({
         </View>
       )}
     </>
+  );
+}
+
+type NewBookingLightingStepProps = {
+  canUseLighting: boolean;
+  lightingRequested: boolean;
+  onChangeLightingRequested: (value: boolean) => void;
+  selectedCourt: Court | null;
+};
+
+export function NewBookingLightingStep({
+  canUseLighting,
+  lightingRequested,
+  onChangeLightingRequested,
+  selectedCourt,
+}: NewBookingLightingStepProps) {
+  if (!selectedCourt) {
+    return (
+      <NewBookingEmptyStateCard
+        description="Volta ao passo anterior e escolhe uma quadra."
+        title="Quadra em falta"
+      />
+    );
+  }
+
+  return (
+    <View className="rounded-2xl border border-[#ECECEC] bg-white px-4">
+      <NewBookingInstructionRow
+        icon={LightbulbOff}
+        isSelected={!lightingRequested}
+        label="Sem iluminacao"
+        onPress={() => onChangeLightingRequested(false)}
+        showDivider
+      />
+      <NewBookingInstructionRow
+        description={
+          canUseLighting
+            ? `+${formatCourtPrice(selectedCourt.lightingPricePerHour, selectedCourt.currency)}/hora`
+            : 'Este campo nao tem iluminacao.'
+        }
+        icon={Lightbulb}
+        isDisabled={!canUseLighting}
+        isSelected={lightingRequested && canUseLighting}
+        label="Com iluminacao"
+        onPress={() => onChangeLightingRequested(true)}
+        showDivider={false}
+      />
+    </View>
   );
 }
 
