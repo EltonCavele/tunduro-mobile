@@ -124,7 +124,7 @@ export default function PaymentsIndexRoute() {
         ListHeaderComponent={() => (
           <View className="pb-4 pt-6">
             <View className="px-5 pb-5">
-              <View className="rounded-[24px] bg-[#F7F7F8] px-5 py-5">
+              <View className="rounded-3xl bg-[#F7F7F8] px-5 py-5">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center">
                     <View className="h-12 w-12 items-center justify-center rounded-full bg-white">
@@ -146,9 +146,9 @@ export default function PaymentsIndexRoute() {
                       setTopUpSheetOpen(true);
                     }}>
                     <Plus size={18} color="#111111" strokeWidth={2.4} />
-                    <Text className="ml-2 text-[14px] font-semibold text-[#111111]">
+                    {/*<Text className="ml-2 text-[14px] font-semibold text-[#111111]">
                       Recarregar
-                    </Text>
+                    </Text>*/}
                   </Pressable>
                 </View>
 

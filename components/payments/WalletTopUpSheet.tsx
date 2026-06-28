@@ -82,6 +82,7 @@ export function WalletTopUpSheet({
           backgroundClassName="rounded-t-[32px] bg-white"
           contentContainerClassName="px-6 pb-10 pt-2"
           enableDynamicSizing
+          snapPoints={['80%']}
           handleIndicatorClassName="bg-[#D9D9DD]"
           keyboardBehavior="interactive">
           <View className="mb-5 flex-row items-center justify-between">

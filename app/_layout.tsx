@@ -5,6 +5,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import * as Updates from 'expo-updates';
 import { useEffect } from 'react';
 import { Text, TextInput, type TextInputProps, type TextProps } from 'react-native';
 
@@ -20,6 +21,7 @@ const GlobalText = Text as typeof Text & { defaultProps?: TextProps };
 const GlobalTextInput = TextInput as typeof TextInput & { defaultProps?: TextInputProps };
 
 let hasConfiguredGlobalTypography = false;
+let hasCheckedForOtaUpdate = false;
 
 function configureGlobalTypography() {
   if (hasConfiguredGlobalTypography) {
@@ -47,6 +49,39 @@ void SplashScreen.preventAutoHideAsync();
 function AppNavigation() {
   usePushDeepLinking();
   useResumeActiveCheckout();
+
+  useEffect(() => {
+    if (__DEV__ || !Updates.isEnabled || hasCheckedForOtaUpdate) {
+      return;
+    }
+
+    hasCheckedForOtaUpdate = true;
+    let isActive = true;
+
+    void (async () => {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+
+        if (!isActive || (!update.isAvailable && !update.isRollBackToEmbedded)) {
+          return;
+        }
+
+        const fetchedUpdate = await Updates.fetchUpdateAsync();
+
+        if (isActive && (fetchedUpdate.isNew || fetchedUpdate.isRollBackToEmbedded)) {
+          await Updates.reloadAsync();
+        }
+      } catch (error) {
+        if (__DEV__) {
+          console.warn('Falha ao verificar update OTA.', error);
+        }
+      }
+    })();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   return (
     <>
