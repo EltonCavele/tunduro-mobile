@@ -101,18 +101,10 @@ export function CourtScheduleScreen() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitleAlign: 'left',
       headerRight: () =>
         selectedCourtId ? (
           <View className="mr-3 flex-row items-center">
-            <Pressable
-              accessibilityHint="Mostra os detalhes do campo selecionado"
-              accessibilityLabel="Ver detalhes do campo"
-              accessibilityRole="button"
-              className="mr-2 h-9 w-9 items-center justify-center rounded-full bg-[#F1F3EA]"
-              onPress={() => router.push(`/courts/${selectedCourtId}`)}>
-              <Info size={18} stroke="#3C5424" strokeWidth={2.2} />
-            </Pressable>
-
             <Pressable
               accessibilityHint="Abre o formulario para criar uma nova reserva"
               accessibilityLabel="Adicionar reserva"

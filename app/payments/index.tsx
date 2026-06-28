@@ -2,7 +2,7 @@ import { Text } from 'components/app/Text';
 import { useMemo, useState } from 'react';
 
 import { useRouter } from 'expo-router';
-import { ListGroup, Separator } from 'heroui-native';
+import { Separator } from 'heroui-native';
 import { ArrowLeft, CreditCard, SlidersHorizontal } from 'lucide-react-native';
 import { FlatList, Pressable, ScrollView, View } from 'react-native';
 
@@ -78,7 +78,7 @@ export default function PaymentsIndexRoute() {
         </Pressable>
         <Text className="text-[17px] font-semibold text-[#18181B]">Histórico</Text>
         <Pressable
-          className={`h-10 w-10 items-center justify-center rounded-full ${hasActiveFilter ? 'bg-[#18181B]' : 'bg-[#FAFAFA]'}`}
+          className={`h-10 w-10 items-center justify-center rounded-full ${hasActiveFilter ? 'bg-primary' : 'bg-[#FAFAFA]'}`}
           onPress={() => setFilterSheetOpen(true)}>
           <SlidersHorizontal size={18} color={hasActiveFilter ? '#FFFFFF' : '#18181B'} />
         </Pressable>
@@ -112,7 +112,7 @@ export default function PaymentsIndexRoute() {
                 contentContainerStyle={{ paddingHorizontal: 20, marginBottom: 20 }}>
                 <Pressable
                   onPress={() => setActiveFilter('ALL')}
-                  className="flex-row items-center rounded-full border border-[#18181B] bg-[#18181B] px-4 py-2">
+                  className="flex-row items-center rounded-full border border-[#18181B] bg-primary px-4 py-2">
                   <Text className="text-[13px] font-semibold text-white">{activeLabel}</Text>
                   <Text className="ml-2 text-[13px] text-white/60">✕</Text>
                 </Pressable>

@@ -36,7 +36,7 @@ export function NewBookingPaymentConfirmModal({
           : paymentMethod === 'CLUB_BALANCE'
             ? 'Sim, usar saldo'
             : bookingTotalLabel
-              ? `Sim, pagar ${bookingTotalLabel}`
+              ? `Sim, pagar`
               : 'Sim, pagar'
       }
       description={

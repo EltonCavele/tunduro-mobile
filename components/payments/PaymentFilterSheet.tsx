@@ -7,12 +7,12 @@ import type { PaymentStatus } from 'lib/payments.types';
 export type StatusFilter = PaymentStatus | 'ALL';
 
 export const STATUS_FILTERS: { label: string; value: StatusFilter }[] = [
-  { label: 'Todos',      value: 'ALL'       },
-  { label: 'Pendente',   value: 'PENDING'   },
-  { label: 'Concluído',  value: 'COMPLETED' },
-  { label: 'Falhado',    value: 'FAILED'    },
-  { label: 'Reembolso',  value: 'REFUNDED'  },
-  { label: 'Cancelado',  value: 'CANCELLED' },
+  { label: 'Todos', value: 'ALL' },
+  { label: 'Pendente', value: 'PENDING' },
+  { label: 'Concluído', value: 'COMPLETED' },
+  { label: 'Falhado', value: 'FAILED' },
+  { label: 'Reembolso', value: 'REFUNDED' },
+  { label: 'Cancelado', value: 'CANCELLED' },
 ];
 
 interface PaymentFilterSheetProps {
@@ -59,7 +59,7 @@ export function PaymentFilterSheet({
                 activeOpacity={0.7}
                 onPress={() => onSelect(filter.value)}
                 className={`mb-2 flex-row items-center justify-between rounded-2xl px-4 py-4 ${
-                  isActive ? 'bg-[#18181B]' : 'bg-[#FAFAFA]'
+                  isActive ? 'bg-primary' : 'bg-[#FAFAFA]'
                 }`}>
                 <Text
                   className={`text-[15px] font-semibold ${
@@ -69,7 +69,7 @@ export function PaymentFilterSheet({
                 </Text>
                 {isActive && (
                   <View className="h-5 w-5 items-center justify-center rounded-full bg-white">
-                    <View className="h-2.5 w-2.5 rounded-full bg-[#18181B]" />
+                    <View className="h-2.5 w-2.5 rounded-full bg-primary" />
                   </View>
                 )}
               </TouchableOpacity>

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "tuduro-app",
+    "name": "Clube de Ténis Tunduru",
     "slug": "tuduro-app",
     "scheme": "myexpoapp",
     "version": "1.0.0",
@@ -10,10 +10,7 @@
     "experiments": {
       "tsconfigPaths": true
     },
-    "plugins": [
-      "expo-router",
-      "expo-font"
-    ],
+    "plugins": ["expo-router", "expo-font"],
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
@@ -22,9 +19,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.arkustech.tuduroapp",

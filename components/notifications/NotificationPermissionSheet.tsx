@@ -7,8 +7,13 @@ import { usePushNotificationSetup } from 'hooks/usePushNotificationSetup';
 import { NewBookingSheet } from 'components/booking/new-booking/NewBookingSheet';
 
 export function NotificationPermissionSheet() {
-  const { hasSeenPrompt, permissionStatus, requestAndRegister, dismissPrompt, refreshPermissionStatus } =
-    usePushNotificationSetup();
+  const {
+    hasSeenPrompt,
+    permissionStatus,
+    requestAndRegister,
+    dismissPrompt,
+    refreshPermissionStatus,
+  } = usePushNotificationSetup();
 
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
@@ -38,7 +43,7 @@ export function NotificationPermissionSheet() {
         </Text>
 
         <Pressable
-          className="w-full flex-row items-center justify-center rounded-full bg-[#18181B] py-4 shadow-sm"
+          className="w-full flex-row items-center justify-center rounded-full bg-primary py-4 shadow-sm"
           onPress={async () => {
             await requestAndRegister();
             await refreshPermissionStatus();

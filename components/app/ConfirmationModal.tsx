@@ -19,7 +19,7 @@ const CONFIRM_BUTTON_STYLES = {
     labelClassName: 'text-[#C54D4D]',
   },
   default: {
-    buttonClassName: 'bg-[#1F1F1F]',
+    buttonClassName: 'bg-primary',
     labelClassName: 'text-white',
   },
 } as const;
@@ -58,8 +58,10 @@ export function ConfirmationModal({
         />
 
         <Dialog.Content className="w-full max-w-[360px] rounded-[28px] bg-white px-5 py-5">
-          <Dialog.Title className="font-title-bold text-[20px] text-[#171717]">{title}</Dialog.Title>
-          <Dialog.Description className="font-label mt-3 text-[14px] leading-6 text-[#717171]">
+          <Dialog.Title className="font-title-bold text-[20px] text-[#171717]">
+            {title}
+          </Dialog.Title>
+          <Dialog.Description className="mt-3 font-label text-[14px] leading-6 text-[#717171]">
             {description}
           </Dialog.Description>
 
@@ -70,7 +72,9 @@ export function ConfirmationModal({
               isDisabled={isLoading}
               onPress={handleClose}
               variant="secondary">
-              <Button.Label className="font-button text-[14px] text-[#171717]">{cancelLabel}</Button.Label>
+              <Button.Label className="font-button text-[14px] text-[#171717]">
+                {cancelLabel}
+              </Button.Label>
             </Button>
 
             <Button
@@ -79,7 +83,8 @@ export function ConfirmationModal({
               isDisabled={isLoading}
               onPress={onConfirm}
               variant={tone === 'danger' ? 'secondary' : undefined}>
-              <Button.Label className={`font-button text-[14px] ${confirmButtonStyles.labelClassName}`}>
+              <Button.Label
+                className={`font-button text-[14px] ${confirmButtonStyles.labelClassName}`}>
                 {confirmLabel}
               </Button.Label>
             </Button>

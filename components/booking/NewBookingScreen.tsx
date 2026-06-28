@@ -64,7 +64,9 @@ export function NewBookingScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ courtId?: string; date?: string }>();
   const initialCourtId = typeof params.courtId === 'string' ? params.courtId.trim() : '';
-  const initialDate = clampBookableDateKey(typeof params.date === 'string' ? params.date : undefined);
+  const initialDate = clampBookableDateKey(
+    typeof params.date === 'string' ? params.date : undefined
+  );
   const { user } = useAuthStatus();
   const courtsQuery = useCourtsQuery();
   const myBookingsQuery = useMyBookingsQuery();
@@ -90,7 +92,9 @@ export function NewBookingScreen() {
   const activeCourts = useMemo(() => courtsQuery.data ?? [], [courtsQuery.data]);
   const myBookings = useMemo(() => myBookingsQuery.data ?? [], [myBookingsQuery.data]);
   const selectedCourt = activeCourts.find((court) => court.id === selectedCourtId) ?? null;
-  const canUseLighting = Boolean(selectedCourt?.hasLighting && (selectedCourt.lightingDeviceId?.length ?? 1) > 0);
+  const canUseLighting = Boolean(
+    selectedCourt?.hasLighting && (selectedCourt.lightingDeviceId?.length ?? 1) > 0
+  );
   const walletBalance = walletQuery.data?.balance ?? 0;
   const walletCurrency = walletQuery.data?.currency ?? selectedCourt?.currency ?? 'MZN';
   const maxGuestSlots = selectedCourt ? Math.max(selectedCourt.maxPlayers - 1, 0) : 20;
@@ -164,7 +168,9 @@ export function NewBookingScreen() {
       : myBookingsQuery.isError
         ? getErrorMessage(myBookingsQuery.error, 'Nao foi possivel validar o limite diario.')
         : '';
-  const selectedRangeLabel = selectedWindow ? formatTimeRangeLabel(selectedWindow.startAt, selectedWindow.endAt) : '';
+  const selectedRangeLabel = selectedWindow
+    ? formatTimeRangeLabel(selectedWindow.startAt, selectedWindow.endAt)
+    : '';
   const bookingTotalValue = useMemo(
     () => getBookingTotalForWindow(selectedCourt, selectedWindow, user?.role, lightingRequested),
     [lightingRequested, selectedCourt, selectedWindow, user?.role]
@@ -442,11 +448,7 @@ export function NewBookingScreen() {
               void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
             }}
             onSelectSlot={handleSelectSlot}
-            onToggleLighting={() => {
-              if (canUseLighting) {
-                setLightingRequested((current) => !current);
-              }
-            }}
+            onChangeLightingRequested={setLightingRequested}
             remainingDailyMinutes={remainingDailyMinutes}
             selectableSlots={selectableSlots}
             selectedCourt={selectedCourt}

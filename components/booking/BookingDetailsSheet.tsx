@@ -58,11 +58,7 @@ interface BookingDetailsViewModel {
   title: string;
 }
 
-type PendingConfirmationAction =
-  | 'cancel-booking'
-  | 'decline-invitation'
-  | 'extend-booking'
-  | null;
+type PendingConfirmationAction = 'cancel-booking' | 'decline-invitation' | 'extend-booking' | null;
 
 function ScreenState({
   actionLabel,
@@ -614,15 +610,15 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   const isCheckInTime = hasBookingStarted;
   const canExtendBooking = Boolean(
     booking?.extension?.available &&
-      isAcceptedBookingMember(booking, user?.id) &&
-      booking.status === BookingStatus.CONFIRMED
+    isAcceptedBookingMember(booking, user?.id) &&
+    booking.status === BookingStatus.CONFIRMED
   );
   const showExtensionUnavailableHint = Boolean(
     booking &&
-      booking.extension &&
-      !booking.extension.available &&
-      isAcceptedBookingMember(booking, user?.id) &&
-      isNearBookingEnd(booking.endAt, nowMs)
+    booking.extension &&
+    !booking.extension.available &&
+    isAcceptedBookingMember(booking, user?.id) &&
+    isNearBookingEnd(booking.endAt, nowMs)
   );
   const actionBarVisible =
     canRespondToInvitation ||
@@ -639,8 +635,11 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
 
   useEffect(() => {
     if (bookingId) {
-      bottomSheetRef.current?.present();
-      return;
+      const frameId = requestAnimationFrame(() => {
+        bottomSheetRef.current?.present();
+      });
+
+      return () => cancelAnimationFrame(frameId);
     }
 
     bottomSheetRef.current?.dismiss();
@@ -679,9 +678,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
         phone: user.phone.trim(),
       });
     } catch (error) {
-      setActionError(
-        getErrorMessage(error, 'Nao foi possivel iniciar o pagamento da extensao.')
-      );
+      setActionError(getErrorMessage(error, 'Nao foi possivel iniciar o pagamento da extensao.'));
     } finally {
       setPendingConfirmationAction(null);
     }
@@ -697,9 +694,9 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
             ? `Vais pagar ${formatCurrencyValue(
                 booking.extension.amount ?? 0,
                 booking.currency
-              )} para prolongar a reserva ate ${formatExtensionEndLabel(
-                booking.extension.newEndAt
-              ) || 'a nova hora'}. O pedido M-Pesa sera enviado para ${user?.phone?.trim() || 'o teu numero'}.`
+              )} para prolongar a reserva ate ${
+                formatExtensionEndLabel(booking.extension.newEndAt) || 'a nova hora'
+              }. O pedido M-Pesa sera enviado para ${user?.phone?.trim() || 'o teu numero'}.`
             : 'A extensao ja nao esta disponivel para esta reserva.',
           isLoading: extendBookingMutation.isPending,
           onConfirm: () => {
@@ -709,31 +706,31 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
           tone: 'default' as const,
         }
       : pendingConfirmationAction === 'cancel-booking'
-      ? {
-          confirmLabel: cancelBookingMutation.isPending
-            ? 'A cancelar reserva...'
-            : 'Cancelar reserva',
-          description: 'Esta acao vai libertar o campo e atualizar o estado da reserva.',
-          isLoading: cancelBookingMutation.isPending,
-          onConfirm: () => {
-            void handleCancelBooking();
-          },
-          title: 'Cancelar reserva',
-          tone: 'danger' as const,
-        }
-      : pendingConfirmationAction === 'decline-invitation'
         ? {
-            confirmLabel: isDeclineMutationPending ? 'A negar convite...' : 'Negar convite',
-            description:
-              'Se negares este convite, vais sair desta reserva e o convite deixa de estar disponivel.',
-            isLoading: isDeclineMutationPending,
+            confirmLabel: cancelBookingMutation.isPending
+              ? 'A cancelar reserva...'
+              : 'Cancelar reserva',
+            description: 'Esta acao vai libertar o campo e atualizar o estado da reserva.',
+            isLoading: cancelBookingMutation.isPending,
             onConfirm: () => {
-              void handleRespondToInvitation('decline');
+              void handleCancelBooking();
             },
-            title: 'Negar convite',
+            title: 'Cancelar reserva',
             tone: 'danger' as const,
           }
-        : null;
+        : pendingConfirmationAction === 'decline-invitation'
+          ? {
+              confirmLabel: isDeclineMutationPending ? 'A negar convite...' : 'Negar convite',
+              description:
+                'Se negares este convite, vais sair desta reserva e o convite deixa de estar disponivel.',
+              isLoading: isDeclineMutationPending,
+              onConfirm: () => {
+                void handleRespondToInvitation('decline');
+              },
+              title: 'Negar convite',
+              tone: 'danger' as const,
+            }
+          : null;
 
   async function handleShareBooking() {
     if (!bookingDetails) {
@@ -845,7 +842,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
             </Button>
 
             <Button
-              className="h-14 flex-1 rounded-[20px] bg-[#1F1F1F]"
+              className="h-14 flex-1 rounded-[20px] bg-primary"
               feedbackVariant="none"
               isDisabled={respondInvitationMutation.isPending}
               onPress={() => void handleRespondToInvitation('accept')}>
@@ -859,7 +856,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
         ) : canPerformCheckIn ? (
           <View className="gap-3">
             <Button
-              className="h-14 rounded-[20px] bg-[#BDE111]"
+              className="h-14 rounded-[20px] bg-primary"
               feedbackVariant="none"
               isDisabled={!isCheckInTime || checkInBookingMutation.isPending}
               onPress={() => void handleCheckIn()}>
@@ -876,14 +873,12 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
 
             {canExtendBooking ? (
               <Button
-                className="h-14 rounded-[20px] bg-[#BDE111]"
+                className="h-14 rounded-[20px] bg-primary"
                 feedbackVariant="none"
                 isDisabled={extendBookingMutation.isPending}
                 onPress={() => setPendingConfirmationAction('extend-booking')}>
                 <Button.Label className="font-button text-[14px] text-white">
-                  {extendBookingMutation.isPending
-                    ? 'A iniciar pagamento...'
-                    : 'Prolongar +1 hora'}
+                  {extendBookingMutation.isPending ? 'A iniciar pagamento...' : 'Prolongar +1 hora'}
                 </Button.Label>
               </Button>
             ) : null}
@@ -908,9 +903,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
             isDisabled={extendBookingMutation.isPending}
             onPress={() => setPendingConfirmationAction('extend-booking')}>
             <Button.Label className="font-button text-[14px] text-white">
-              {extendBookingMutation.isPending
-                ? 'A iniciar pagamento...'
-                : 'Prolongar +1 hora'}
+              {extendBookingMutation.isPending ? 'A iniciar pagamento...' : 'Prolongar +1 hora'}
             </Button.Label>
           </Button>
         ) : canCancelBooking ? (

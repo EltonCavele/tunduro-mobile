@@ -1,6 +1,6 @@
 import { Text } from 'components/app/Text';
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
+import { useLayoutEffect, useMemo, useState } from 'react';
+import { useNavigation, useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 
@@ -87,12 +87,6 @@ export function CalendarScreen() {
     });
   }, [navigation, router, selectedDate]);
 
-  useFocusEffect(
-    useCallback(() => {
-      setSelectedDate(getTodayDateKey());
-    }, [])
-  );
-
   const reservationsByDate = useMemo(
     () => groupReservationsByDate(adaptBookingsToCalendarReservations(bookings)),
     [bookings]
@@ -126,6 +120,7 @@ export function CalendarScreen() {
         reservationsByDate={reservationsByDate}
         selectedDate={selectedDate}
       />
+      
       {!isTodaySelected ? (
         <Pressable
           accessibilityHint="Seleciona novamente o dia de hoje no calendario"
@@ -136,10 +131,14 @@ export function CalendarScreen() {
           <Text className="text-[13px] font-semibold text-white">Voltar para hoje</Text>
         </Pressable>
       ) : null}
-      <BookingDetailsSheet
-        bookingId={selectedBookingId}
-        onClose={() => setSelectedBookingId(null)}
-      />
+
+      {selectedBookingId ? (
+        <BookingDetailsSheet
+          key={selectedBookingId}
+          bookingId={selectedBookingId}
+          onClose={() => setSelectedBookingId(null)}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

@@ -1,6 +1,15 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Button } from 'heroui-native';
-import { CalendarDays, Clock3, Lightbulb, MapPin, Phone, Smartphone, Users, Wallet } from 'lucide-react-native';
+import {
+  CalendarDays,
+  Clock3,
+  Lightbulb,
+  LightbulbOff,
+  Phone,
+  Smartphone,
+  Users,
+  Wallet,
+} from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { Text } from 'components/app/Text';
@@ -15,10 +24,7 @@ import { NewBookingTimeSlotRow } from 'components/booking/new-booking/NewBooking
 import type { SelectableTimeSlot } from 'components/booking/new-booking/shared';
 import type { UserProfile } from 'lib/auth.types';
 import type { BookingPaymentMethod } from 'lib/booking-pricing';
-import {
-  formatReservationDateLabel,
-  SLOT_DURATION_MINUTES,
-} from 'lib/booking-reservation';
+import { formatReservationDateLabel, SLOT_DURATION_MINUTES } from 'lib/booking-reservation';
 import type { Court } from 'lib/court.types';
 import { formatCourtPrice } from 'lib/court-utils';
 
@@ -30,7 +36,7 @@ type NewBookingScheduleStepProps = {
   onOpenDateSheet: () => void;
   onRetryAvailability: () => void;
   onSelectSlot: (slot: SelectableTimeSlot) => void;
-  onToggleLighting: () => void;
+  onChangeLightingRequested: (value: boolean) => void;
   remainingDailyMinutes: number;
   selectableSlots: SelectableTimeSlot[];
   selectedCourt: Court | null;
@@ -45,7 +51,7 @@ export function NewBookingScheduleStep({
   onOpenDateSheet,
   onRetryAvailability,
   onSelectSlot,
-  onToggleLighting,
+  onChangeLightingRequested,
   remainingDailyMinutes,
   selectableSlots,
   selectedCourt,
@@ -79,19 +85,27 @@ export function NewBookingScheduleStep({
       {selectedCourt ? (
         <View className="mb-4 rounded-2xl border border-[#ECECEC] bg-white px-4">
           <NewBookingInstructionRow
+            description="Sem valor extra de iluminacao."
+            icon={LightbulbOff}
+            isSelected={!lightingRequested}
+            label="Sem iluminacao"
+            onPress={() => onChangeLightingRequested(false)}
+            showDivider
+          />
+          <NewBookingInstructionRow
             description={
               canUseLighting
-                ? `Adiciona ${formatCourtPrice(
+                ? `+${formatCourtPrice(
                     selectedCourt.lightingPricePerHour,
                     selectedCourt.currency
-                  )}/hora ao preco.`
+                  )}/hora`
                 : 'Este campo nao tem iluminacao disponivel para reserva.'
             }
             icon={Lightbulb}
             isDisabled={!canUseLighting}
-            isSelected={lightingRequested}
-            label={lightingRequested ? 'Iluminacao incluida' : 'Sem iluminacao'}
-            onPress={onToggleLighting}
+            isSelected={lightingRequested && canUseLighting}
+            label="Com iluminacao"
+            onPress={() => onChangeLightingRequested(true)}
             showDivider={false}
           />
         </View>
@@ -186,7 +200,7 @@ export function NewBookingGuestsStep({
         </View>
       ) : null}
 
-      <View className="rounded-2xl border border-[#ECECEC] bg-white px-4">
+      {/*<View className="rounded-2xl border border-[#ECECEC] bg-white px-4">
         <NewBookingInstructionRow
           description={`Podes convidar ate ${maxGuestSlots} jogador${maxGuestSlots === 1 ? '' : 'es'}.`}
           icon={Users}
@@ -199,7 +213,7 @@ export function NewBookingGuestsStep({
           label="Organizador confirma o campo"
           showDivider={false}
         />
-      </View>
+      </View>*/}
     </>
   );
 }
@@ -307,7 +321,9 @@ export function NewBookingPaymentStep({
               : 'O PIN e pedido apenas no momento do pagamento.'
           }
           icon={paymentMethod === 'CLUB_BALANCE' ? Wallet : Phone}
-          label={paymentMethod === 'CLUB_BALANCE' ? 'Pagamento por saldo' : 'Pagamento seguro via M-Pesa'}
+          label={
+            paymentMethod === 'CLUB_BALANCE' ? 'Pagamento por saldo' : 'Pagamento seguro via M-Pesa'
+          }
           showDivider={false}
         />
       </View>
