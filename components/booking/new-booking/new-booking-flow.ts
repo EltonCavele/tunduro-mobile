@@ -1,6 +1,6 @@
 import { ApiClientError, getErrorMessage } from 'lib/error-utils';
 import type { Role } from 'lib/auth.types';
-import { getBookingTotalPrice } from 'lib/booking-pricing';
+import { getBookingTotalPrice, type BookingPaymentMethod } from 'lib/booking-pricing';
 import type { Court } from 'lib/court.types';
 
 export const BOOKING_STEPS = [
@@ -151,7 +151,7 @@ export function getContinueLabelForStep(args: {
   bookingStep: BookingStep;
   bookingTotalLabel: string | null;
   isStartingCheckout: boolean;
-  paymentMethod: 'MPESA' | 'CLUB_BALANCE';
+  paymentMethod: BookingPaymentMethod;
   selectedGuestsCount: number;
 }) {
   if (args.bookingStep === 'summary') {

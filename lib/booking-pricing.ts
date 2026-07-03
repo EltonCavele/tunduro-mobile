@@ -1,7 +1,14 @@
 import type { Role } from 'lib/auth.types';
 import type { Court } from 'lib/court.types';
 
-export type BookingPaymentMethod = 'MPESA' | 'CLUB_BALANCE';
+export type BookingPaymentMethod = 'MPESA' | 'EMOLA' | 'CARD' | 'CLUB_BALANCE';
+
+export const BOOKING_PAYMENT_METHOD_LABELS: Record<BookingPaymentMethod, string> = {
+  CARD: 'Cartao Bancario',
+  CLUB_BALANCE: 'Saldo do clube',
+  EMOLA: 'E-Mola',
+  MPESA: 'M-Pesa',
+};
 
 export function getBookingHourlyPrice(
   court: Court,

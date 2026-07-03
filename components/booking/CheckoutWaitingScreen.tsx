@@ -75,7 +75,7 @@ function CheckoutWaitingContent({
         Concluir pagamento
       </Text>
       <Text className="mt-3 text-center text-[14px] leading-6 text-[#666666]">
-        Abre o PaySuite e confirma. Depois volta para a app.
+        Abre o pagamento e confirma. Depois volta para a app.
       </Text>
 
       <ExpiryCountdown expiresAt={session.expiresAt} />
@@ -102,7 +102,7 @@ function CheckoutWaitingContent({
         onPress={onOpenCheckout}>
         <ExternalLink size={18} stroke="#171717" strokeWidth={2} />
         <Text className="ml-2 text-[15px] font-semibold text-[#171717]">
-          {session.checkoutUrl ? 'Abrir PaySuite' : 'A preparar pagamento'}
+          {session.checkoutUrl ? 'Abrir pagamento' : 'A preparar pagamento'}
         </Text>
       </Pressable>
 
@@ -226,7 +226,7 @@ export function CheckoutWaitingScreen() {
       return 'A finalizar reserva';
     }
 
-    return session.checkoutUrl ? 'PaySuite' : 'A preparar pagamento';
+    return session.checkoutUrl ? 'Pagamento' : 'A preparar pagamento';
   }, [session]);
 
   const refreshPaymentError = refreshCheckoutMutation.error

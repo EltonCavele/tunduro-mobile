@@ -99,7 +99,7 @@ export function WalletTopUpSheet({
             <Text className="mt-4 text-[14px] leading-5 text-[#D05B5B]">{errorMessage}</Text>
           ) : (
             <Text className="mt-4 text-[14px] leading-5 text-[#7A7A7A]">
-              Vamos abrir a PaySuite para confirmares.
+              Vamos abrir o pagamento para confirmares.
             </Text>
           )}
 

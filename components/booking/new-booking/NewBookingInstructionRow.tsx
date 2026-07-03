@@ -48,6 +48,15 @@ export function NewBookingInstructionRow({
       </View>
 
       {trailing}
+
+      {onPress ? (
+        <View
+          className={`ml-3 h-7 w-7 items-center justify-center rounded-full border-2 ${
+            isSelected ? 'border-[#BDE111] bg-[#F7FBE8]' : 'border-[#C9CDC8] bg-white'
+          }`}>
+          {isSelected ? <View className="h-3.5 w-3.5 rounded-full bg-[#BDE111]" /> : null}
+        </View>
+      ) : null}
     </>
   );
 
@@ -55,7 +64,8 @@ export function NewBookingInstructionRow({
     <View>
       {onPress ? (
         <Pressable
-          accessibilityRole="button"
+          accessibilityRole="radio"
+          accessibilityState={{ disabled: isDisabled, selected: isSelected }}
           className={`flex-row items-center py-5 ${isDisabled ? 'opacity-45' : ''}`}
           disabled={isDisabled}
           onPress={onPress}>

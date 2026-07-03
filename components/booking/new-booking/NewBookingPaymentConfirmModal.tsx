@@ -1,5 +1,8 @@
 import { ConfirmationModal } from 'components/app/ConfirmationModal';
-import type { BookingPaymentMethod } from 'lib/booking-pricing';
+import {
+  BOOKING_PAYMENT_METHOD_LABELS,
+  type BookingPaymentMethod,
+} from 'lib/booking-pricing';
 import { formatReservationDateLabel } from 'lib/booking-reservation';
 
 type NewBookingPaymentConfirmModalProps = {
@@ -42,7 +45,7 @@ export function NewBookingPaymentConfirmModal({
           ? `${selectedCourtName ?? 'Campo'} - ${formatReservationDateLabel(selectedDate)}${
               selectedRangeLabel ? `, ${selectedRangeLabel}` : ''
             }. Total: ${bookingTotalLabel ?? 'por confirmar'}.`
-          : `Vamos abrir o PaySuite para confirmar. Total: ${
+          : `Vamos abrir o pagamento por ${BOOKING_PAYMENT_METHOD_LABELS[paymentMethod]}. Total: ${
               bookingTotalLabel ?? 'por confirmar'
             }.`
       }

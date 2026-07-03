@@ -120,15 +120,15 @@ export function CalendarScreen() {
         reservationsByDate={reservationsByDate}
         selectedDate={selectedDate}
       />
-      
+
       {!isTodaySelected ? (
         <Pressable
           accessibilityHint="Seleciona novamente o dia de hoje no calendario"
           accessibilityLabel="Voltar para hoje"
           accessibilityRole="button"
-          className="absolute bottom-6 right-5 rounded-full border border-[#2D4A37] bg-[#BDE111] px-5 py-3.5 shadow-sm"
+          className="absolute bottom-6 right-5 rounded-full  bg-primary px-5 py-3.5"
           onPress={() => setSelectedDate(getTodayDateKey())}>
-          <Text className="text-[13px] font-semibold text-white">Voltar para hoje</Text>
+          <Text className="text-[13px] font-semibold text-black">Voltar para hoje</Text>
         </Pressable>
       ) : null}
 

@@ -252,7 +252,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                 booking.currency
               )} para prolongar a reserva ate ${
                 formatExtensionEndLabel(booking.extension.newEndAt) || 'a nova hora'
-              }. Vamos abrir o PaySuite para confirmar.`
+              }. Vamos abrir o pagamento para confirmar.`
             : 'A extensao ja nao esta disponivel para esta reserva.',
           isLoading: extendBookingMutation.isPending,
           onConfirm: () => {

@@ -84,7 +84,7 @@ export default function PaymentsIndexRoute() {
     : undefined;
   const readableTopUpError =
     topUpErrorMessage === 'payment.error.gatewayUnavailable'
-      ? 'PaySuite indisponivel. Tenta novamente.'
+      ? 'Pagamento indisponivel. Tenta novamente.'
       : topUpErrorMessage;
 
   async function handleTopUp(payload: { amount: number }) {
@@ -93,12 +93,12 @@ export default function PaymentsIndexRoute() {
       const session = await walletTopUpMutation.mutateAsync(payload);
       setPendingTopUpSession(session);
       setTopUpSheetOpen(false);
-      setTopUpSuccessMessage('Confirma o pagamento na PaySuite.');
+      setTopUpSuccessMessage('Confirma o pagamento.');
       if (session.checkoutUrl) {
         try {
           await Linking.openURL(session.checkoutUrl);
         } catch {
-          setTopUpSuccessMessage('Usa o botao para abrir a PaySuite.');
+          setTopUpSuccessMessage('Usa o botao para abrir o pagamento.');
         }
       }
     } catch {
@@ -170,7 +170,7 @@ export default function PaymentsIndexRoute() {
                     className="mt-4 h-[44px] items-center justify-center rounded-full border border-[#C8D92B]"
                     onPress={() => Linking.openURL(pendingTopUpSession.checkoutUrl!)}>
                     <Text className="text-[14px] font-semibold text-[#18181B]">
-                      Abrir PaySuite
+                      Abrir pagamento
                     </Text>
                   </Pressable>
                 ) : null}

@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Button } from 'heroui-native';
-import { Lightbulb, LightbulbOff, Smartphone, Users, Wallet } from 'lucide-react-native';
+import { CreditCard, Lightbulb, LightbulbOff, Smartphone, Users, Wallet } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { Text } from 'components/app/Text';
@@ -13,7 +13,10 @@ import { NewBookingSummaryCard } from 'components/booking/new-booking/NewBooking
 import { NewBookingTimeSlotRow } from 'components/booking/new-booking/NewBookingTimeSlotRow';
 import type { SelectableTimeSlot } from 'components/booking/new-booking/shared';
 import type { UserProfile } from 'lib/auth.types';
-import type { BookingPaymentMethod } from 'lib/booking-pricing';
+import {
+  BOOKING_PAYMENT_METHOD_LABELS,
+  type BookingPaymentMethod,
+} from 'lib/booking-pricing';
 import { formatReservationDateLabel, SLOT_DURATION_MINUTES } from 'lib/booking-reservation';
 import type { Court } from 'lib/court.types';
 import { formatCourtPrice } from 'lib/court-utils';
@@ -222,12 +225,34 @@ export function NewBookingPaymentStep({
     <View>
       <View className="mb-5 rounded-2xl border border-[#ECECEC] bg-white px-4">
         <NewBookingInstructionRow
-          description="Pagamento online"
+          description="Carteira movel"
           icon={Smartphone}
           isSelected={paymentMethod === 'MPESA'}
-          label="PaySuite"
+          label="M-Pesa"
           onPress={() => {
             setPaymentMethod('MPESA');
+            setSubmissionError('');
+          }}
+          showDivider
+        />
+        <NewBookingInstructionRow
+          description="Carteira movel"
+          icon={Smartphone}
+          isSelected={paymentMethod === 'EMOLA'}
+          label="E-Mola"
+          onPress={() => {
+            setPaymentMethod('EMOLA');
+            setSubmissionError('');
+          }}
+          showDivider
+        />
+        <NewBookingInstructionRow
+          description="Visa ou Mastercard"
+          icon={CreditCard}
+          isSelected={paymentMethod === 'CARD'}
+          label="Cartao Bancario"
+          onPress={() => {
+            setPaymentMethod('CARD');
             setSubmissionError('');
           }}
           showDivider
@@ -302,8 +327,14 @@ export function NewBookingSummaryStep({
               ? `Saldo disponivel: ${formatCourtPrice(walletBalance, walletCurrency)}`
               : 'Checkout online'
           }
-          icon={paymentMethod === 'CLUB_BALANCE' ? Wallet : Smartphone}
-          label={paymentMethod === 'CLUB_BALANCE' ? 'Saldo do clube' : 'PaySuite'}
+          icon={
+            paymentMethod === 'CLUB_BALANCE'
+              ? Wallet
+              : paymentMethod === 'CARD'
+                ? CreditCard
+                : Smartphone
+          }
+          label={BOOKING_PAYMENT_METHOD_LABELS[paymentMethod]}
           showDivider
         />
         <NewBookingInstructionRow
