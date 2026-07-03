@@ -90,7 +90,7 @@ export function BookingSuccessScreen() {
           Está tudo certo. Mostra esta reserva quando chegares ao clube.
         </Text>
 
-        <View className="mt-6 w-full max-w-[340px] rounded-3xl bg-[#F4F6F3] px-5 py-5">
+        <View className="max-w-85 mt-6 w-full rounded-3xl bg-[#F4F6F3] px-5 py-5">
           <Text className="text-center font-title text-[15px] text-[#171717]">
             {formatReservationDateLabel(getClubDateKey(booking.startAt))}
           </Text>
