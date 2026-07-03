@@ -1,7 +1,21 @@
-export type PaymentType = 'BOOKING' | 'REFUND' | 'CREDIT';
+export type PaymentType =
+  | 'ADMIN_ADJUSTMENT'
+  | 'BOOKING'
+  | 'CANCELLATION_PENALTY'
+  | 'CANCELLATION_REFUND'
+  | 'OVERTIME_ADJUSTMENT'
+  | 'RESCHEDULE_DIFFERENCE'
+  | 'RESCHEDULE_FEE'
+  | 'WAITLIST_CLAIM'
+  | 'WALLET_TOP_UP';
 
-export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'CANCELLED';
-
+export type PaymentStatus =
+  | 'CANCELLED'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'REFUNDED';
 
 export interface PaymentBooking {
   id: string;
@@ -14,7 +28,7 @@ export interface PaymentBooking {
 
 export interface Payment {
   id: string;
-  bookingId: string;
+  bookingId: string | null;
   userId: string;
   type: PaymentType;
   status: PaymentStatus;
@@ -25,5 +39,5 @@ export interface Payment {
   processedAt?: string | null;
   createdAt: string;
   updatedAt: string;
-  booking?: PaymentBooking;
+  booking: PaymentBooking | null;
 }

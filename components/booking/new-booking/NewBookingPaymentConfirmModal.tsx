@@ -9,7 +9,6 @@ type NewBookingPaymentConfirmModalProps = {
   onClose: () => void;
   onConfirm: () => void;
   paymentMethod: BookingPaymentMethod;
-  phone: string;
   selectedCourtName?: string;
   selectedDate: string;
   selectedRangeLabel: string;
@@ -22,7 +21,6 @@ export function NewBookingPaymentConfirmModal({
   onClose,
   onConfirm,
   paymentMethod,
-  phone,
   selectedCourtName,
   selectedDate,
   selectedRangeLabel,
@@ -44,7 +42,9 @@ export function NewBookingPaymentConfirmModal({
           ? `${selectedCourtName ?? 'Campo'} - ${formatReservationDateLabel(selectedDate)}${
               selectedRangeLabel ? `, ${selectedRangeLabel}` : ''
             }. Total: ${bookingTotalLabel ?? 'por confirmar'}.`
-          : `Vai receber o PIN no ${phone.trim()}. Total: ${bookingTotalLabel ?? 'por confirmar'}.`
+          : `Vamos abrir o PaySuite para confirmar. Total: ${
+              bookingTotalLabel ?? 'por confirmar'
+            }.`
       }
       isLoading={isLoading}
       isOpen={isOpen}

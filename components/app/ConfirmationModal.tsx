@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { Button, Dialog } from 'heroui-native';
 import { View } from 'react-native';
 
@@ -11,6 +13,7 @@ interface ConfirmationModalProps {
   onConfirm: () => void;
   title: string;
   tone?: 'danger' | 'default';
+  children?: ReactNode;
 }
 
 const CONFIRM_BUTTON_STYLES = {
@@ -34,6 +37,7 @@ export function ConfirmationModal({
   onConfirm,
   title,
   tone = 'default',
+  children,
 }: ConfirmationModalProps) {
   const confirmButtonStyles = CONFIRM_BUTTON_STYLES[tone];
 
@@ -64,6 +68,8 @@ export function ConfirmationModal({
           <Dialog.Description className="mt-3 font-label text-[14px] leading-6 text-[#717171]">
             {description}
           </Dialog.Description>
+
+          {children}
 
           <View className="mt-6 flex-row gap-3">
             <Button

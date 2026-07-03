@@ -1,5 +1,4 @@
-import { Text } from 'components/app/Text';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   BottomSheetBackdrop,
@@ -7,475 +6,43 @@ import {
   BottomSheetScrollView,
   type BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
-import { Button } from 'heroui-native';
-import { CheckCircle, Clock3, Share2, X } from 'lucide-react-native';
-import { Image, Linking, Pressable, Share, View } from 'react-native';
+import { Clock3, Share2, X } from 'lucide-react-native';
+import { Linking, Pressable, Share, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConfirmationModal } from 'components/app/ConfirmationModal';
 import { LoadingIndicator } from 'components/app/LoadingIndicator';
+import { Text } from 'components/app/Text';
+import { BookingDetailsActionBar } from 'components/booking/booking-details/BookingDetailsActionBar';
+import {
+  CheckInStatusCard,
+  InfoCard,
+  PersonRow,
+  ScreenState,
+  StatusPill,
+} from 'components/booking/booking-details/BookingDetailsParts';
+import {
+  buildBookingDetailsViewModel,
+  formatCurrencyValue,
+  formatExtensionEndLabel,
+  getSessionCountdownParts,
+  isAcceptedBookingMember,
+  isBookingCheckInTime,
+  isNearBookingEnd,
+  isUserParticipantOnBooking,
+  type PendingConfirmationAction,
+} from 'components/booking/booking-details/booking-details.helpers';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { useBookingDetailsQuery } from 'hooks/useBookingDetailsQuery';
 import { useBookingUsersQuery } from 'hooks/useBookingUsersQuery';
 import { useCancelBookingMutation } from 'hooks/useCancelBookingMutation';
 import { useCheckInBookingMutation } from 'hooks/useCheckInBookingMutation';
-import { useExtendBookingMutation } from 'hooks/useExtendBookingMutation';
 import { useCourtQuery } from 'hooks/useCourtQuery';
+import { useExtendBookingMutation } from 'hooks/useExtendBookingMutation';
 import { useRespondBookingInvitationMutation } from 'hooks/useRespondBookingInvitationMutation';
-import {
-  getBookingStatusLabel,
-  type BookingItem,
-  BookingStatus,
-  deriveCourtLabel,
-} from 'lib/calendar-bookings';
-import { formatTimeRangeLabel } from 'lib/booking-reservation';
-import { formatCourtTypeLabel } from 'lib/court-utils';
 import type { UserProfile } from 'lib/auth.types';
-import { getUserDisplayName, getUserInitials } from 'lib/auth-utils';
+import { BookingStatus } from 'lib/calendar-bookings';
 import { getErrorMessage } from 'lib/error-utils';
-
-interface BookingPersonViewModel {
-  avatarUrl: string | null;
-  id: string;
-  initials: string;
-  label: string;
-  metaLabel: string | null;
-  phoneLabel: string | null;
-  statusLabel: string | null;
-}
-
-interface BookingDetailsViewModel {
-  dateLabel: string;
-  durationLabel: string;
-  locationLabel: string;
-  locationMetaLabel: string;
-  organizer: BookingPersonViewModel;
-  participants: BookingPersonViewModel[];
-  paymentStateLabel: string;
-  shareMessage: string;
-  statusLabel: string;
-  timeLabel: string;
-  title: string;
-}
-
-type PendingConfirmationAction = 'cancel-booking' | 'decline-invitation' | 'extend-booking' | null;
-
-function ScreenState({
-  actionLabel,
-  description,
-  isLoading,
-  onPress,
-  title,
-}: {
-  actionLabel?: string;
-  description: string;
-  isLoading?: boolean;
-  onPress?: () => void;
-  title: string;
-}) {
-  return (
-    <View className="flex-1 items-center justify-center pt-8">
-      <View className="max-w-85 flex w-full  items-center  justify-center rounded-[30px] px-6 py-8">
-        {isLoading ? <LoadingIndicator size="large" /> : null}
-        <Text className={`text-center text-[20px] text-[#171717] ${isLoading ? 'mt-4' : ''}`}>
-          {title}
-        </Text>
-        <Text className="mt-3 text-center text-[14px] leading-6 text-[#717171]">{description}</Text>
-
-        {actionLabel && onPress ? (
-          <Pressable
-            accessibilityRole="button"
-            className="mt-6 items-center rounded-full bg-[#1F1F1F] px-5 py-3.5"
-            onPress={onPress}>
-            <Text className="text-[14px] text-white">{actionLabel}</Text>
-          </Pressable>
-        ) : null}
-      </View>
-    </View>
-  );
-}
-
-function StatusPill({
-  backgroundColor,
-  label,
-  textColor,
-}: {
-  backgroundColor: string;
-  label: string;
-  textColor: string;
-}) {
-  return (
-    <View className="rounded-[12px] px-3 py-2" style={{ backgroundColor }}>
-      <Text className="text-[12px]" style={{ color: textColor }}>
-        {label}
-      </Text>
-    </View>
-  );
-}
-
-function CheckInStatusCard({
-  checkInAt,
-  isOrganizer,
-  isParticipant,
-}: {
-  checkInAt: string;
-  isOrganizer: boolean;
-  isParticipant: boolean;
-}) {
-  const timeLabel = formatCheckInTimeLabel(checkInAt);
-  const title = isOrganizer
-    ? 'Já fizeste check-in'
-    : isParticipant
-      ? 'Check-in da reserva confirmado'
-      : 'Check-in registado';
-
-  return (
-    <View className="mt-4 rounded-[20px] border border-[#C8E0C0] bg-[#EEF5ED] px-4 py-4">
-      <View className="flex-row items-start gap-3">
-        <CheckCircle size={22} stroke="#BDE111" strokeWidth={2} />
-        <View className="flex-1">
-          <Text className="text-[16px] font-semibold text-[#BDE111]">{title}</Text>
-          {timeLabel ? (
-            <Text className="mt-1 text-[14px] leading-5 text-[#3F5C45]">{`Às ${timeLabel}.`}</Text>
-          ) : null}
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function InfoCard({
-  icon,
-  subtitle,
-  title,
-  titleClassName,
-}: {
-  icon: ReactNode;
-  subtitle?: string | null;
-  title: string;
-  titleClassName?: string;
-}) {
-  return (
-    <View className="w-full flex-1 rounded-lg bg-gray-50 px-4 py-4">
-      {icon}
-      <Text className={`leading-6.5 mt-5 text-xl text-[#232323] ${titleClassName ?? ''}`}>
-        {title}
-      </Text>
-      {subtitle ? (
-        <Text className="mt-2 text-[14px] leading-6 text-[#8A8A8A]">{subtitle}</Text>
-      ) : null}
-    </View>
-  );
-}
-
-function PersonAvatar({ avatarUrl, initials }: { avatarUrl: string | null; initials: string }) {
-  if (avatarUrl?.trim()) {
-    return <Image className="h-12 w-12 rounded-full" source={{ uri: avatarUrl }} />;
-  }
-
-  return (
-    <View className="h-12 w-12 items-center justify-center rounded-full bg-[#DDE8DE]">
-      <Text className="text-[14px] text-[#BDE111]">{initials}</Text>
-    </View>
-  );
-}
-
-function PersonRow({
-  item,
-  onPressPhone,
-  showDivider,
-}: {
-  item: BookingPersonViewModel;
-  onPressPhone?: () => void;
-  showDivider: boolean;
-}) {
-  return (
-    <View
-      className={`flex-row items-center py-3 ${showDivider ? 'border-b border-[#ECECEC]' : ''}`}>
-      <PersonAvatar avatarUrl={item.avatarUrl} initials={item.initials} />
-
-      <View className="ml-3 flex-1">
-        <Text className="text-[17px] text-[#232323]">{item.label}</Text>
-        {item.metaLabel ? (
-          <Text className="mt-1 text-[14px] text-[#7E7E7E]">{item.metaLabel}</Text>
-        ) : null}
-      </View>
-
-      {item.statusLabel ? (
-        <View className="rounded-full bg-gray-100 px-3 py-1.5">
-          <Text className="text-[11px] text-[#4A4A4A]">{item.statusLabel}</Text>
-        </View>
-      ) : null}
-    </View>
-  );
-}
-
-function formatCurrencyValue(amount: number, currency: string) {
-  try {
-    return new Intl.NumberFormat('pt-PT', {
-      style: 'currency',
-      currency: currency || 'MZN',
-      minimumFractionDigits: 2,
-    }).format(amount);
-  } catch {
-    return `${amount.toFixed(2)} ${currency || 'MZN'}`;
-  }
-}
-
-function formatParticipantStatusLabel(status: string, isOrganizer: boolean) {
-  if (isOrganizer) {
-    return 'Organizador';
-  }
-
-  switch (status) {
-    case 'ACCEPTED':
-      return 'Confirmado';
-    case 'INVITED':
-      return 'Convidado';
-    case 'REMOVED':
-      return 'Removido';
-    case 'DECLINED':
-      return 'Recusado';
-    default:
-      return status.replace(/_/g, ' ');
-  }
-}
-
-function formatScreenDateLabel(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return 'Data indisponivel';
-  }
-
-  const formatted = new Intl.DateTimeFormat('pt-PT', {
-    day: 'numeric',
-    month: 'short',
-    weekday: 'short',
-  }).format(date);
-
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-}
-
-function formatCheckInTimeLabel(iso: string) {
-  const date = new Date(iso);
-
-  if (Number.isNaN(date.getTime())) {
-    return '';
-  }
-
-  return new Intl.DateTimeFormat('pt-PT', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
-}
-
-function isAcceptedBookingMember(booking: BookingItem, userId: string | undefined) {
-  if (!userId) {
-    return false;
-  }
-
-  if (booking.organizerId === userId) {
-    return true;
-  }
-
-  return (booking.participants ?? []).some(
-    (participant) => participant.userId === userId && participant.status === 'ACCEPTED'
-  );
-}
-
-function isNearBookingEnd(endAt: string, nowMs: number) {
-  const endMs = new Date(endAt).getTime();
-
-  if (Number.isNaN(endMs)) {
-    return false;
-  }
-
-  const diffMs = endMs - nowMs;
-
-  return diffMs <= 15 * 60_000 && diffMs >= -10 * 60_000;
-}
-
-function formatExtensionEndLabel(value?: string) {
-  if (!value) {
-    return '';
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return '';
-  }
-
-  return new Intl.DateTimeFormat('pt-PT', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
-}
-
-function isUserParticipantOnBooking(booking: BookingItem, userId: string | undefined) {
-  if (!userId) {
-    return false;
-  }
-
-  if (booking.organizerId === userId) {
-    return true;
-  }
-
-  return (booking.participants ?? []).some((participant) => participant.userId === userId);
-}
-
-function isBookingCheckInTime(startAt: string, nowMs: number) {
-  const startMs = new Date(startAt).getTime();
-
-  if (Number.isNaN(startMs)) {
-    return false;
-  }
-
-  return nowMs >= startMs;
-}
-
-function getSessionCountdownParts(targetAtIso: string, mode: 'toStart' | 'toEnd', nowMs: number) {
-  const targetMs = new Date(targetAtIso).getTime();
-
-  if (Number.isNaN(targetMs)) {
-    return { ended: true, minutesRoundedUp: 0, mmss: '0:00', mode };
-  }
-
-  const remainingMs = targetMs - nowMs;
-
-  if (remainingMs <= 0) {
-    return { ended: true, minutesRoundedUp: 0, mmss: '0:00', mode };
-  }
-
-  const totalSeconds = Math.floor(remainingMs / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  const minutesRoundedUp = Math.max(1, Math.ceil(remainingMs / 60000));
-
-  return {
-    ended: false,
-    minutesRoundedUp,
-    mmss: `${minutes}:${seconds.toString().padStart(2, '0')}`,
-    mode,
-  };
-}
-
-function formatPaymentStateLabel(booking: BookingItem) {
-  if (booking.paidAmount >= booking.totalPrice) {
-    return 'Pago';
-  }
-
-  if (booking.status === BookingStatus.CANCELLED) {
-    return 'Cancelado';
-  }
-
-  return 'Pagamento pendente';
-}
-
-function getFallbackUserLabel(userId?: string | null) {
-  if (!userId?.trim()) {
-    return 'Utilizador';
-  }
-
-  return `Utilizador ${userId.slice(-4)}`;
-}
-
-function getResolvedUserLabel(user?: UserProfile | null, fallbackUserId?: string | null) {
-  if (user) {
-    const displayName = getUserDisplayName(user);
-
-    if (displayName !== 'Utilizador') {
-      return displayName;
-    }
-
-    if (user.email?.trim()) {
-      return user.email.trim();
-    }
-
-    if (user.phone?.trim()) {
-      return user.phone.trim();
-    }
-  }
-
-  return getFallbackUserLabel(fallbackUserId);
-}
-
-function getResolvedUserMeta(user?: UserProfile | null) {
-  if (user?.email?.trim()) {
-    return user.email.trim();
-  }
-
-  if (user?.phone?.trim()) {
-    return user.phone.trim();
-  }
-
-  return null;
-}
-
-function buildBookingDetailsViewModel(
-  booking: BookingItem,
-  currentUser: UserProfile | null,
-  relatedUsers: Map<string, UserProfile>,
-  court?: {
-    name: string;
-    surface: string;
-    type: 'INDOOR' | 'OUTDOOR';
-  } | null
-): BookingDetailsViewModel {
-  const organizerUser =
-    booking.organizerId === currentUser?.id
-      ? currentUser
-      : (relatedUsers.get(booking.organizerId) ?? null);
-  const resolvedCourtName = court?.name ?? deriveCourtLabel(booking.courtId);
-  const participants = (booking.participants ?? [])
-    .filter((participant) => !participant.isOrganizer)
-    .map((participant) => {
-      const relatedUser =
-        participant.userId === currentUser?.id
-          ? currentUser
-          : (relatedUsers.get(participant.userId) ?? null);
-
-      return {
-        avatarUrl: relatedUser?.avatarUrl ?? null,
-        id: participant.userId,
-        initials: getUserInitials(relatedUser),
-        label: getResolvedUserLabel(relatedUser, participant.userId),
-        metaLabel: getResolvedUserMeta(relatedUser),
-        phoneLabel: relatedUser?.phone?.trim() || null,
-        statusLabel: formatParticipantStatusLabel(participant.status, participant.isOrganizer),
-      };
-    });
-
-  return {
-    dateLabel: formatScreenDateLabel(booking.startAt),
-    durationLabel: `${booking.durationMinutes} min`,
-    locationLabel: resolvedCourtName,
-    locationMetaLabel: court
-      ? `${court.surface} • ${formatCourtTypeLabel(court.type)}`
-      : 'Detalhes do campo indisponiveis',
-    organizer: {
-      avatarUrl: organizerUser?.avatarUrl ?? null,
-      id: booking.organizerId,
-      initials: getUserInitials(organizerUser),
-      label: getResolvedUserLabel(organizerUser, booking.organizerId),
-      metaLabel: getResolvedUserMeta(organizerUser),
-      phoneLabel: organizerUser?.phone?.trim() || null,
-      statusLabel: null,
-    },
-    participants,
-    paymentStateLabel: formatPaymentStateLabel(booking),
-    shareMessage: [
-      resolvedCourtName,
-      formatScreenDateLabel(booking.startAt),
-      formatTimeRangeLabel(booking.startAt, booking.endAt),
-      formatCurrencyValue(booking.totalPrice, booking.currency),
-    ].join('\n'),
-    statusLabel: getBookingStatusLabel(booking.status),
-    timeLabel: formatTimeRangeLabel(booking.startAt, booking.endAt),
-    title: resolvedCourtName,
-  };
-}
 
 interface BookingDetailsSheetProps {
   bookingId: string | null;
@@ -508,11 +75,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   const respondInvitationMutation = useRespondBookingInvitationMutation();
 
   useEffect(() => {
-    if (!bookingId || !booking) {
-      return;
-    }
-
-    if (booking.status === BookingStatus.CANCELLED) {
+    if (!bookingId || !booking || booking.status === BookingStatus.CANCELLED) {
       return;
     }
 
@@ -527,7 +90,6 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   void sessionClockTick;
 
   const hasBookingStarted = booking ? isBookingCheckInTime(booking.startAt, nowMs) : false;
-
   const sessionCountdown =
     booking && booking.status !== BookingStatus.CANCELLED
       ? hasBookingStarted
@@ -591,41 +153,36 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   const isOrganizer = Boolean(booking && user?.id && booking.organizerId === user.id);
   const canCancelBooking = Boolean(
     isOrganizer &&
-    booking &&
-    [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
+      booking &&
+      [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
   );
   const canRespondToInvitation = Boolean(
     currentPendingParticipant &&
-    booking &&
-    [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
+      booking &&
+      [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
   );
-
   const canPerformCheckIn = Boolean(
     booking &&
-    user?.id &&
-    booking.status === BookingStatus.CONFIRMED &&
-    !booking.checkedInAt &&
-    isUserParticipantOnBooking(booking, user.id)
+      user?.id &&
+      booking.status === BookingStatus.CONFIRMED &&
+      !booking.checkedInAt &&
+      isUserParticipantOnBooking(booking, user.id)
   );
   const isCheckInTime = hasBookingStarted;
   const canExtendBooking = Boolean(
     booking?.extension?.available &&
-    isAcceptedBookingMember(booking, user?.id) &&
-    booking.status === BookingStatus.CONFIRMED
+      isAcceptedBookingMember(booking, user?.id) &&
+      booking.status === BookingStatus.CONFIRMED
   );
   const showExtensionUnavailableHint = Boolean(
     booking &&
-    booking.extension &&
-    !booking.extension.available &&
-    isAcceptedBookingMember(booking, user?.id) &&
-    isNearBookingEnd(booking.endAt, nowMs)
+      booking.extension &&
+      !booking.extension.available &&
+      isAcceptedBookingMember(booking, user?.id) &&
+      isNearBookingEnd(booking.endAt, nowMs)
   );
-  const actionBarVisible =
-    canRespondToInvitation ||
-    canCancelBooking ||
-    canPerformCheckIn ||
-    canExtendBooking ||
-    showExtensionUnavailableHint;
+  const isAcceptMutationPending =
+    pendingInvitationAction === 'accept' && respondInvitationMutation.isPending;
   const isDeclineMutationPending =
     pendingInvitationAction === 'decline' && respondInvitationMutation.isPending;
   const primaryErrorMessage = getErrorMessage(
@@ -664,8 +221,8 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   }
 
   async function handleExtendBooking() {
-    if (!booking || !user?.phone?.trim()) {
-      setActionError('Adiciona um numero M-Pesa valido no teu perfil para prolongar a reserva.');
+    if (!booking) {
+      setActionError('Nao foi possivel identificar esta reserva.');
       setPendingConfirmationAction(null);
       return;
     }
@@ -675,7 +232,6 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
     try {
       await extendBookingMutation.mutateAsync({
         bookingId: booking.id,
-        phone: user.phone.trim(),
       });
     } catch (error) {
       setActionError(getErrorMessage(error, 'Nao foi possivel iniciar o pagamento da extensao.'));
@@ -696,7 +252,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                 booking.currency
               )} para prolongar a reserva ate ${
                 formatExtensionEndLabel(booking.extension.newEndAt) || 'a nova hora'
-              }. O pedido M-Pesa sera enviado para ${user?.phone?.trim() || 'o teu numero'}.`
+              }. Vamos abrir o PaySuite para confirmar.`
             : 'A extensao ja nao esta disponivel para esta reserva.',
           isLoading: extendBookingMutation.isPending,
           onConfirm: () => {
@@ -770,8 +326,6 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
       setActionError(getErrorMessage(error, 'Nao foi possivel cancelar a reserva.'));
     } finally {
       setPendingConfirmationAction(null);
-      // Optional: Close the bottom sheet when successfully cancelled.
-      // But preserving the state is also fine because the Details will update Live.
     }
   }
 
@@ -813,119 +367,6 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
       setPendingInvitationAction(null);
       setPendingConfirmationAction(null);
     }
-  }
-
-  function renderActionBar() {
-    if (!actionBarVisible) {
-      return null;
-    }
-
-    return (
-      <View className="mt-6 border-t border-[#F0F0F0] pt-4">
-        {actionError ? (
-          <Text className="mb-3 text-[13px] leading-5 text-[#C14A3D]">{actionError}</Text>
-        ) : null}
-
-        {canRespondToInvitation ? (
-          <View className="flex-row gap-3">
-            <Button
-              className="h-14 flex-1 rounded-[20px] border border-[#ECECEC] bg-white"
-              feedbackVariant="none"
-              isDisabled={respondInvitationMutation.isPending}
-              onPress={() => setPendingConfirmationAction('decline-invitation')}
-              variant="secondary">
-              <Button.Label className="font-button text-[14px] text-[#232323]">
-                {pendingInvitationAction === 'decline' && respondInvitationMutation.isPending
-                  ? 'A negar...'
-                  : 'Negar'}
-              </Button.Label>
-            </Button>
-
-            <Button
-              className="h-14 flex-1 rounded-[20px] bg-primary"
-              feedbackVariant="none"
-              isDisabled={respondInvitationMutation.isPending}
-              onPress={() => void handleRespondToInvitation('accept')}>
-              <Button.Label className="font-button text-[14px] text-white">
-                {pendingInvitationAction === 'accept' && respondInvitationMutation.isPending
-                  ? 'A aceitar...'
-                  : 'Aceitar convite'}
-              </Button.Label>
-            </Button>
-          </View>
-        ) : canPerformCheckIn ? (
-          <View className="gap-3">
-            <Button
-              className="h-14 rounded-[20px] bg-primary"
-              feedbackVariant="none"
-              isDisabled={!isCheckInTime || checkInBookingMutation.isPending}
-              onPress={() => void handleCheckIn()}>
-              <Button.Label className="font-button text-[14px] text-white">
-                {checkInBookingMutation.isPending ? 'A fazer check-in...' : 'Fazer check-in'}
-              </Button.Label>
-            </Button>
-
-            {!isCheckInTime ? (
-              <Text className="text-center text-[13px] leading-5 text-[#7A7A7A]">
-                O check-in fica disponível à hora do campo marcado.
-              </Text>
-            ) : null}
-
-            {canExtendBooking ? (
-              <Button
-                className="h-14 rounded-[20px] bg-primary"
-                feedbackVariant="none"
-                isDisabled={extendBookingMutation.isPending}
-                onPress={() => setPendingConfirmationAction('extend-booking')}>
-                <Button.Label className="font-button text-[14px] text-white">
-                  {extendBookingMutation.isPending ? 'A iniciar pagamento...' : 'Prolongar +1 hora'}
-                </Button.Label>
-              </Button>
-            ) : null}
-
-            {canCancelBooking ? (
-              <Button
-                className="h-14 rounded-[20px] bg-[#FCE8E6]"
-                feedbackVariant="none"
-                isDisabled={cancelBookingMutation.isPending}
-                onPress={() => setPendingConfirmationAction('cancel-booking')}
-                variant="secondary">
-                <Button.Label className="font-button text-[14px] text-[#C54D4D]">
-                  {cancelBookingMutation.isPending ? 'A cancelar...' : 'Cancelar reserva'}
-                </Button.Label>
-              </Button>
-            ) : null}
-          </View>
-        ) : canExtendBooking ? (
-          <Button
-            className="h-14 rounded-[20px] bg-[#BDE111]"
-            feedbackVariant="none"
-            isDisabled={extendBookingMutation.isPending}
-            onPress={() => setPendingConfirmationAction('extend-booking')}>
-            <Button.Label className="font-button text-[14px] text-white">
-              {extendBookingMutation.isPending ? 'A iniciar pagamento...' : 'Prolongar +1 hora'}
-            </Button.Label>
-          </Button>
-        ) : canCancelBooking ? (
-          <Button
-            className="h-14 rounded-[20px] bg-[#FCE8E6]"
-            feedbackVariant="none"
-            isDisabled={cancelBookingMutation.isPending}
-            onPress={() => setPendingConfirmationAction('cancel-booking')}
-            variant="secondary">
-            <Button.Label className="font-button text-[14px] text-[#C54D4D]">
-              {cancelBookingMutation.isPending ? 'A cancelar...' : 'Cancelar reserva'}
-            </Button.Label>
-          </Button>
-        ) : showExtensionUnavailableHint ? (
-          <Text className="text-center text-[13px] leading-5 text-[#7A7A7A]">
-            {booking?.extension?.reason === 'booking.error.extensionSlotOccupied'
-              ? 'A proxima hora ja esta ocupada neste campo.'
-              : 'A extensao de +1 hora nao esta disponivel neste momento.'}
-          </Text>
-        ) : null}
-      </View>
-    );
   }
 
   return (
@@ -1025,7 +466,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
 
               {sessionCountdown ? (
                 <View className="mt-3 rounded-[20px] bg-[#F4F6F4] px-4 py-4">
-                  <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#6F6F6F]">
+                  <Text className="text-[13px] font-semibold uppercase text-[#6F6F6F]">
                     {sessionCountdown.mode === 'toStart'
                       ? 'Tempo até ao início da reserva'
                       : 'Tempo até ao fim da reserva'}
@@ -1106,7 +547,27 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
                 </Text>
               ) : null}
 
-              {renderActionBar()}
+              <BookingDetailsActionBar
+                actionError={actionError}
+                canCancelBooking={canCancelBooking}
+                canExtendBooking={canExtendBooking}
+                canPerformCheckIn={canPerformCheckIn}
+                canRespondToInvitation={canRespondToInvitation}
+                extensionUnavailableReason={booking.extension?.reason}
+                isAcceptInvitationPending={isAcceptMutationPending}
+                isCancelingBooking={cancelBookingMutation.isPending}
+                isCheckingIn={checkInBookingMutation.isPending}
+                isCheckInTime={isCheckInTime}
+                isDeclineInvitationPending={isDeclineMutationPending}
+                isExtendingBooking={extendBookingMutation.isPending}
+                isInvitationPending={respondInvitationMutation.isPending}
+                onAcceptInvitation={() => void handleRespondToInvitation('accept')}
+                onCancelBooking={() => setPendingConfirmationAction('cancel-booking')}
+                onCheckIn={() => void handleCheckIn()}
+                onDeclineInvitation={() => setPendingConfirmationAction('decline-invitation')}
+                onExtendBooking={() => setPendingConfirmationAction('extend-booking')}
+                showExtensionUnavailableHint={showExtensionUnavailableHint}
+              />
             </>
           )}
         </BottomSheetScrollView>

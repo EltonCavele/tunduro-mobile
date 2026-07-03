@@ -41,7 +41,7 @@ export function PaymentItem({ payment, onPress }: PaymentItemProps) {
         <View className="mt-1 flex-row items-center">
           <Text className="text-[12px] font-medium text-[#71717A]">{formattedDate}</Text>
           <View className="mx-2 h-1 w-1 rounded-full bg-[#D4D4D8]" />
-          <Text className="text-[12px] font-medium tracking-wide text-[#A1A1AA]">
+          <Text className="text-[12px] font-medium text-[#A1A1AA]">
             #{payment.reference?.slice(-6).toUpperCase()}
           </Text>
         </View>

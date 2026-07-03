@@ -1,10 +1,9 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Button } from 'heroui-native';
-import { Lightbulb, LightbulbOff, Phone, Smartphone, Users, Wallet } from 'lucide-react-native';
+import { Lightbulb, LightbulbOff, Smartphone, Users, Wallet } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { Text } from 'components/app/Text';
-import { TextInput } from 'components/app/TextInput';
 import { LoadingIndicator } from 'components/app/LoadingIndicator';
 import { NewBookingEmptyStateCard } from 'components/booking/new-booking/NewBookingEmptyStateCard';
 import { NewBookingField } from 'components/booking/new-booking/NewBookingField';
@@ -203,11 +202,7 @@ export function NewBookingGuestsStep({
 type NewBookingPaymentStepProps = {
   hasEnoughWalletBalance: boolean;
   paymentMethod: BookingPaymentMethod;
-  phone: string;
-  phoneError: string;
   setPaymentMethod: Dispatch<SetStateAction<BookingPaymentMethod>>;
-  setPhone: Dispatch<SetStateAction<string>>;
-  setPhoneError: Dispatch<SetStateAction<string>>;
   setSubmissionError: Dispatch<SetStateAction<string>>;
   walletBalance: number;
   walletCurrency: string;
@@ -217,11 +212,7 @@ type NewBookingPaymentStepProps = {
 export function NewBookingPaymentStep({
   hasEnoughWalletBalance,
   paymentMethod,
-  phone,
-  phoneError,
   setPaymentMethod,
-  setPhone,
-  setPhoneError,
   setSubmissionError,
   walletBalance,
   walletCurrency,
@@ -231,10 +222,10 @@ export function NewBookingPaymentStep({
     <View>
       <View className="mb-5 rounded-2xl border border-[#ECECEC] bg-white px-4">
         <NewBookingInstructionRow
-          description="PIN no telemovel"
+          description="Pagamento online"
           icon={Smartphone}
           isSelected={paymentMethod === 'MPESA'}
-          label="M-Pesa"
+          label="PaySuite"
           onPress={() => {
             setPaymentMethod('MPESA');
             setSubmissionError('');
@@ -250,44 +241,12 @@ export function NewBookingPaymentStep({
           onPress={() => {
             if (hasEnoughWalletBalance) {
               setPaymentMethod('CLUB_BALANCE');
-              setPhoneError('');
               setSubmissionError('');
             }
           }}
           showDivider={false}
         />
       </View>
-
-      {paymentMethod === 'MPESA' ? (
-        <>
-          <Text className="mb-2 font-label text-[16px] text-[#202020]">Numero M-Pesa</Text>
-          <TextInput
-            autoComplete="tel"
-            className={`h-[60px] rounded-2xl border bg-white px-4 font-input text-[16px] text-[#171717] ${
-              phoneError ? 'border-[#D05B5B]' : 'border-[#D8D8DE]'
-            }`}
-            keyboardType="phone-pad"
-            maxLength={15}
-            onChangeText={(value) => {
-              setPhone(value);
-              if (phoneError) {
-                setPhoneError('');
-              }
-            }}
-            placeholder="84 123 4567"
-            textContentType="telephoneNumber"
-            value={phone}
-          />
-          {phoneError ? (
-            <Text className="mt-2 font-label text-[14px] leading-5 text-[#D05B5B]">
-              {phoneError}
-            </Text>
-          ) : null}
-          <Text className="mt-3 font-label text-[14px] leading-5 text-[#7A7A7A]">
-            Numero Vodacom para pagar.
-          </Text>
-        </>
-      ) : null}
 
       {paymentMethod === 'CLUB_BALANCE' && !hasEnoughWalletBalance ? (
         <Text className="font-label text-[14px] leading-5 text-[#D05B5B]">
@@ -301,7 +260,6 @@ export function NewBookingPaymentStep({
 type NewBookingSummaryStepProps = {
   lightingRequested: boolean;
   paymentMethod: BookingPaymentMethod;
-  phone: string;
   selectedCourt: Court | null;
   selectedDate: string;
   selectedGuests: UserProfile[];
@@ -314,7 +272,6 @@ type NewBookingSummaryStepProps = {
 export function NewBookingSummaryStep({
   lightingRequested,
   paymentMethod,
-  phone,
   selectedCourt,
   selectedDate,
   selectedGuests,
@@ -343,10 +300,10 @@ export function NewBookingSummaryStep({
           description={
             paymentMethod === 'CLUB_BALANCE'
               ? `Saldo disponivel: ${formatCourtPrice(walletBalance, walletCurrency)}`
-              : phone.trim() || 'Numero em falta'
+              : 'Checkout online'
           }
-          icon={paymentMethod === 'CLUB_BALANCE' ? Wallet : Phone}
-          label={paymentMethod === 'CLUB_BALANCE' ? 'Saldo do clube' : 'Numero de pagamento'}
+          icon={paymentMethod === 'CLUB_BALANCE' ? Wallet : Smartphone}
+          label={paymentMethod === 'CLUB_BALANCE' ? 'Saldo do clube' : 'PaySuite'}
           showDivider
         />
         <NewBookingInstructionRow

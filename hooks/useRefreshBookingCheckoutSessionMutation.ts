@@ -26,6 +26,9 @@ export function useRefreshBookingCheckoutSessionMutation() {
         queryClient.invalidateQueries({
           queryKey: courtQueryKeys.bookings,
         }),
+        queryClient.invalidateQueries({
+          queryKey: ['payments'],
+        }),
       ]);
     },
   });

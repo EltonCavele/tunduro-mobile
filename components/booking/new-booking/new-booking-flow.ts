@@ -3,8 +3,6 @@ import type { Role } from 'lib/auth.types';
 import { getBookingTotalPrice } from 'lib/booking-pricing';
 import type { Court } from 'lib/court.types';
 
-const MOZ_MSISDN_REGEX = /^(\+?258)?\s?(8[2-7])\s?\d{3}\s?\d{4}$|^(8[2-7])\d{7}$/;
-
 export const BOOKING_STEPS = [
   'court',
   'date',
@@ -48,10 +46,6 @@ export const STEP_COPY: Record<
   },
 };
 
-export function validateMozPhone(value: string) {
-  return MOZ_MSISDN_REGEX.test(value.trim());
-}
-
 export function translateCheckoutError(error: unknown) {
   if (error instanceof ApiClientError) {
     if (error.statusCode === 409) {
@@ -73,7 +67,7 @@ export function translateCheckoutError(error: unknown) {
       'message' in error.data &&
       Reflect.get(error.data, 'message') === 'payment.error.invalidPhone'
     ) {
-      return 'Numero M-Pesa invalido. Confere o formato (84xxxxxxx).';
+      return 'Numero invalido. Confere o formato (84xxxxxxx).';
     }
   }
 

@@ -99,6 +99,7 @@ function AppNavigation() {
         <Stack.Screen name="checkout/expired" />
         <Stack.Screen name="booking/[id]/success" />
         <Stack.Screen name="payments/booking-return" />
+        <Stack.Screen name="payments/wallet-return" />
       </Stack>
     </>
   );

@@ -15,7 +15,6 @@ export interface CreateBookingPayload {
   endAt: string;
   lightingRequested?: boolean;
   paymentMethod?: BookingPaymentMethod;
-  phone?: string;
   participantUserIds?: string[];
   startAt: string;
 }
@@ -167,13 +166,10 @@ export function checkInBooking(bookingId: string) {
 
 export interface ExtendBookingPayload {
   bookingId: string;
-  phone: string;
 }
 
 export function startBookingExtensionCheckout(payload: ExtendBookingPayload) {
   return unwrapResponse<BookingCheckoutSession>(
-    api.post(`/v1/bookings/${payload.bookingId}/extend`, {
-      phone: payload.phone,
-    })
+    api.post(`/v1/bookings/${payload.bookingId}/extend`, {})
   );
 }

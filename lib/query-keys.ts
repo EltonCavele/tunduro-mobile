@@ -43,6 +43,8 @@ export const weatherQueryKeys = {
 export const walletQueryKeys = {
   all: ['wallet'] as const,
   me: ['wallet', 'me'] as const,
+  topUp: ['wallet', 'top-up'] as const,
+  topUpDetail: (sessionId: string) => ['wallet', 'top-up', sessionId] as const,
 };
 
 export const notificationQueryKeys = {

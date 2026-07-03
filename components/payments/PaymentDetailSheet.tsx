@@ -23,6 +23,7 @@ interface PaymentDetailSheetProps {
 const STATUS_CONFIG: Record<PaymentStatus, { label: string; color: string; bg: string }> = {
   COMPLETED: { label: 'Concluído', color: '#10B981', bg: '#F0FDF4' },
   PENDING: { label: 'Pendente', color: '#F59E0B', bg: '#FFFBEB' },
+  PROCESSING: { label: 'A processar', color: '#3B82F6', bg: '#EFF6FF' },
   FAILED: { label: 'Falhou', color: '#EF4444', bg: '#FFF1F2' },
   REFUNDED: { label: 'Reembolso', color: '#6366F1', bg: '#EEF2FF' },
   CANCELLED: { label: 'Cancelado', color: '#71717A', bg: '#F9FAFB' },
@@ -31,6 +32,7 @@ const STATUS_CONFIG: Record<PaymentStatus, { label: string; color: string; bg: s
 const STATUS_ICONS: Record<PaymentStatus, typeof CheckCircle> = {
   COMPLETED: CheckCircle,
   PENDING: Loader,
+  PROCESSING: Loader,
   FAILED: XCircle,
   REFUNDED: ArrowDownLeft,
   CANCELLED: XCircle,

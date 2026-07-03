@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { walletQueryKeys } from 'lib/query-keys';
-import type { Wallet } from 'lib/wallet.types';
 import { topUpMyWallet } from 'services/wallet.service';
 
 export function useWalletTopUpMutation() {
@@ -9,11 +8,13 @@ export function useWalletTopUpMutation() {
 
   return useMutation({
     mutationFn: topUpMyWallet,
-    onSuccess: (wallet) => {
-      queryClient.setQueryData<Wallet>(walletQueryKeys.me, wallet);
-
+    onSuccess: (session) => {
+      queryClient.setQueryData(walletQueryKeys.topUpDetail(session.id), session);
       queryClient.invalidateQueries({
-        queryKey: walletQueryKeys.me,
+        queryKey: walletQueryKeys.topUp,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['payments'],
       });
     },
   });

@@ -8,19 +8,15 @@ import { TextInput } from 'components/app/TextInput';
 
 interface WalletTopUpSheetProps {
   apiErrorMessage?: string;
-  initialPhone?: string | null;
   isLoading?: boolean;
   onClose: () => void;
   onResetError?: () => void;
-  onSubmit: (payload: { amount: number; phone: string }) => void;
+  onSubmit: (payload: { amount: number }) => void;
   visible: boolean;
 }
 
-const MOZ_MSISDN_REGEX = /^(\+?258)?\s?(8[2-7])\s?\d{3}\s?\d{4}$|^(8[2-7])\d{7}$/;
-
 export function WalletTopUpSheet({
   apiErrorMessage,
-  initialPhone,
   isLoading = false,
   onClose,
   onResetError,
@@ -28,7 +24,6 @@ export function WalletTopUpSheet({
   visible,
 }: WalletTopUpSheetProps) {
   const [amount, setAmount] = useState('');
-  const [phone, setPhone] = useState(initialPhone?.trim() ?? '');
   const [formError, setFormError] = useState('');
 
   useEffect(() => {
@@ -37,16 +32,11 @@ export function WalletTopUpSheet({
     }
 
     setAmount('');
-    setPhone(initialPhone?.trim() ?? '');
     setFormError('');
-  }, [initialPhone, visible]);
+  }, [visible]);
 
   const normalizedAmount = Number(amount.replace(/\s/g, '').replace(',', '.'));
-  const canSubmit =
-    Number.isFinite(normalizedAmount) &&
-    normalizedAmount > 0 &&
-    MOZ_MSISDN_REGEX.test(phone.trim()) &&
-    !isLoading;
+  const canSubmit = Number.isFinite(normalizedAmount) && normalizedAmount > 0 && !isLoading;
   const errorMessage = formError || apiErrorMessage;
 
   function handleSubmit() {
@@ -55,15 +45,9 @@ export function WalletTopUpSheet({
       return;
     }
 
-    if (!MOZ_MSISDN_REGEX.test(phone.trim())) {
-      setFormError('Introduza um numero Vodacom valido.');
-      return;
-    }
-
     setFormError('');
     onSubmit({
       amount: Number(normalizedAmount.toFixed(2)),
-      phone: phone.trim(),
     });
   }
 
@@ -111,30 +95,11 @@ export function WalletTopUpSheet({
             value={amount}
           />
 
-          <Text className="mb-2 mt-5 text-[16px] text-[#202020]">Numero M-Pesa</Text>
-          <TextInput
-            autoComplete="tel"
-            className="h-[58px] rounded-2xl border border-[#D8D8DE] bg-white px-4 text-[16px] text-[#171717]"
-            editable={!isLoading}
-            keyboardType="phone-pad"
-            maxLength={15}
-            onChangeText={(value) => {
-              setPhone(value);
-              onResetError?.();
-              if (formError) {
-                setFormError('');
-              }
-            }}
-            placeholder="84 123 4567"
-            textContentType="telephoneNumber"
-            value={phone}
-          />
-
           {errorMessage ? (
             <Text className="mt-4 text-[14px] leading-5 text-[#D05B5B]">{errorMessage}</Text>
           ) : (
             <Text className="mt-4 text-[14px] leading-5 text-[#7A7A7A]">
-              Vais receber o pedido de PIN no telemovel.
+              Vamos abrir a PaySuite para confirmares.
             </Text>
           )}
 
@@ -144,7 +109,7 @@ export function WalletTopUpSheet({
             isDisabled={!canSubmit}
             onPress={handleSubmit}>
             <Button.Label className="font-button text-[16px] text-black">
-              {isLoading ? 'A recarregar...' : 'Recarregar'}
+              {isLoading ? 'A preparar...' : 'Continuar'}
             </Button.Label>
           </Button>
         </BottomSheet.Content>

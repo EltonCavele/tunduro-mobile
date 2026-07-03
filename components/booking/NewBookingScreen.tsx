@@ -33,7 +33,6 @@ import {
   STEP_COPY,
   TOTAL_STEPS,
   translateCheckoutError,
-  validateMozPhone,
   type BookingStep,
 } from 'components/booking/new-booking/new-booking-flow';
 import type { SelectableTimeSlot } from 'components/booking/new-booking/shared';
@@ -85,8 +84,6 @@ export function NewBookingScreen() {
   const [isDateSheetOpen, setIsDateSheetOpen] = useState(false);
   const [isPaymentConfirmOpen, setIsPaymentConfirmOpen] = useState(false);
   const [guestSearchQuery, setGuestSearchQuery] = useState('');
-  const [phone, setPhone] = useState(user?.phone?.trim() ?? '');
-  const [phoneError, setPhoneError] = useState('');
   const [submissionError, setSubmissionError] = useState('');
   const [bookingStep, setBookingStep] = useState<BookingStep>('court');
   const deferredGuestSearchQuery = useDeferredValue(guestSearchQuery);
@@ -167,9 +164,7 @@ export function NewBookingScreen() {
   const availabilityError =
     courtDayBookingsQuery.error && selectedCourtId
       ? getErrorMessage(courtDayBookingsQuery.error, 'Nao foi possivel carregar os horarios.')
-      : myBookingsQuery.isError
-        ? getErrorMessage(myBookingsQuery.error, 'Nao foi possivel validar o limite diario.')
-        : '';
+      : '';
   const selectedRangeLabel = selectedWindow
     ? formatTimeRangeLabel(selectedWindow.startAt, selectedWindow.endAt)
     : '';
@@ -184,27 +179,23 @@ export function NewBookingScreen() {
   const hasEnoughWalletBalance =
     paymentMethod !== 'CLUB_BALANCE' ||
     (bookingTotalValue !== null && walletBalance >= bookingTotalValue);
-  const isPhoneValid = validateMozPhone(phone);
   const canSubmit =
     Boolean(selectedCourt && selectedWindow && user?.id) &&
-    (paymentMethod === 'CLUB_BALANCE' || isPhoneValid) &&
     hasEnoughWalletBalance &&
     !startBookingCheckoutMutation.isPending &&
     !isAvailabilityLoading &&
     !courtDayBookingsQuery.isError &&
-    !myBookingsQuery.isError &&
     selectedGuests.length <= maxGuestSlots;
   const canProceedFromCourt = Boolean(selectedCourtId);
   const canProceedFromDate = Boolean(selectedCourt && selectedDate);
   const canProceedFromTime =
     Boolean(selectedCourt && selectedWindow) &&
     !isAvailabilityLoading &&
-    !courtDayBookingsQuery.isError &&
-    !myBookingsQuery.isError;
+    !courtDayBookingsQuery.isError;
   const canProceedFromLighting = Boolean(selectedCourt) && (!lightingRequested || canUseLighting);
   const canProceedFromGuests = selectedGuests.length <= maxGuestSlots;
   const canProceedFromPayment =
-    paymentMethod === 'CLUB_BALANCE' ? hasEnoughWalletBalance : isPhoneValid;
+    paymentMethod === 'CLUB_BALANCE' ? hasEnoughWalletBalance : true;
 
   const stepCopy = STEP_COPY[bookingStep];
   const currentStepIndex = getStepIndex(bookingStep);
@@ -224,11 +215,6 @@ export function NewBookingScreen() {
     paymentMethod,
     selectedGuestsCount: selectedGuests.length,
   });
-  useEffect(() => {
-    if (!phone.trim() && user?.phone?.trim()) {
-      setPhone(user.phone.trim());
-    }
-  }, [phone, user?.phone]);
   useEffect(() => {
     if (selectedGuests.length <= maxGuestSlots) {
       return;
@@ -307,11 +293,6 @@ export function NewBookingScreen() {
   }
 
   async function handleCreateBooking() {
-    if (paymentMethod === 'MPESA' && !isPhoneValid) {
-      setPhoneError('Numero M-Pesa invalido. Use um numero Vodacom (82-87).');
-      setBookingStep('payment');
-      return;
-    }
     if (paymentMethod === 'CLUB_BALANCE' && !hasEnoughWalletBalance) {
       setSubmissionError('Saldo do clube insuficiente para esta reserva.');
       setBookingStep('payment');
@@ -328,13 +309,11 @@ export function NewBookingScreen() {
     }
     try {
       setSubmissionError('');
-      setPhoneError('');
       await startBookingCheckoutMutation.mutateAsync({
         courtId: selectedCourt.id,
         endAt: selectedWindow.endAt,
         lightingRequested,
         paymentMethod,
-        phone: paymentMethod === 'MPESA' ? phone.trim() : undefined,
         participantUserIds: selectedGuests.map((guest) => guest.id),
         startAt: selectedWindow.startAt,
       });
@@ -345,10 +324,6 @@ export function NewBookingScreen() {
       if (error instanceof ApiClientError && error.statusCode === 409) {
         void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
         setBookingStep('time');
-      }
-      if (message.includes('Numero M-Pesa invalido')) {
-        setPhoneError(message);
-        setBookingStep('payment');
       }
     }
   }
@@ -385,11 +360,6 @@ export function NewBookingScreen() {
         return;
       }
 
-      if (!isPhoneValid) {
-        setPhoneError('Numero M-Pesa invalido. Use um numero Vodacom (82-87).');
-        return;
-      }
-      setPhoneError('');
       setBookingStep('summary');
     }
   }
@@ -496,11 +466,7 @@ export function NewBookingScreen() {
           <NewBookingPaymentStep
             hasEnoughWalletBalance={hasEnoughWalletBalance}
             paymentMethod={paymentMethod}
-            phone={phone}
-            phoneError={phoneError}
             setPaymentMethod={setPaymentMethod}
-            setPhone={setPhone}
-            setPhoneError={setPhoneError}
             setSubmissionError={setSubmissionError}
             walletBalance={walletBalance}
             walletCurrency={walletCurrency}
@@ -512,7 +478,6 @@ export function NewBookingScreen() {
           <NewBookingSummaryStep
             lightingRequested={lightingRequested}
             paymentMethod={paymentMethod}
-            phone={phone}
             selectedCourt={selectedCourt}
             selectedDate={selectedDate}
             selectedGuests={selectedGuests}
@@ -547,7 +512,6 @@ export function NewBookingScreen() {
         onClose={() => setIsPaymentConfirmOpen(false)}
         onConfirm={() => void handleCreateBooking()}
         paymentMethod={paymentMethod}
-        phone={phone}
         selectedCourtName={selectedCourt?.name}
         selectedDate={selectedDate}
         selectedRangeLabel={selectedRangeLabel}

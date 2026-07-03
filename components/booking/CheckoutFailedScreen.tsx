@@ -8,24 +8,24 @@ import { Pressable, View } from 'react-native';
 
 import { SafeAreaView } from 'components/app/SafeAreaView';
 
-function mapMpesaErrorToUserMessage(failureReason: string) {
+function mapPaymentErrorToUserMessage(failureReason: string) {
   const code = failureReason.split(':')[0]?.trim();
 
   switch (code) {
     case 'INS-5':
       return 'Cancelaste o pagamento no telemóvel. Não te cobrámos nada.';
     case 'INS-6':
-      return 'O pagamento falhou no M-Pesa. Tenta novamente.';
+      return 'O pagamento falhou. Tenta novamente.';
     case 'INS-9':
       return 'Não confirmaste o pagamento a tempo.';
     case 'INS-2006':
-      return 'Não tens saldo suficiente no M-Pesa.';
+      return 'Não tens saldo suficiente.';
     case 'INS-2051':
-      return 'O número M-Pesa não é válido.';
+      return 'O número de pagamento não é válido.';
     case 'INS-10':
       return 'Pagamento duplicado. Tenta de novo.';
     case 'GATEWAY_ERROR':
-      return 'O M-Pesa está temporariamente indisponível. Tenta daqui a pouco.';
+      return 'O pagamento está temporariamente indisponível. Tenta daqui a pouco.';
     default:
       return failureReason || 'O pagamento não foi concluído. Tenta novamente.';
   }
@@ -35,7 +35,7 @@ export function CheckoutFailedScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ reason?: string }>();
   const reason = typeof params.reason === 'string' ? params.reason : '';
-  const message = useMemo(() => mapMpesaErrorToUserMessage(reason), [reason]);
+  const message = useMemo(() => mapPaymentErrorToUserMessage(reason), [reason]);
 
   return (
     <SafeAreaView className="flex-1 bg-white">

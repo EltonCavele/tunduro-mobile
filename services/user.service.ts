@@ -1,6 +1,10 @@
-import type { ApiPaginatedData } from 'lib/api.types';
+import type { ApiGenericResponse, ApiPaginatedData } from 'lib/api.types';
 import { api, unwrapResponse } from 'lib/api';
 import type { UserProfile, UserUpdatePayload } from 'lib/auth.types';
+
+export interface DeleteMyAccountPayload {
+  currentPassword: string;
+}
 
 export function getProfile() {
   return unwrapResponse<UserProfile>(api.get('/v1/user/profile'));
@@ -8,6 +12,14 @@ export function getProfile() {
 
 export function updateProfile(payload: UserUpdatePayload) {
   return unwrapResponse<UserProfile>(api.put('/v1/user', payload));
+}
+
+export function deleteMyAccount(payload: DeleteMyAccountPayload) {
+  return unwrapResponse<ApiGenericResponse>(
+    api.delete('/v1/user/me', {
+      data: payload,
+    })
+  );
 }
 
 interface GetUsersDirectoryParams {

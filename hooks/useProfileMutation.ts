@@ -2,7 +2,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { UserProfile } from 'lib/auth.types';
 import { authQueryKeys } from 'lib/query-keys';
-import { updateProfile } from 'services/user.service';
+import { deleteMyAccount, updateProfile } from 'services/user.service';
+
+import { useAuthSession } from './useAuthSession';
 
 export function useUpdateProfileMutation() {
   const queryClient = useQueryClient();
@@ -17,6 +19,17 @@ export function useUpdateProfileMutation() {
       queryClient.invalidateQueries({
         queryKey: authQueryKeys.profile,
       });
+    },
+  });
+}
+
+export function useDeleteAccountMutation() {
+  const { clearSession } = useAuthSession();
+
+  return useMutation({
+    mutationFn: deleteMyAccount,
+    onSuccess: async () => {
+      await clearSession();
     },
   });
 }

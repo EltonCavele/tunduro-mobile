@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Separator } from 'heroui-native';
 import { ArrowLeft, CreditCard, Plus, SlidersHorizontal, Wallet } from 'lucide-react-native';
-import { FlatList, Pressable, ScrollView, View } from 'react-native';
+import { FlatList, Linking, Pressable, ScrollView, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { SafeAreaView } from 'components/app/SafeAreaView';
@@ -18,16 +18,15 @@ import { PaymentItem } from 'components/payments/PaymentItem';
 import { WalletTopUpSheet } from 'components/payments/WalletTopUpSheet';
 import { usePaymentByIdQuery } from 'hooks/usePaymentByIdQuery';
 import { usePayments } from 'hooks/usePayments';
-import { useProfileQuery } from 'hooks/useProfileQuery';
 import { useWalletQuery } from 'hooks/useWalletQuery';
 import { useWalletTopUpMutation } from 'hooks/useWalletTopUpMutation';
 import { formatCourtPrice } from 'lib/court-utils';
 import { getErrorMessage } from 'lib/error-utils';
+import type { WalletTopUpSession } from 'services/wallet.service';
 
 export default function PaymentsIndexRoute() {
   const router = useRouter();
   const { data, isLoading, isError, error, refetch } = usePayments();
-  const profileQuery = useProfileQuery();
   const walletQuery = useWalletQuery();
   const walletTopUpMutation = useWalletTopUpMutation();
 
@@ -36,6 +35,7 @@ export default function PaymentsIndexRoute() {
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
   const [topUpSheetOpen, setTopUpSheetOpen] = useState(false);
   const [topUpSuccessMessage, setTopUpSuccessMessage] = useState('');
+  const [pendingTopUpSession, setPendingTopUpSession] = useState<WalletTopUpSession | null>(null);
 
   const paymentQuery = usePaymentByIdQuery(selectedPaymentId);
 
@@ -83,18 +83,24 @@ export default function PaymentsIndexRoute() {
     ? getErrorMessage(walletTopUpMutation.error, 'Nao foi possivel recarregar.')
     : undefined;
   const readableTopUpError =
-    topUpErrorMessage === 'payment.error.invalidPhone'
-      ? 'Numero M-Pesa invalido.'
-      : topUpErrorMessage === 'payment.error.gatewayUnavailable'
-        ? 'M-Pesa indisponivel. Tenta novamente.'
-        : topUpErrorMessage;
+    topUpErrorMessage === 'payment.error.gatewayUnavailable'
+      ? 'PaySuite indisponivel. Tenta novamente.'
+      : topUpErrorMessage;
 
-  async function handleTopUp(payload: { amount: number; phone: string }) {
+  async function handleTopUp(payload: { amount: number }) {
     setTopUpSuccessMessage('');
     try {
-      await walletTopUpMutation.mutateAsync(payload);
+      const session = await walletTopUpMutation.mutateAsync(payload);
+      setPendingTopUpSession(session);
       setTopUpSheetOpen(false);
-      setTopUpSuccessMessage('Carteira recarregada com sucesso.');
+      setTopUpSuccessMessage('Confirma o pagamento na PaySuite.');
+      if (session.checkoutUrl) {
+        try {
+          await Linking.openURL(session.checkoutUrl);
+        } catch {
+          setTopUpSuccessMessage('Usa o botao para abrir a PaySuite.');
+        }
+      }
     } catch {
       setTopUpSuccessMessage('');
     }
@@ -143,6 +149,8 @@ export default function PaymentsIndexRoute() {
                     className="h-12 flex-row items-center rounded-full bg-primary px-4"
                     onPress={() => {
                       walletTopUpMutation.reset();
+                      setPendingTopUpSession(null);
+                      setTopUpSuccessMessage('');
                       setTopUpSheetOpen(true);
                     }}>
                     <Plus size={18} color="#111111" strokeWidth={2.4} />
@@ -155,15 +163,26 @@ export default function PaymentsIndexRoute() {
                 {topUpSuccessMessage ? (
                   <Text className="mt-4 text-[13px] text-[#3F6B22]">{topUpSuccessMessage}</Text>
                 ) : null}
+
+                {pendingTopUpSession?.checkoutUrl ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    className="mt-4 h-[44px] items-center justify-center rounded-full border border-[#C8D92B]"
+                    onPress={() => Linking.openURL(pendingTopUpSession.checkoutUrl!)}>
+                    <Text className="text-[14px] font-semibold text-[#18181B]">
+                      Abrir PaySuite
+                    </Text>
+                  </Pressable>
+                ) : null}
               </View>
             </View>
 
             {/* Summary */}
             <View className="items-center px-5 pb-8">
-              <Text className="text-[11px] font-semibold uppercase tracking-widest text-[#A1A1AA]">
+              <Text className="text-[11px] font-semibold uppercase text-[#A1A1AA]">
                 {activeLabel}
               </Text>
-              <Text className="mt-2 text-[34px] font-extrabold tracking-tight text-[#18181B]">
+              <Text className="mt-2 text-[34px] font-extrabold text-[#18181B]">
                 {formattedTotal}
               </Text>
               <Text className="mt-1 text-[12px] font-medium text-[#A1A1AA]">
@@ -243,7 +262,6 @@ export default function PaymentsIndexRoute() {
 
       <WalletTopUpSheet
         apiErrorMessage={readableTopUpError}
-        initialPhone={profileQuery.data?.phone}
         isLoading={walletTopUpMutation.isPending}
         onClose={() => setTopUpSheetOpen(false)}
         onResetError={() => walletTopUpMutation.reset()}

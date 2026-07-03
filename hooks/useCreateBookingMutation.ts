@@ -26,6 +26,9 @@ export function useStartBookingCheckoutMutation() {
       await queryClient.invalidateQueries({
         queryKey: walletQueryKeys.me,
       });
+      await queryClient.invalidateQueries({
+        queryKey: ['payments'],
+      });
 
       router.replace({
         pathname: '/checkout/[sessionId]',

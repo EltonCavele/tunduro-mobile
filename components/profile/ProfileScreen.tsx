@@ -3,13 +3,15 @@ import { useState } from 'react';
 
 import { useRouter } from 'expo-router';
 import { ListGroup, Separator } from 'heroui-native';
-import { Bell, LogOut, Wallet } from 'lucide-react-native';
+import { Bell, LogOut, Trash2, Wallet } from 'lucide-react-native';
 import { Pressable, ScrollView, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
 import { ConfirmationModal } from 'components/app/ConfirmationModal';
 import { SafeAreaView } from 'components/app/SafeAreaView';
+import { TextInput } from 'components/app/TextInput';
 import { useLogoutAllDevicesMutation } from 'hooks/useAuthMutations';
+import { useDeleteAccountMutation } from 'hooks/useProfileMutation';
 import { useProfileQuery } from 'hooks/useProfileQuery';
 import { getErrorMessage } from 'lib/error-utils';
 
@@ -19,8 +21,12 @@ export function ProfileScreen() {
   const router = useRouter();
   const profileQuery = useProfileQuery();
   const logoutMutation = useLogoutAllDevicesMutation();
+  const deleteAccountMutation = useDeleteAccountMutation();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   if (profileQuery.isPending) {
     return <AppScreenLoader message="A carregar perfil..." />;
@@ -55,6 +61,40 @@ export function ProfileScreen() {
     } catch (error) {
       setIsLogoutConfirmOpen(false);
       setErrorMessage(getErrorMessage(error, 'Não foi possível sair da conta. Tenta outra vez.'));
+    }
+  }
+
+  function openDeleteConfirm() {
+    setErrorMessage('');
+    setDeleteErrorMessage('');
+    setDeletePassword('');
+    setIsDeleteConfirmOpen(true);
+  }
+
+  function closeDeleteConfirm() {
+    if (!deleteAccountMutation.isPending) {
+      setIsDeleteConfirmOpen(false);
+      setDeleteErrorMessage('');
+      setDeletePassword('');
+    }
+  }
+
+  async function handleDeleteAccount() {
+    if (!deletePassword.trim()) {
+      setDeleteErrorMessage('Introduza a tua palavra-passe.');
+      return;
+    }
+
+    try {
+      setDeleteErrorMessage('');
+      await deleteAccountMutation.mutateAsync({ currentPassword: deletePassword });
+      setIsDeleteConfirmOpen(false);
+      setDeletePassword('');
+      router.replace('/auth/sign-in');
+    } catch (error) {
+      setDeleteErrorMessage(
+        getErrorMessage(error, 'Não foi possível apagar a conta. Tenta outra vez.')
+      );
     }
   }
 
@@ -136,6 +176,25 @@ export function ProfileScreen() {
                   </ListGroup.ItemContent>
                   <ListGroup.ItemSuffix />
                 </ListGroup.Item>
+
+                <Separator className="mx-4 bg-[#F0F0F0]" />
+
+                <ListGroup.Item onPress={openDeleteConfirm}>
+                  <ListGroup.ItemPrefix>
+                    <View className="h-10 w-10 items-center justify-center rounded-xl bg-[#FFEBEE]">
+                      <Trash2 size={20} strokeWidth={2} color="#EF5350" />
+                    </View>
+                  </ListGroup.ItemPrefix>
+                  <ListGroup.ItemContent>
+                    <ListGroup.ItemTitle className="text-[15px] font-semibold text-[#EF5350]">
+                      Apagar conta
+                    </ListGroup.ItemTitle>
+                    <ListGroup.ItemDescription className="font-label text-[12px] text-[#7E7E7E]">
+                      Remove o teu acesso ao app
+                    </ListGroup.ItemDescription>
+                  </ListGroup.ItemContent>
+                  <ListGroup.ItemSuffix />
+                </ListGroup.Item>
               </ListGroup>
             </View>
 
@@ -159,6 +218,43 @@ export function ProfileScreen() {
         title="Terminar sessão?"
         tone="danger"
       />
+
+      <ConfirmationModal
+        cancelLabel="Voltar"
+        confirmLabel={deleteAccountMutation.isPending ? 'A apagar...' : 'Apagar'}
+        description="Esta ação remove a tua conta. Escreve a tua palavra-passe para confirmar."
+        isLoading={deleteAccountMutation.isPending}
+        isOpen={isDeleteConfirmOpen}
+        onClose={closeDeleteConfirm}
+        onConfirm={() => void handleDeleteAccount()}
+        title="Apagar conta?"
+        tone="danger">
+        <View className="mt-5">
+          <Text className="mb-2 text-[14px] font-medium text-[#202020]">Palavra-passe</Text>
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            className="h-12 rounded-2xl bg-[#F4F4F5] px-4 text-[15px] text-[#171717]"
+            editable={!deleteAccountMutation.isPending}
+            onChangeText={(value) => {
+              setDeletePassword(value);
+              if (deleteErrorMessage) {
+                setDeleteErrorMessage('');
+              }
+            }}
+            placeholder="A tua palavra-passe"
+            placeholderTextColor="#9B9CA4"
+            secureTextEntry
+            textContentType="password"
+            value={deletePassword}
+          />
+          {deleteErrorMessage ? (
+            <Text className="mt-2 text-[12px] font-medium text-[#EF5350]">
+              {deleteErrorMessage}
+            </Text>
+          ) : null}
+        </View>
+      </ConfirmationModal>
     </SafeAreaView>
   );
 }
