@@ -1,8 +1,11 @@
+import * as ExpoLinking from 'expo-linking';
+
 import { api, unwrapResponse } from 'lib/api';
 import type { Wallet } from 'lib/wallet.types';
 
 export interface WalletTopUpPayload {
   amount: number;
+  returnUrl?: string;
 }
 
 export enum WalletTopUpSessionStatus {
@@ -35,7 +38,12 @@ export function getMyWallet() {
 }
 
 export function topUpMyWallet(payload: WalletTopUpPayload) {
-  return unwrapResponse<WalletTopUpSession>(api.post('/v1/wallet/me/top-ups', payload));
+  return unwrapResponse<WalletTopUpSession>(
+    api.post('/v1/wallet/me/top-ups', {
+      ...payload,
+      returnUrl: payload.returnUrl ?? ExpoLinking.createURL('payments/wallet-return'),
+    })
+  );
 }
 
 export function getWalletTopUpSession(sessionId: string) {

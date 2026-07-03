@@ -1,4 +1,6 @@
 import type { ApiPaginatedData } from 'lib/api.types';
+import * as ExpoLinking from 'expo-linking';
+
 import { api, unwrapResponse } from 'lib/api';
 import type { BookingPaymentMethod } from 'lib/booking-pricing';
 import type { BookingItem } from 'lib/calendar-bookings';
@@ -16,6 +18,7 @@ export interface CreateBookingPayload {
   lightingRequested?: boolean;
   paymentMethod?: BookingPaymentMethod;
   participantUserIds?: string[];
+  returnUrl?: string;
   startAt: string;
 }
 
@@ -111,7 +114,12 @@ export function getBookingDetails(bookingId: string) {
 }
 
 export function startBookingCheckout(payload: CreateBookingPayload) {
-  return unwrapResponse<BookingCheckoutSession>(api.post('/v1/bookings', payload));
+  return unwrapResponse<BookingCheckoutSession>(
+    api.post('/v1/bookings', {
+      ...payload,
+      returnUrl: payload.returnUrl ?? ExpoLinking.createURL('payments/booking-return'),
+    })
+  );
 }
 
 export function getBookingCheckoutSession(sessionId: string) {
@@ -166,10 +174,13 @@ export function checkInBooking(bookingId: string) {
 
 export interface ExtendBookingPayload {
   bookingId: string;
+  returnUrl?: string;
 }
 
 export function startBookingExtensionCheckout(payload: ExtendBookingPayload) {
   return unwrapResponse<BookingCheckoutSession>(
-    api.post(`/v1/bookings/${payload.bookingId}/extend`, {})
+    api.post(`/v1/bookings/${payload.bookingId}/extend`, {
+      returnUrl: payload.returnUrl ?? ExpoLinking.createURL('payments/booking-return'),
+    })
   );
 }

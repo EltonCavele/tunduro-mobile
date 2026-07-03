@@ -101,7 +101,11 @@ export function WalletTopUpReturnScreen() {
       <StatusBar style="dark" />
 
       <View className="flex-1 items-center justify-center px-6">
-        {isBusy ? <LoadingIndicator size="small" /> : null}
+        {isBusy ? (
+          <View className="items-center">
+            <LoadingIndicator size="small" />
+          </View>
+        ) : null}
 
         <Text
           className={`text-center text-[22px] font-semibold text-[#171717] ${
@@ -110,9 +114,7 @@ export function WalletTopUpReturnScreen() {
           {title}
         </Text>
 
-        <Text className="mt-3 text-center text-[14px] leading-6 text-[#727272]">
-          {description}
-        </Text>
+        <Text className="mt-3 text-center text-[14px] leading-6 text-[#727272]">{description}</Text>
 
         {errorMessage ? (
           <Text className="mt-4 text-center text-[13px] leading-5 text-[#D05B5B]">

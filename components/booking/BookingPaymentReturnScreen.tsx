@@ -108,7 +108,7 @@ export function BookingPaymentReturnScreen() {
         params: {
           id: checkoutSession.bookingId,
         },
-        pathname: '/bookings/[id]',
+        pathname: '/booking/[id]/success',
       });
     }
   }, [checkoutSession, router]);
@@ -153,7 +153,11 @@ export function BookingPaymentReturnScreen() {
 
       <View className="flex-1 items-center justify-center px-6">
         <View className="w-full max-w-[360px] rounded-[30px] bg-[#F6F7F5] px-6 py-8">
-          {isBusy ? <LoadingIndicator size="small" /> : null}
+          {isBusy ? (
+            <View className="items-center">
+              <LoadingIndicator size="small" />
+            </View>
+          ) : null}
 
           <Text
             className={`text-center text-[22px] font-semibold text-[#171717] ${
