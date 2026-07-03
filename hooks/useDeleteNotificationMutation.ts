@@ -18,13 +18,19 @@ export function useDeleteNotificationMutation() {
     },
     onMutate: async (notificationId) => {
       await queryClient.cancelQueries({
-        queryKey: notificationQueryKeys.all,
+        queryKey: ['notifications', 'list'],
+      });
+
+      const previousNotifications = queryClient.getQueriesData<
+        InfiniteData<ApiPaginatedData<AppNotification>>
+      >({
+        queryKey: ['notifications', 'list'],
       });
 
       queryClient.setQueriesData<InfiniteData<ApiPaginatedData<AppNotification>>>(
-        { queryKey: notificationQueryKeys.all },
+        { queryKey: ['notifications', 'list'] },
         (current) => {
-          if (!current) {
+          if (!current || !Array.isArray(current.pages)) {
             return current;
           }
 
@@ -37,6 +43,13 @@ export function useDeleteNotificationMutation() {
           };
         }
       );
+
+      return { previousNotifications };
+    },
+    onError: (_error, _notificationId, context) => {
+      context?.previousNotifications.forEach(([queryKey, data]) => {
+        queryClient.setQueryData(queryKey, data);
+      });
     },
   });
 }

@@ -18,15 +18,15 @@ export function useMarkNotificationReadMutation() {
     },
     onMutate: async (notificationId) => {
       await queryClient.cancelQueries({
-        queryKey: notificationQueryKeys.all,
+        queryKey: ['notifications', 'list'],
       });
 
       const readAt = new Date().toISOString();
 
       queryClient.setQueriesData<InfiniteData<ApiPaginatedData<AppNotification>>>(
-        { queryKey: notificationQueryKeys.all },
+        { queryKey: ['notifications', 'list'] },
         (current) => {
-          if (!current) {
+          if (!current || !Array.isArray(current.pages)) {
             return current;
           }
 

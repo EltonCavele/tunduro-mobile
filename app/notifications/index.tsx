@@ -26,6 +26,7 @@ export default function NotificationsRoute() {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<NotificationReadFilter>('all');
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
 
   const notificationsQuery = useNotificationsQuery(activeFilter);
   const markReadMutation = useMarkNotificationReadMutation();
@@ -57,9 +58,13 @@ export default function NotificationsRoute() {
     }
 
     try {
+      setDeleteErrorMessage('');
       await deleteMutation.mutateAsync(pendingDeleteId);
-    } finally {
       setPendingDeleteId(null);
+    } catch (error) {
+      setDeleteErrorMessage(
+        getErrorMessage(error, 'Não foi possível apagar esta notificação.')
+      );
     }
   }
 
@@ -171,7 +176,10 @@ export default function NotificationsRoute() {
           renderItem={({ item }) => (
             <NotificationItem
               notification={item}
-              onDelete={() => setPendingDeleteId(item.id)}
+              onDelete={() => {
+                setDeleteErrorMessage('');
+                setPendingDeleteId(item.id);
+              }}
               onPress={() => void handlePressNotification(item)}
             />
           )}
@@ -184,11 +192,19 @@ export default function NotificationsRoute() {
         description="Esta notificação será removida permanentemente."
         isLoading={deleteMutation.isPending}
         isOpen={Boolean(pendingDeleteId)}
-        onClose={() => setPendingDeleteId(null)}
+        onClose={() => {
+          setPendingDeleteId(null);
+          setDeleteErrorMessage('');
+        }}
         onConfirm={() => void handleConfirmDelete()}
         title="Apagar notificação"
-        tone="danger"
-      />
+        tone="danger">
+        {deleteErrorMessage ? (
+          <Text className="mt-3 font-label text-[13px] leading-5 text-[#D05B5B]">
+            {deleteErrorMessage}
+          </Text>
+        ) : null}
+      </ConfirmationModal>
     </SafeAreaView>
   );
 }
