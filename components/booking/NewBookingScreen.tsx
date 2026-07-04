@@ -41,9 +41,12 @@ import { useStartBookingCheckoutMutation } from 'hooks/useCreateBookingMutation'
 import { useCourtDayBookingsQuery } from 'hooks/useCourtDayBookingsQuery';
 import { useCourtsQuery } from 'hooks/useCourtsQuery';
 import { useMyBookingsQuery } from 'hooks/useMyBookingsQuery';
-import { useUserSearchQuery } from 'hooks/useUserSearchQuery';
+import {
+  useDeleteUserContactMutation,
+  useInviteUserContactMutation,
+} from 'hooks/useUserContactMutations';
+import { useUserContactsQuery } from 'hooks/useUserContactsQuery';
 import { useWalletQuery } from 'hooks/useWalletQuery';
-import type { UserProfile } from 'lib/auth.types';
 import type { BookingPaymentMethod } from 'lib/booking-pricing';
 import {
   areSlotsAdjacent,
@@ -59,6 +62,7 @@ import {
   SLOT_DURATION_MINUTES,
 } from 'lib/booking-reservation';
 import { ApiClientError, getErrorMessage } from 'lib/error-utils';
+import type { UserContact } from 'services/user.service';
 
 export function NewBookingScreen() {
   const router = useRouter();
@@ -73,9 +77,11 @@ export function NewBookingScreen() {
   const myBookingsQuery = useMyBookingsQuery();
   const walletQuery = useWalletQuery();
   const startBookingCheckoutMutation = useStartBookingCheckoutMutation();
+  const inviteUserContactMutation = useInviteUserContactMutation();
+  const deleteUserContactMutation = useDeleteUserContactMutation();
   const [selectedCourtId, setSelectedCourtId] = useState(initialCourtId);
   const [selectedDate, setSelectedDate] = useState(initialDate);
-  const [selectedGuests, setSelectedGuests] = useState<UserProfile[]>([]);
+  const [selectedGuests, setSelectedGuests] = useState<UserContact[]>([]);
   const [selectedSlotKeys, setSelectedSlotKeys] = useState<string[]>([]);
   const [lightingRequested, setLightingRequested] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<BookingPaymentMethod>('MPESA');
@@ -103,7 +109,7 @@ export function NewBookingScreen() {
     dateKey: selectedDate,
     enabled: Boolean(selectedCourtId),
   });
-  const guestSearchQueryResult = useUserSearchQuery(deferredGuestSearchQuery, {
+  const guestSearchQueryResult = useUserContactsQuery(deferredGuestSearchQuery, {
     enabled: isGuestSheetOpen,
   });
   const remainingDailyMinutes = useMemo(() => {
@@ -158,7 +164,6 @@ export function NewBookingScreen() {
       ),
     [selectableSlots, selectedSlotKeys]
   );
-  const guestOptions = guestSearchQueryResult.data ?? [];
   const isAvailabilityLoading =
     Boolean(selectedCourtId) && (courtDayBookingsQuery.isLoading || myBookingsQuery.isLoading);
   const availabilityError =
@@ -186,25 +191,19 @@ export function NewBookingScreen() {
     !isAvailabilityLoading &&
     !courtDayBookingsQuery.isError &&
     selectedGuests.length <= maxGuestSlots;
-  const canProceedFromCourt = Boolean(selectedCourtId);
   const canProceedFromDate = Boolean(selectedCourt && selectedDate);
   const canProceedFromTime =
     Boolean(selectedCourt && selectedWindow) &&
     !isAvailabilityLoading &&
     !courtDayBookingsQuery.isError;
   const canProceedFromLighting = Boolean(selectedCourt) && (!lightingRequested || canUseLighting);
-  const canProceedFromGuests = selectedGuests.length <= maxGuestSlots;
-  const canProceedFromPayment =
-    paymentMethod === 'CLUB_BALANCE' ? hasEnoughWalletBalance : true;
 
-  const stepCopy = STEP_COPY[bookingStep];
-  const currentStepIndex = getStepIndex(bookingStep);
   const continueDisabled = getContinueDisabledForStep(bookingStep, {
-    canProceedFromCourt,
+    canProceedFromCourt: Boolean(selectedCourtId),
     canProceedFromDate,
-    canProceedFromGuests,
+    canProceedFromGuests: selectedGuests.length <= maxGuestSlots,
     canProceedFromLighting,
-    canProceedFromPayment,
+    canProceedFromPayment: paymentMethod === 'CLUB_BALANCE' ? hasEnoughWalletBalance : true,
     canProceedFromTime,
     canSubmit,
   });
@@ -279,7 +278,7 @@ export function NewBookingScreen() {
     });
   }
 
-  function handleToggleGuest(guest: UserProfile) {
+  function handleToggleGuest(guest: UserContact) {
     setSubmissionError('');
     setSelectedGuests((currentGuests) => {
       if (currentGuests.some((currentGuest) => currentGuest.id === guest.id)) {
@@ -290,6 +289,37 @@ export function NewBookingScreen() {
       }
       return [...currentGuests, guest];
     });
+  }
+
+  async function handleAddGuestEmail(email: string) {
+    try {
+      setSubmissionError('');
+      const contact = await inviteUserContactMutation.mutateAsync({ email });
+      setSelectedGuests((currentGuests) => {
+        if (currentGuests.some((guest) => guest.id === contact.id)) {
+          return currentGuests;
+        }
+        if (currentGuests.length >= maxGuestSlots) {
+          return currentGuests;
+        }
+        return [...currentGuests, contact];
+      });
+      setGuestSearchQuery('');
+    } catch (error) {
+      setSubmissionError(getErrorMessage(error, 'Nao foi possivel adicionar o contacto.'));
+    }
+  }
+
+  async function handleDeleteGuestContact(contactId: string) {
+    try {
+      setSubmissionError('');
+      setSelectedGuests((currentGuests) =>
+        currentGuests.filter((currentGuest) => currentGuest.id !== contactId)
+      );
+      await deleteUserContactMutation.mutateAsync(contactId);
+    } catch (error) {
+      setSubmissionError(getErrorMessage(error, 'Nao foi possivel apagar o contacto.'));
+    }
   }
 
   async function handleCreateBooking() {
@@ -312,9 +342,14 @@ export function NewBookingScreen() {
       await startBookingCheckoutMutation.mutateAsync({
         courtId: selectedCourt.id,
         endAt: selectedWindow.endAt,
+        inviteEmails: selectedGuests
+          .filter((guest) => !guest.linkedUserId)
+          .map((guest) => guest.email),
         lightingRequested,
         paymentMethod,
-        participantUserIds: selectedGuests.map((guest) => guest.id),
+        participantUserIds: selectedGuests
+          .map((guest) => guest.linkedUserId)
+          .filter(Boolean) as string[],
         startAt: selectedWindow.startAt,
       });
     } catch (error) {
@@ -329,7 +364,7 @@ export function NewBookingScreen() {
   }
 
   function goToNextStep() {
-    if (bookingStep === 'court' && canProceedFromCourt) {
+    if (bookingStep === 'court' && selectedCourtId) {
       setBookingStep('date');
       return;
     }
@@ -345,7 +380,7 @@ export function NewBookingScreen() {
       setBookingStep('guests');
       return;
     }
-    if (bookingStep === 'guests' && canProceedFromGuests) {
+    if (bookingStep === 'guests' && selectedGuests.length <= maxGuestSlots) {
       setBookingStep('payment');
       return;
     }
@@ -395,8 +430,8 @@ export function NewBookingScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <NewBookingStepHeader
-          currentStep={currentStepIndex}
-          title={stepCopy.title}
+          currentStep={getStepIndex(bookingStep)}
+          title={STEP_COPY[bookingStep].title}
           totalSteps={TOTAL_STEPS}
         />
 
@@ -534,13 +569,16 @@ export function NewBookingScreen() {
 
       <NewBookingGuestSheet
         error={guestSearchQueryResult.error}
-        guestOptions={guestOptions}
+        guestOptions={guestSearchQueryResult.data ?? []}
         guestSearchQuery={guestSearchQuery}
+        isCreatingContact={inviteUserContactMutation.isPending}
         isLoading={guestSearchQueryResult.isLoading}
         maxGuestSlots={maxGuestSlots}
+        onAddGuestEmail={(email) => void handleAddGuestEmail(email)}
         onChangeGuestSearchQuery={setGuestSearchQuery}
         onClearGuests={() => setSelectedGuests([])}
         onClose={() => setIsGuestSheetOpen(false)}
+        onDeleteContact={(contactId) => void handleDeleteGuestContact(contactId)}
         onToggleGuest={handleToggleGuest}
         selectedGuests={selectedGuests}
         visible={isGuestSheetOpen}

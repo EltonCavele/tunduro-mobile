@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { useRouter } from 'expo-router';
 import { ListGroup, Separator } from 'heroui-native';
-import { Bell, LogOut, Trash2, Wallet } from 'lucide-react-native';
+import { Bell, LogOut, Trash2, UsersRound, Wallet } from 'lucide-react-native';
 import { Pressable, ScrollView, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
@@ -126,6 +126,25 @@ export function ProfileScreen() {
                     </ListGroup.ItemTitle>
                     <ListGroup.ItemDescription className="font-label text-[12px] text-[#7E7E7E]">
                       O teu saldo e os teus pagamentos
+                    </ListGroup.ItemDescription>
+                  </ListGroup.ItemContent>
+                  <ListGroup.ItemSuffix />
+                </ListGroup.Item>
+
+                <Separator className="mx-4 bg-[#F0F0F0]" />
+
+                <ListGroup.Item onPress={() => router.push('/friends')}>
+                  <ListGroup.ItemPrefix>
+                    <View className="h-10 w-10 items-center justify-center rounded-xl bg-[#F5F7F6]">
+                      <UsersRound size={20} strokeWidth={2} color="#1B3022" />
+                    </View>
+                  </ListGroup.ItemPrefix>
+                  <ListGroup.ItemContent>
+                    <ListGroup.ItemTitle className="text-[15px] font-semibold text-[#1A1A1A]">
+                      Amigos
+                    </ListGroup.ItemTitle>
+                    <ListGroup.ItemDescription className="font-label text-[12px] text-[#7E7E7E]">
+                      Pessoas para convidar
                     </ListGroup.ItemDescription>
                   </ListGroup.ItemContent>
                   <ListGroup.ItemSuffix />

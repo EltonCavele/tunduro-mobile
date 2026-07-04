@@ -35,6 +35,13 @@ export const userDirectoryQueryKeys = {
   search: (query: string) => ['user-directory', 'search', query] as const,
 };
 
+export const userContactQueryKeys = {
+  all: ['user-contacts'] as const,
+  list: (query: string) => ['user-contacts', 'list', query] as const,
+  create: ['user-contacts', 'create'] as const,
+  delete: ['user-contacts', 'delete'] as const,
+};
+
 export const weatherQueryKeys = {
   all: ['weather'] as const,
   club: ['weather', 'club'] as const,

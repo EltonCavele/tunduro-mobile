@@ -18,6 +18,7 @@ export interface CreateBookingPayload {
   lightingRequested?: boolean;
   paymentMethod?: BookingPaymentMethod;
   participantUserIds?: string[];
+  inviteEmails?: string[];
   returnUrl?: string;
   startAt: string;
 }

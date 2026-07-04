@@ -1,6 +1,13 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Button } from 'heroui-native';
-import { CreditCard, Lightbulb, LightbulbOff, Smartphone, Users, Wallet } from 'lucide-react-native';
+import {
+  CreditCard,
+  Lightbulb,
+  LightbulbOff,
+  Smartphone,
+  Users,
+  Wallet,
+} from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { Text } from 'components/app/Text';
@@ -12,14 +19,11 @@ import { NewBookingSelectedGuestChip } from 'components/booking/new-booking/NewB
 import { NewBookingSummaryCard } from 'components/booking/new-booking/NewBookingSummaryCard';
 import { NewBookingTimeSlotRow } from 'components/booking/new-booking/NewBookingTimeSlotRow';
 import type { SelectableTimeSlot } from 'components/booking/new-booking/shared';
-import type { UserProfile } from 'lib/auth.types';
-import {
-  BOOKING_PAYMENT_METHOD_LABELS,
-  type BookingPaymentMethod,
-} from 'lib/booking-pricing';
+import { BOOKING_PAYMENT_METHOD_LABELS, type BookingPaymentMethod } from 'lib/booking-pricing';
 import { formatReservationDateLabel, SLOT_DURATION_MINUTES } from 'lib/booking-reservation';
 import type { Court } from 'lib/court.types';
 import { formatCourtPrice } from 'lib/court-utils';
+import type { UserContact } from 'services/user.service';
 
 type NewBookingDateStepProps = {
   onOpenDateSheet: () => void;
@@ -170,7 +174,7 @@ export function NewBookingLightingStep({
 type NewBookingGuestsStepProps = {
   onOpenGuestSheet: () => void;
   onRemoveGuest: (guestId: string) => void;
-  selectedGuests: UserProfile[];
+  selectedGuests: UserContact[];
 };
 
 export function NewBookingGuestsStep({
@@ -287,7 +291,7 @@ type NewBookingSummaryStepProps = {
   paymentMethod: BookingPaymentMethod;
   selectedCourt: Court | null;
   selectedDate: string;
-  selectedGuests: UserProfile[];
+  selectedGuests: UserContact[];
   selectedRangeLabel: string;
   submissionError: string;
   walletBalance: number;

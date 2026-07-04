@@ -1,6 +1,6 @@
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Button, SearchField } from 'heroui-native';
-import { CalendarDays, Trash2, Users } from 'lucide-react-native';
+import { CalendarDays, Plus, Trash2, Users } from 'lucide-react-native';
 import { View } from 'react-native';
 import type { ListRenderItemInfo } from 'react-native';
 import { Calendar } from 'react-native-calendars';
@@ -19,6 +19,7 @@ import {
   getMaxBookableDateKey,
 } from 'lib/booking-reservation';
 import { getErrorMessage } from 'lib/error-utils';
+import type { UserContact } from 'services/user.service';
 
 type NewBookingCourtSheetProps = {
   activeCourts: Court[];
@@ -82,15 +83,18 @@ export function NewBookingCourtSheet({
 
 type NewBookingGuestSheetProps = {
   error: unknown;
-  guestOptions: UserProfile[];
+  guestOptions: UserContact[];
   guestSearchQuery: string;
+  isCreatingContact: boolean;
   isLoading: boolean;
   maxGuestSlots: number;
+  onAddGuestEmail: (email: string) => void;
   onChangeGuestSearchQuery: (value: string) => void;
   onClearGuests: () => void;
   onClose: () => void;
-  onToggleGuest: (guest: UserProfile) => void;
-  selectedGuests: UserProfile[];
+  onDeleteContact: (contactId: string) => void;
+  onToggleGuest: (guest: UserContact) => void;
+  selectedGuests: UserContact[];
   visible: boolean;
 };
 
@@ -98,15 +102,24 @@ export function NewBookingGuestSheet({
   error,
   guestOptions,
   guestSearchQuery,
+  isCreatingContact,
   isLoading,
   maxGuestSlots,
+  onAddGuestEmail,
   onChangeGuestSearchQuery,
   onClearGuests,
   onClose,
+  onDeleteContact,
   onToggleGuest,
   selectedGuests,
   visible,
 }: NewBookingGuestSheetProps) {
+  const normalizedEmail = guestSearchQuery.trim().toLowerCase();
+  const canAddEmail =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail) &&
+    !guestOptions.some((guest) => guest.email.toLowerCase() === normalizedEmail) &&
+    !selectedGuests.some((guest) => guest.email.toLowerCase() === normalizedEmail);
+
   return (
     <NewBookingSheet
       enableScroll={false}
@@ -120,7 +133,7 @@ export function NewBookingGuestSheet({
           <SearchField.Input
             autoCapitalize="none"
             autoCorrect={false}
-            placeholder="Nome do membro"
+            placeholder="Nome ou email"
             placeholderColorClassName="text-[#8F9099]"
             variant="secondary"
           />
@@ -142,6 +155,19 @@ export function NewBookingGuestSheet({
         ) : null}
       </View>
 
+      {canAddEmail ? (
+        <Button
+          className="mb-4 rounded-full bg-primary"
+          feedbackVariant="none"
+          isDisabled={isCreatingContact || selectedGuests.length >= maxGuestSlots}
+          onPress={() => onAddGuestEmail(normalizedEmail)}>
+          <Plus size={18} stroke="#101010" strokeWidth={2.2} />
+          <Button.Label className="font-button text-[14px] text-[#101010]">
+            Convidar por email
+          </Button.Label>
+        </Button>
+      ) : null}
+
       {isLoading ? (
         <View className="items-center justify-center py-10">
           <LoadingIndicator size="large" />
@@ -151,17 +177,17 @@ export function NewBookingGuestSheet({
         </View>
       ) : error ? (
         <NewBookingEmptyStateCard
-          description={getErrorMessage(error, 'Nao foi possivel carregar os membros.')}
+          description={getErrorMessage(error, 'Nao foi possivel carregar os contactos.')}
           title="Erro ao carregar"
         />
       ) : guestOptions.length === 0 ? (
-        <NewBookingEmptyStateCard description="Tente outro nome." title="Sem resultados" />
+        <NewBookingEmptyStateCard description="Adiciona por email." title="Sem contactos" />
       ) : (
-        <BottomSheetFlatList<UserProfile>
+        <BottomSheetFlatList<UserContact>
           data={guestOptions}
-          keyExtractor={(item: UserProfile) => item.id}
+          keyExtractor={(item: UserContact) => item.id}
           keyboardShouldPersistTaps="handled"
-          renderItem={(info: ListRenderItemInfo<UserProfile>) => {
+          renderItem={(info: ListRenderItemInfo<UserContact>) => {
             const { item } = info;
             const isSelected = selectedGuests.some((guest) => guest.id === item.id);
             const isDisabled = !isSelected && selectedGuests.length >= maxGuestSlots;
@@ -171,6 +197,7 @@ export function NewBookingGuestSheet({
                 guest={item}
                 isDisabled={isDisabled}
                 isSelected={isSelected}
+                onDeleteContact={onDeleteContact}
                 onPress={() => onToggleGuest(item)}
               />
             );

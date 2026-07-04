@@ -6,6 +6,21 @@ export interface DeleteMyAccountPayload {
   currentPassword: string;
 }
 
+export interface UserContact {
+  id: string;
+  displayName: string | null;
+  email: string;
+  phone: string | null;
+  linkedUserId: string | null;
+  linkedUser: UserProfile | null;
+}
+
+export interface CreateUserContactPayload {
+  displayName?: string;
+  email: string;
+  phone?: string;
+}
+
 export function getProfile() {
   return unwrapResponse<UserProfile>(api.get('/v1/user/profile'));
 }
@@ -28,7 +43,54 @@ interface GetUsersDirectoryParams {
   q?: string;
 }
 
+interface GetUserContactsParams {
+  page?: number;
+  pageSize?: number;
+  q?: string;
+}
+
 const DEFAULT_USERS_PAGE_SIZE = 100;
+const DEFAULT_CONTACTS_PAGE_SIZE = 100;
+
+export function getUserContactsPage(params?: GetUserContactsParams) {
+  return unwrapResponse<ApiPaginatedData<UserContact>>(
+    api.get('/v1/user/contacts', {
+      params: {
+        page: params?.page ?? 1,
+        pageSize: params?.pageSize ?? DEFAULT_CONTACTS_PAGE_SIZE,
+        q: params?.q?.trim() || undefined,
+      },
+    })
+  );
+}
+
+export async function getUserContacts(params?: GetUserContactsParams) {
+  const response = await getUserContactsPage(params);
+
+  return response.items;
+}
+
+export function createUserContact(payload: CreateUserContactPayload) {
+  return unwrapResponse<UserContact>(
+    api.post('/v1/user/contacts', {
+      ...payload,
+      email: payload.email.trim().toLowerCase(),
+    })
+  );
+}
+
+export function inviteUserContact(payload: CreateUserContactPayload) {
+  return unwrapResponse<UserContact>(
+    api.post('/v1/user/contacts/invite', {
+      displayName: payload.displayName?.trim() || undefined,
+      email: payload.email.trim().toLowerCase(),
+    })
+  );
+}
+
+export function deleteUserContact(contactId: string) {
+  return unwrapResponse<ApiGenericResponse>(api.delete(`/v1/user/contacts/${contactId}`));
+}
 
 export function getUsersDirectoryPage(params?: GetUsersDirectoryParams) {
   return unwrapResponse<ApiPaginatedData<UserProfile>>(
