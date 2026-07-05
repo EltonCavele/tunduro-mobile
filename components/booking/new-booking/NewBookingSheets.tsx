@@ -128,12 +128,13 @@ export function NewBookingGuestSheet({
       visible={visible}
       snapPoints={['80%']}>
       <SearchField className="mb-4" value={guestSearchQuery} onChange={onChangeGuestSearchQuery}>
-        <SearchField.Group className="rounded-[20px] bg-[#F1F2F4]">
+        <SearchField.Group className="rounded-xl bg-[#F1F2F4]">
           <SearchField.SearchIcon iconProps={{ color: '#71727A', size: 18 }} />
           <SearchField.Input
             autoCapitalize="none"
             autoCorrect={false}
             placeholder="Nome ou email"
+            className="outline-none! rounded-xl "
             placeholderColorClassName="text-[#8F9099]"
             variant="secondary"
           />

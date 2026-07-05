@@ -25,7 +25,7 @@ export function NewBookingGuestOptionRow({
 
   return (
     <View
-      className={`mb-3 flex-row items-center rounded-[22px] px-4 py-5 ${
+      className={`mb-3 flex-row items-center rounded-xl px-4 py-3 ${
         isSelected ? 'bg-[#EEF3ED]' : 'bg-[#F7F7F8]'
       } ${isDisabled ? 'opacity-50' : ''}`}>
       <Pressable
@@ -33,27 +33,21 @@ export function NewBookingGuestOptionRow({
         className="flex-1 flex-row items-center"
         disabled={isDisabled}
         onPress={onPress}>
-        <View className="h-12 w-12 items-center justify-center rounded-full bg-primary">
-          <Text className="text-[15px] font-semibold">{displayName.slice(0, 1).toUpperCase()}</Text>
-        </View>
-
-        <View className="ml-3 flex-1">
-          <Text className="text-[16px] font-medium text-[#171717]">{displayName}</Text>
-          <Text className="mt-1 text-[13px] text-[#7A7A7A]">{guest.email}</Text>
-        </View>
-
         <View
-          className={`h-7 w-7 items-center justify-center rounded-full border ${
+          className={`h-4 w-4 items-center justify-center rounded-full border ${
             isSelected ? 'border-primary bg-primary' : 'border-[#C7CAD1] bg-white'
           }`}>
           {isSelected ? <Check size={16} stroke="#FFFFFF" strokeWidth={2.3} /> : null}
+        </View>
+        <View className="ml-3 flex-1">
+          <Text className="text-[16px] font-medium text-[#171717]">{displayName}</Text>
         </View>
       </Pressable>
 
       {onDeleteContact ? (
         <Pressable
           accessibilityRole="button"
-          className="ml-3 h-9 w-9 items-center justify-center rounded-full bg-white"
+          className="ml-3 h-5 w-5 items-center justify-center rounded-full"
           onPress={() => onDeleteContact(guest.id)}>
           <Trash2 size={17} stroke="#D05B5B" strokeWidth={2.1} />
         </Pressable>

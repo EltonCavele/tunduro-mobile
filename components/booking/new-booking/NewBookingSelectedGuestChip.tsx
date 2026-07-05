@@ -15,7 +15,7 @@ export function NewBookingSelectedGuestChip({ guest, onRemove }: NewBookingSelec
   const displayName = guest.displayName?.trim() || linkedName || guest.email;
 
   return (
-    <View className="mr-2 mt-2 flex-row items-center rounded-full bg-primary px-4 py-3">
+    <View className="mr-2 mt-2 flex-row items-center rounded-xl bg-primary px-4 py-3">
       <Text className="text-[14px] font-medium">{displayName}</Text>
 
       <Pressable accessibilityRole="button" className="ml-2" onPress={() => onRemove(guest.id)}>

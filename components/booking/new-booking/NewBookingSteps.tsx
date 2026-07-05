@@ -108,7 +108,7 @@ export function NewBookingTimeStep({
           title="Sem disponibilidade"
         />
       ) : (
-        <View className="rounded-2xl border border-[#ECECEC] bg-white px-4">
+        <View className="bg-white px-4">
           {selectableSlots.map((slot, index) => (
             <NewBookingTimeSlotRow
               key={slot.key}
@@ -146,13 +146,13 @@ export function NewBookingLightingStep({
   }
 
   return (
-    <View className="rounded-2xl border border-[#ECECEC] bg-white px-4">
+    <View className=" bg-white">
       <NewBookingInstructionRow
         icon={LightbulbOff}
         isSelected={!lightingRequested}
         label="Sem iluminacao"
         onPress={() => onChangeLightingRequested(false)}
-        showDivider
+        showDivider={false}
       />
       <NewBookingInstructionRow
         description={
@@ -185,7 +185,7 @@ export function NewBookingGuestsStep({
   return (
     <>
       <NewBookingField
-        label="Convidados"
+        label="Convidados (opcional)"
         onPress={onOpenGuestSheet}
         placeholder="Adicionar pessoa"
         value={
@@ -227,9 +227,8 @@ export function NewBookingPaymentStep({
 }: NewBookingPaymentStepProps) {
   return (
     <View>
-      <View className="mb-5 rounded-2xl border border-[#ECECEC] bg-white px-4">
+      <View className="mb-5 rounded-2xl  border-[#ECECEC] bg-white">
         <NewBookingInstructionRow
-          description="Carteira movel"
           icon={Smartphone}
           isSelected={paymentMethod === 'MPESA'}
           label="M-Pesa"
@@ -237,10 +236,9 @@ export function NewBookingPaymentStep({
             setPaymentMethod('MPESA');
             setSubmissionError('');
           }}
-          showDivider
+          showDivider={false}
         />
         <NewBookingInstructionRow
-          description="Carteira movel"
           icon={Smartphone}
           isSelected={paymentMethod === 'EMOLA'}
           label="E-Mola"
@@ -248,18 +246,18 @@ export function NewBookingPaymentStep({
             setPaymentMethod('EMOLA');
             setSubmissionError('');
           }}
-          showDivider
+          showDivider={false}
         />
         <NewBookingInstructionRow
-          description="Visa ou Mastercard"
           icon={CreditCard}
+          isDisabled={true}
           isSelected={paymentMethod === 'CARD'}
           label="Cartao Bancario"
           onPress={() => {
             setPaymentMethod('CARD');
             setSubmissionError('');
           }}
-          showDivider
+          showDivider={false}
         />
         <NewBookingInstructionRow
           description={`Disponivel: ${formatCourtPrice(walletBalance, walletCurrency)}`}
@@ -324,7 +322,7 @@ export function NewBookingSummaryStep({
         />
       )}
 
-      <View className="mt-4 rounded-2xl border border-[#ECECEC] bg-white px-4">
+      <View className="mt-4  bg-white">
         <NewBookingInstructionRow
           description={
             paymentMethod === 'CLUB_BALANCE'

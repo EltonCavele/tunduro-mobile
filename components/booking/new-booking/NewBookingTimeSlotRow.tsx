@@ -41,14 +41,7 @@ export function NewBookingTimeSlotRow({
         className={`flex-row items-center py-5 ${isDisabled ? 'opacity-45' : ''}`}
         disabled={isDisabled}
         onPress={onPress}>
-        <View
-          className={`h-12 w-12 items-center justify-center rounded-full border ${
-            slot.isSelected ? 'border-[#BDE111] bg-[#EEF3EE]' : 'border-[#E8E8EC] bg-[#F4F6F4]'
-          }`}>
-          <Clock3 size={22} stroke={slot.isSelected ? '#BDE111' : '#5A5A5A'} strokeWidth={2} />
-        </View>
-
-        <View className="ml-4 flex-1">
+        <View className="flex-1">
           <Text
             className={`font-label text-[17px] ${
               slot.isSelected ? 'text-[#101010]' : 'text-[#3A3A3A]'

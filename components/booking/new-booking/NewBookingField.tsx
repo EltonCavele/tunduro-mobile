@@ -27,7 +27,7 @@ export function NewBookingField({
       </Text>
 
       <Pressable accessibilityRole="button" onPress={onPress}>
-        <View className="h-[60px] flex-row items-center rounded-2xl border border-[#D8D8DE] bg-white px-4">
+        <View className="h-12 flex-row items-center rounded-xl border border-[#D8D8DE] bg-white px-4">
           <Text
             className={`flex-1 font-input text-[16px] ${
               hasValue ? 'text-[#171717]' : 'text-[#92939C]'

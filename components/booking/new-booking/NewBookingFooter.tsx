@@ -25,15 +25,13 @@ export function NewBookingFooter({
   const insets = useSafeAreaInsets();
 
   return (
-    <View
-      className="border-t border-[#F0F0F0] bg-white px-6 pt-4"
-      style={{ paddingBottom: Math.max(insets.bottom, 20) }}>
+    <View className=" bg-white px-6 pt-4" style={{ paddingBottom: Math.max(insets.bottom, 20) }}>
       {children}
 
       {secondaryAction ? <View className="mb-3">{secondaryAction}</View> : null}
 
       <Button
-        className={`h-[58px] rounded-full ${disabled ? 'bg-[#C9CDC8]' : 'bg-primary'}`}
+        className={`h-12 rounded-xl ${disabled ? 'bg-[#C9CDC8]' : 'bg-primary'}`}
         feedbackVariant="none"
         isDisabled={disabled || isLoading}
         onPress={onPress}>
