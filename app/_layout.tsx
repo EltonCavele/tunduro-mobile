@@ -51,9 +51,9 @@ function AppNavigation() {
   useResumeActiveCheckout();
 
   useEffect(() => {
-    if (__DEV__ || !Updates.isEnabled || hasCheckedForOtaUpdate) {
-      return;
-    }
+    // if (__DEV__ || !Updates.isEnabled || hasCheckedForOtaUpdate) {
+    //   return;
+    // }
 
     hasCheckedForOtaUpdate = true;
     let isActive = true;
