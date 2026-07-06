@@ -250,7 +250,7 @@ export function NewBookingPaymentStep({
         />
         <NewBookingInstructionRow
           icon={CreditCard}
-          isDisabled={true}
+          isDisabled={false}
           isSelected={paymentMethod === 'CARD'}
           label="Cartao Bancario"
           onPress={() => {

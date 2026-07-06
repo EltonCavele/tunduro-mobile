@@ -35,5 +35,8 @@ export function useStartBookingCheckoutMutation() {
         params: { sessionId: session.id },
       });
     },
+    onError: (error) => {
+      console.error(error);
+    },
   });
 }

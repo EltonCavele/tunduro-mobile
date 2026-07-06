@@ -214,6 +214,7 @@ export function NewBookingScreen() {
     paymentMethod,
     selectedGuestsCount: selectedGuests.length,
   });
+
   useEffect(() => {
     if (selectedGuests.length <= maxGuestSlots) {
       return;

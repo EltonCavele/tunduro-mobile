@@ -185,6 +185,8 @@ export function CheckoutWaitingScreen() {
 
     if (session.status === BookingCheckoutSessionStatus.PAYMENT_FAILED) {
       void clearActiveCheckoutSessionId();
+
+      console.log('session.failureReason', session.failureReason);
       router.replace({
         pathname: '/checkout/failed',
         params: { reason: session.failureReason ?? '', sessionId: session.id },

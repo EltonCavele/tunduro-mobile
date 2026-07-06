@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Select } from 'heroui-native';
-import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
 import { AuthButton } from 'components/auth/AuthButton';
 import { AuthMinimalField } from 'components/auth/AuthMinimalField';
@@ -126,11 +126,12 @@ export default function EditProfileScreen() {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={100}
         className="flex-1">
-        <View className="flex-1 px-6 pb-8 pt-6">
+        <ScrollView contentContainerClassName="flex-1 px-6 pb-8 pt-6">
           <AuthMinimalField
             autoCapitalize="words"
-            inputClassName="h-[50px] rounded-2xl text-[15px]"
+            inputClassName="h-[50px] rounded-xl text-[15px]"
             label="Nome completo"
             labelClassName="mb-2 text-[13px] font-medium text-[#2B2B2B]"
             onChangeText={setFullName}
@@ -140,7 +141,7 @@ export default function EditProfileScreen() {
 
           <AuthMinimalField
             keyboardType="phone-pad"
-            inputClassName="h-[50px] rounded-2xl text-[15px]"
+            inputClassName="h-[50px] rounded-xl text-[15px]"
             label="Número de telefone"
             labelClassName="mb-2 text-[13px] font-medium text-[#2B2B2B]"
             onChangeText={setPhone}
@@ -151,7 +152,7 @@ export default function EditProfileScreen() {
           <AuthMinimalField
             autoCapitalize="none"
             editable={false}
-            inputClassName="h-[50px] rounded-2xl text-[15px] text-[#8C8C8C]"
+            inputClassName="h-[50px] rounded-xl text-[15px] text-[#8C8C8C]"
             keyboardType="email-address"
             label="Endereço de e-mail"
             labelClassName="mb-2 text-[13px] font-medium text-[#2B2B2B]"
@@ -201,16 +202,15 @@ export default function EditProfileScreen() {
           {errorMessage ? (
             <Text className="-mt-2 mb-3 text-[13px] text-[#D05B5B]">{errorMessage}</Text>
           ) : null}
-
-          <View className="mt-auto">
-            <AuthButton
-              className="h-13 rounded-full"
-              isLoading={updateProfileMutation.isPending}
-              label="Guardar"
-              loadingLabel="A guardar..."
-              onPress={handleSave}
-            />
-          </View>
+        </ScrollView>
+        <View className="mt-auto p-6">
+          <AuthButton
+            className="h-13 rounded-xl"
+            isLoading={updateProfileMutation.isPending}
+            label="Guardar"
+            loadingLabel="A guardar..."
+            onPress={handleSave}
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
