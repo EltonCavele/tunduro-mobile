@@ -2,10 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAuthSession } from 'hooks/useAuthSession';
 import { walletQueryKeys } from 'lib/query-keys';
-import {
-  getWalletTopUpSession,
-  WalletTopUpSessionStatus,
-} from 'services/wallet.service';
+import { getWalletTopUpSession, WalletTopUpSessionStatus } from 'services/wallet.service';
 
 interface UseWalletTopUpSessionQueryOptions {
   enabled?: boolean;
@@ -16,6 +13,7 @@ const TERMINAL_TOP_UP_STATUSES = new Set<WalletTopUpSessionStatus>([
   WalletTopUpSessionStatus.COMPLETED,
   WalletTopUpSessionStatus.PAYMENT_FAILED,
   WalletTopUpSessionStatus.EXPIRED,
+  WalletTopUpSessionStatus.REFUNDED,
 ]);
 
 export function useWalletTopUpSessionQuery(

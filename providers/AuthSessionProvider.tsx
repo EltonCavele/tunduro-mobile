@@ -16,7 +16,9 @@ import {
   bookingQueryKeys,
   courtQueryKeys,
   notificationQueryKeys,
+  userContactQueryKeys,
   userDirectoryQueryKeys,
+  walletQueryKeys,
 } from 'lib/query-keys';
 
 interface AuthSessionContextValue {
@@ -63,6 +65,15 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         queryClient.removeQueries({
           queryKey: notificationQueryKeys.all,
         });
+        queryClient.removeQueries({
+          queryKey: userContactQueryKeys.all,
+        });
+        queryClient.removeQueries({
+          queryKey: walletQueryKeys.all,
+        });
+        queryClient.removeQueries({
+          queryKey: ['payments'],
+        });
       }
     });
 
@@ -106,6 +117,15 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       queryClient.removeQueries({
         queryKey: userDirectoryQueryKeys.all,
       });
+      queryClient.removeQueries({
+        queryKey: userContactQueryKeys.all,
+      });
+      queryClient.removeQueries({
+        queryKey: walletQueryKeys.all,
+      });
+      queryClient.removeQueries({
+        queryKey: ['payments'],
+      });
       queryClient.setQueryData(authQueryKeys.profile, response.user);
     },
     [queryClient]
@@ -128,6 +148,15 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     });
     queryClient.removeQueries({
       queryKey: notificationQueryKeys.all,
+    });
+    queryClient.removeQueries({
+      queryKey: userContactQueryKeys.all,
+    });
+    queryClient.removeQueries({
+      queryKey: walletQueryKeys.all,
+    });
+    queryClient.removeQueries({
+      queryKey: ['payments'],
     });
   }, [queryClient]);
 

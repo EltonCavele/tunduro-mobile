@@ -236,3 +236,26 @@ export function buildSelectedSlotWindow(selectedSlots: BookingHourSlot[]) {
     startAt: sortedSlots[0].startAt,
   };
 }
+
+/**
+ * Automatically derives the booking duration (in minutes) from the start/end.
+ * Mirrors the backend rule: returns null when either date is invalid or the end
+ * is not strictly after the start (i.e. a non-positive duration).
+ */
+export function getBookingDurationMinutes(startAt: string, endAt: string): number | null {
+  const startMs = new Date(startAt).getTime();
+  const endMs = new Date(endAt).getTime();
+
+  if (Number.isNaN(startMs) || Number.isNaN(endMs)) {
+    return null;
+  }
+
+  const durationMinutes = Math.round((endMs - startMs) / 60000);
+
+  return durationMinutes > 0 ? durationMinutes : null;
+}
+
+/** True only when the end is strictly after the start and both dates are valid. */
+export function isValidBookingWindow(startAt: string, endAt: string): boolean {
+  return getBookingDurationMinutes(startAt, endAt) !== null;
+}

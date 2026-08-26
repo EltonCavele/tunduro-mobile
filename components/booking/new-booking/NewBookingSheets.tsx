@@ -47,7 +47,7 @@ export function NewBookingCourtSheet({
       enableScroll={false}
       onClose={onClose}
       title="Escolher campo"
-      snapPoints={['70%']}
+      snapPoints={['70%', '98%']}
       visible={visible}>
       {isLoading ? (
         <View className="py-10">

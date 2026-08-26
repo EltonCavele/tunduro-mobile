@@ -54,6 +54,7 @@ import {
   buildSelectedSlotWindow,
   clampBookableDateKey,
   formatTimeRangeLabel,
+  getBookingDurationMinutes,
   getRemainingDailyMinutes,
   isSlotBlockedByCourt,
   isSlotBlockedByLeadTime,
@@ -157,6 +158,15 @@ export function NewBookingScreen() {
     [selectableSlots, selectedSlotKeys]
   );
   const selectedWindow = useMemo(() => buildSelectedSlotWindow(selectedSlots), [selectedSlots]);
+  // Duration is always derived automatically from the selected window (never entered by hand).
+  const bookingDurationMinutes = useMemo(
+    () =>
+      selectedWindow
+        ? getBookingDurationMinutes(selectedWindow.startAt, selectedWindow.endAt)
+        : null,
+    [selectedWindow]
+  );
+  const hasValidWindow = bookingDurationMinutes !== null;
   const invalidSelectedSlotKeys = useMemo(
     () =>
       selectedSlotKeys.filter(
@@ -186,6 +196,7 @@ export function NewBookingScreen() {
     (bookingTotalValue !== null && walletBalance >= bookingTotalValue);
   const canSubmit =
     Boolean(selectedCourt && selectedWindow && user?.id) &&
+    hasValidWindow &&
     hasEnoughWalletBalance &&
     !startBookingCheckoutMutation.isPending &&
     !isAvailabilityLoading &&
@@ -194,6 +205,7 @@ export function NewBookingScreen() {
   const canProceedFromDate = Boolean(selectedCourt && selectedDate);
   const canProceedFromTime =
     Boolean(selectedCourt && selectedWindow) &&
+    hasValidWindow &&
     !isAvailabilityLoading &&
     !courtDayBookingsQuery.isError;
   const canProceedFromLighting = Boolean(selectedCourt) && (!lightingRequested || canUseLighting);
@@ -331,6 +343,15 @@ export function NewBookingScreen() {
     }
     if (!selectedCourt || !selectedWindow) {
       setSubmissionError('Selecione uma quadra e um horario para continuar.');
+      setBookingStep('time');
+      return;
+    }
+    const durationMinutes = getBookingDurationMinutes(selectedWindow.startAt, selectedWindow.endAt);
+    if (durationMinutes === null) {
+      setSubmissionError(
+        'O horário escolhido é inválido. A hora de fim tem de ser depois da de início.'
+      );
+      setIsPaymentConfirmOpen(false);
       setBookingStep('time');
       return;
     }

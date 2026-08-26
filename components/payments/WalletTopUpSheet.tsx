@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 
 import { BottomSheet, Button } from 'heroui-native';
+import { CreditCard, Smartphone } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { Text } from 'components/app/Text';
 import { TextInput } from 'components/app/TextInput';
+import { NewBookingInstructionRow } from 'components/booking/new-booking/NewBookingInstructionRow';
+import type { OnlinePaymentMethod } from 'lib/booking-pricing';
 
 interface WalletTopUpSheetProps {
   apiErrorMessage?: string;
   isLoading?: boolean;
   onClose: () => void;
   onResetError?: () => void;
-  onSubmit: (payload: { amount: number }) => void;
+  onSubmit: (payload: { amount: number; paymentMethod: OnlinePaymentMethod }) => void;
   visible: boolean;
 }
 
@@ -25,6 +28,7 @@ export function WalletTopUpSheet({
 }: WalletTopUpSheetProps) {
   const [amount, setAmount] = useState('');
   const [formError, setFormError] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<OnlinePaymentMethod>('MPESA');
 
   useEffect(() => {
     if (!visible) {
@@ -33,6 +37,7 @@ export function WalletTopUpSheet({
 
     setAmount('');
     setFormError('');
+    setPaymentMethod('MPESA');
   }, [visible]);
 
   const normalizedAmount = Number(amount.replace(/\s/g, '').replace(',', '.'));
@@ -48,6 +53,7 @@ export function WalletTopUpSheet({
     setFormError('');
     onSubmit({
       amount: Number(normalizedAmount.toFixed(2)),
+      paymentMethod,
     });
   }
 
@@ -94,6 +100,38 @@ export function WalletTopUpSheet({
             placeholder="Ex: 1000"
             value={amount}
           />
+
+          <Text className="mt-6 text-[16px] text-[#202020]">Método de pagamento</Text>
+          <View>
+            <NewBookingInstructionRow
+              icon={Smartphone}
+              isSelected={paymentMethod === 'MPESA'}
+              label="M-Pesa"
+              onPress={() => {
+                setPaymentMethod('MPESA');
+                onResetError?.();
+              }}
+            />
+            <NewBookingInstructionRow
+              icon={Smartphone}
+              isSelected={paymentMethod === 'EMOLA'}
+              label="E-Mola"
+              onPress={() => {
+                setPaymentMethod('EMOLA');
+                onResetError?.();
+              }}
+            />
+            <NewBookingInstructionRow
+              icon={CreditCard}
+              isSelected={paymentMethod === 'CARD'}
+              label="Cartao Bancario"
+              onPress={() => {
+                setPaymentMethod('CARD');
+                onResetError?.();
+              }}
+              showDivider={false}
+            />
+          </View>
 
           {errorMessage ? (
             <Text className="mt-4 text-[14px] leading-5 text-[#D05B5B]">{errorMessage}</Text>

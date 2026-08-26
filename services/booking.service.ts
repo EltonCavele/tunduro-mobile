@@ -124,12 +124,14 @@ export function startBookingCheckout(payload: CreateBookingPayload) {
 }
 
 export function getBookingCheckoutSession(sessionId: string) {
-  return unwrapResponse<BookingCheckoutSession>(api.get(`/v1/bookings/checkout/${sessionId}`));
+  return unwrapResponse<BookingCheckoutSession>(
+    api.get(`/v1/bookings/checkout/${encodeURIComponent(sessionId)}`)
+  );
 }
 
 export function refreshBookingCheckoutSession(sessionId: string) {
   return unwrapResponse<BookingCheckoutSession>(
-    api.post(`/v1/bookings/checkout/${sessionId}/refresh`)
+    api.post(`/v1/bookings/checkout/${encodeURIComponent(sessionId)}/refresh`)
   );
 }
 

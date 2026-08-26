@@ -22,7 +22,7 @@ import { useWalletQuery } from 'hooks/useWalletQuery';
 import { useWalletTopUpMutation } from 'hooks/useWalletTopUpMutation';
 import { formatCourtPrice } from 'lib/court-utils';
 import { getErrorMessage } from 'lib/error-utils';
-import type { WalletTopUpSession } from 'services/wallet.service';
+import type { WalletTopUpPayload, WalletTopUpSession } from 'services/wallet.service';
 
 export default function PaymentsIndexRoute() {
   const router = useRouter();
@@ -87,7 +87,7 @@ export default function PaymentsIndexRoute() {
       ? 'Pagamento indisponivel. Tenta novamente.'
       : topUpErrorMessage;
 
-  async function handleTopUp(payload: { amount: number }) {
+  async function handleTopUp(payload: WalletTopUpPayload) {
     setTopUpSuccessMessage('');
     try {
       const session = await walletTopUpMutation.mutateAsync(payload);

@@ -39,6 +39,9 @@ export function WalletTopUpReturnScreen() {
   } else if (topUpSession?.status === WalletTopUpSessionStatus.EXPIRED) {
     title = 'Sessao expirada';
     description = 'A sessao de pagamento expirou.';
+  } else if (topUpSession?.status === WalletTopUpSessionStatus.REFUNDED) {
+    title = 'Pagamento estornado';
+    description = 'O valor foi retirado da carteira.';
   }
 
   useEffect(() => {

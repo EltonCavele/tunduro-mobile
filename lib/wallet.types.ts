@@ -1,4 +1,8 @@
-export type WalletTransactionType = 'TOP_UP' | 'BOOKING_DEBIT' | 'ADMIN_ADJUSTMENT';
+export type WalletTransactionType =
+  | 'TOP_UP'
+  | 'TOP_UP_REVERSAL'
+  | 'BOOKING_DEBIT'
+  | 'ADMIN_ADJUSTMENT';
 
 export interface WalletTransaction {
   id: string;

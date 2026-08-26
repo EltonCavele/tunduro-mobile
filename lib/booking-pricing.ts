@@ -1,7 +1,8 @@
 import type { Role } from 'lib/auth.types';
 import type { Court } from 'lib/court.types';
 
-export type BookingPaymentMethod = 'MPESA' | 'EMOLA' | 'CARD' | 'CLUB_BALANCE';
+export type OnlinePaymentMethod = 'MPESA' | 'EMOLA' | 'CARD';
+export type BookingPaymentMethod = OnlinePaymentMethod | 'CLUB_BALANCE';
 
 export const BOOKING_PAYMENT_METHOD_LABELS: Record<BookingPaymentMethod, string> = {
   CARD: 'Cartao Bancario',
@@ -10,14 +11,10 @@ export const BOOKING_PAYMENT_METHOD_LABELS: Record<BookingPaymentMethod, string>
   MPESA: 'M-Pesa',
 };
 
-export function getBookingHourlyPrice(
-  court: Court,
-  role?: Role | null,
-  lightingRequested = false
-) {
+export function getBookingHourlyPrice(court: Court, role?: Role | null, lightingRequested = false) {
   const basePrice =
-    role === 'MEMBER' ? court.memberPricePerHour ?? court.pricePerHour : court.pricePerHour;
-  const lightingPrice = lightingRequested ? court.lightingPricePerHour ?? 0 : 0;
+    role === 'MEMBER' ? (court.memberPricePerHour ?? court.pricePerHour) : court.pricePerHour;
+  const lightingPrice = lightingRequested ? (court.lightingPricePerHour ?? 0) : 0;
 
   return basePrice + lightingPrice;
 }
@@ -28,7 +25,5 @@ export function getBookingTotalPrice(
   durationHours: number,
   lightingRequested = false
 ) {
-  return Number(
-    (getBookingHourlyPrice(court, role, lightingRequested) * durationHours).toFixed(2)
-  );
+  return Number((getBookingHourlyPrice(court, role, lightingRequested) * durationHours).toFixed(2));
 }

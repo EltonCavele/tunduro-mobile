@@ -1,10 +1,12 @@
 import * as ExpoLinking from 'expo-linking';
 
 import { api, unwrapResponse } from 'lib/api';
+import type { OnlinePaymentMethod } from 'lib/booking-pricing';
 import type { Wallet } from 'lib/wallet.types';
 
 export interface WalletTopUpPayload {
   amount: number;
+  paymentMethod: OnlinePaymentMethod;
   returnUrl?: string;
 }
 
@@ -13,6 +15,7 @@ export enum WalletTopUpSessionStatus {
   EXPIRED = 'EXPIRED',
   OPEN = 'OPEN',
   PAYMENT_FAILED = 'PAYMENT_FAILED',
+  REFUNDED = 'REFUNDED',
 }
 
 export interface WalletTopUpSession {
@@ -25,7 +28,7 @@ export interface WalletTopUpSession {
   failureReason: string | null;
   id: string;
   paidAt: string | null;
-  paymentMethod: string | null;
+  paymentMethod: OnlinePaymentMethod | null;
   phone: string | null;
   reference: string;
   status: WalletTopUpSessionStatus;
@@ -47,11 +50,13 @@ export function topUpMyWallet(payload: WalletTopUpPayload) {
 }
 
 export function getWalletTopUpSession(sessionId: string) {
-  return unwrapResponse<WalletTopUpSession>(api.get(`/v1/wallet/me/top-ups/${sessionId}`));
+  return unwrapResponse<WalletTopUpSession>(
+    api.get(`/v1/wallet/me/top-ups/${encodeURIComponent(sessionId)}`)
+  );
 }
 
 export function refreshWalletTopUpSession(sessionId: string) {
   return unwrapResponse<WalletTopUpSession>(
-    api.post(`/v1/wallet/me/top-ups/${sessionId}/refresh`)
+    api.post(`/v1/wallet/me/top-ups/${encodeURIComponent(sessionId)}/refresh`)
   );
 }

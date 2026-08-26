@@ -19,7 +19,9 @@ export function useRefreshWalletTopUpSessionMutation() {
         queryClient.invalidateQueries({
           queryKey: ['payments'],
         }),
-        session.status === WalletTopUpSessionStatus.COMPLETED
+        [WalletTopUpSessionStatus.COMPLETED, WalletTopUpSessionStatus.REFUNDED].includes(
+          session.status
+        )
           ? queryClient.invalidateQueries({
               queryKey: walletQueryKeys.me,
             })

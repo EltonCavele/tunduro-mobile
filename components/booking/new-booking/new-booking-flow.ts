@@ -1,5 +1,6 @@
 import { ApiClientError, getErrorMessage } from 'lib/error-utils';
 import type { Role } from 'lib/auth.types';
+import { getBookingDurationMinutes } from 'lib/booking-reservation';
 import { getBookingTotalPrice, type BookingPaymentMethod } from 'lib/booking-pricing';
 import type { Court } from 'lib/court.types';
 
@@ -88,14 +89,13 @@ export function getBookingTotalForWindow(
     return null;
   }
 
-  const startMs = new Date(selectedWindow.startAt).getTime();
-  const endMs = new Date(selectedWindow.endAt).getTime();
+  const durationMinutes = getBookingDurationMinutes(selectedWindow.startAt, selectedWindow.endAt);
 
-  if (Number.isNaN(startMs) || Number.isNaN(endMs) || endMs <= startMs) {
+  if (durationMinutes === null) {
     return null;
   }
 
-  const totalHours = (endMs - startMs) / 3600000;
+  const totalHours = durationMinutes / 60;
   return getBookingTotalPrice(selectedCourt, role, totalHours, lightingRequested);
 }
 
@@ -164,9 +164,9 @@ export function getContinueLabelForStep(args: {
           : 'Confirmar pagamento';
   }
 
-  if (args.bookingStep === 'guests' && args.selectedGuestsCount === 0) {
-    return 'Jogar sozinho';
-  }
+  // if (args.bookingStep === 'guests' && args.selectedGuestsCount === 0) {
+  //   return 'Continuar';
+  // }
 
   return 'Continuar';
 }
