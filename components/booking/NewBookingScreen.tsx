@@ -25,40 +25,36 @@ import {
 import { NewBookingStepHeader } from 'components/booking/new-booking/NewBookingStepHeader';
 import {
   BOOKING_STEPS,
+  FREE_BOOKING_STEPS,
   formatBookingTotalValue,
   getBookingTotalForWindow,
   getContinueDisabledForStep,
   getContinueLabelForStep,
-  getStepIndex,
   STEP_COPY,
-  TOTAL_STEPS,
   translateCheckoutError,
   type BookingStep,
 } from 'components/booking/new-booking/new-booking-flow';
 import type { SelectableTimeSlot } from 'components/booking/new-booking/shared';
 import { useAuthStatus } from 'hooks/useAuthStatus';
 import { useStartBookingCheckoutMutation } from 'hooks/useCreateBookingMutation';
-import { useCourtDayBookingsQuery } from 'hooks/useCourtDayBookingsQuery';
 import { useCourtsQuery } from 'hooks/useCourtsQuery';
 import { useMyBookingsQuery } from 'hooks/useMyBookingsQuery';
+import { useNewBookingAvailability } from 'hooks/useNewBookingAvailability';
 import {
   useDeleteUserContactMutation,
   useInviteUserContactMutation,
 } from 'hooks/useUserContactMutations';
 import { useUserContactsQuery } from 'hooks/useUserContactsQuery';
 import { useWalletQuery } from 'hooks/useWalletQuery';
-import type { BookingPaymentMethod } from 'lib/booking-pricing';
+import { isMemberWeekendFreeBooking, type BookingPaymentMethod } from 'lib/booking-pricing';
 import {
   areSlotsAdjacent,
-  buildHourlySlots,
+  buildClubIso,
   buildSelectedSlotWindow,
   clampBookableDateKey,
   formatTimeRangeLabel,
   getBookingDurationMinutes,
   getRemainingDailyMinutes,
-  isSlotBlockedByCourt,
-  isSlotBlockedByLeadTime,
-  isSlotBlockedByOrganizer,
   MAX_DAILY_BOOKING_MINUTES,
   SLOT_DURATION_MINUTES,
 } from 'lib/booking-reservation';
@@ -92,7 +88,7 @@ export function NewBookingScreen() {
   const [isPaymentConfirmOpen, setIsPaymentConfirmOpen] = useState(false);
   const [guestSearchQuery, setGuestSearchQuery] = useState('');
   const [submissionError, setSubmissionError] = useState('');
-  const [bookingStep, setBookingStep] = useState<BookingStep>('court');
+  const [bookingStep, setBookingStep] = useState<BookingStep>('date');
   const deferredGuestSearchQuery = useDeferredValue(guestSearchQuery);
 
   const activeCourts = useMemo(() => courtsQuery.data ?? [], [courtsQuery.data]);
@@ -105,11 +101,6 @@ export function NewBookingScreen() {
   const walletCurrency = walletQuery.data?.currency ?? selectedCourt?.currency ?? 'MZN';
   const maxGuestSlots = selectedCourt ? Math.max(selectedCourt.maxPlayers - 1, 0) : 20;
 
-  const courtDayBookingsQuery = useCourtDayBookingsQuery({
-    courtId: selectedCourtId,
-    dateKey: selectedDate,
-    enabled: Boolean(selectedCourtId),
-  });
   const guestSearchQueryResult = useUserContactsQuery(deferredGuestSearchQuery, {
     enabled: isGuestSheetOpen,
   });
@@ -119,37 +110,15 @@ export function NewBookingScreen() {
     }
     return getRemainingDailyMinutes(myBookings, user.id, selectedDate);
   }, [myBookings, selectedDate, user?.id]);
-  const timeSlots = useMemo(() => buildHourlySlots(selectedDate), [selectedDate]);
-  const selectableSlots = useMemo<SelectableTimeSlot[]>(() => {
-    return timeSlots.map((slot) => {
-      const isCourtBlocked = isSlotBlockedByCourt(courtDayBookingsQuery.data ?? [], slot);
-      const isOrganizerBlocked = user?.id
-        ? isSlotBlockedByOrganizer(myBookings, user.id, slot)
-        : false;
-      const isLeadTimeBlocked = isSlotBlockedByLeadTime(slot);
-      const isDisabled =
-        remainingDailyMinutes < SLOT_DURATION_MINUTES ||
-        isCourtBlocked ||
-        isOrganizerBlocked ||
-        isLeadTimeBlocked;
-      return {
-        ...slot,
-        accentColors: ['#EEF3EE', '#EEF3EE'],
-        isCourtBlocked,
-        isDisabled,
-        isLeadTimeBlocked,
-        isOrganizerBlocked,
-        isSelected: selectedSlotKeys.includes(slot.key),
-      };
-    });
-  }, [
-    courtDayBookingsQuery.data,
+  const bookingAvailability = useNewBookingAvailability({
+    courtId: selectedCourtId,
+    dateKey: selectedDate,
     myBookings,
+    organizerId: user?.id,
     remainingDailyMinutes,
     selectedSlotKeys,
-    timeSlots,
-    user?.id,
-  ]);
+  });
+  const selectableSlots = bookingAvailability.selectableSlots;
   const selectedSlots = useMemo(
     () =>
       selectableSlots
@@ -167,22 +136,13 @@ export function NewBookingScreen() {
     [selectedWindow]
   );
   const hasValidWindow = bookingDurationMinutes !== null;
-  const invalidSelectedSlotKeys = useMemo(
-    () =>
-      selectedSlotKeys.filter(
-        (key) => !selectableSlots.some((slot) => slot.key === key && !slot.isDisabled)
-      ),
-    [selectableSlots, selectedSlotKeys]
-  );
   const isAvailabilityLoading =
-    Boolean(selectedCourtId) && (courtDayBookingsQuery.isLoading || myBookingsQuery.isLoading);
-  const availabilityError =
-    courtDayBookingsQuery.error && selectedCourtId
-      ? getErrorMessage(courtDayBookingsQuery.error, 'Nao foi possivel carregar os horarios.')
-      : '';
+    bookingAvailability.isLoading || (Boolean(selectedCourtId) && myBookingsQuery.isLoading);
+  const availabilityError = bookingAvailability.errorMessage;
   const selectedRangeLabel = selectedWindow
     ? formatTimeRangeLabel(selectedWindow.startAt, selectedWindow.endAt)
     : '';
+  const selectedDateStartAt = buildClubIso(selectedDate, 12);
   const bookingTotalValue = useMemo(
     () => getBookingTotalForWindow(selectedCourt, selectedWindow, user?.role, lightingRequested),
     [lightingRequested, selectedCourt, selectedWindow, user?.role]
@@ -191,7 +151,14 @@ export function NewBookingScreen() {
     () => formatBookingTotalValue(bookingTotalValue, selectedCourt?.currency),
     [bookingTotalValue, selectedCourt?.currency]
   );
+  const isFreeBooking = Boolean(
+    selectedCourt && isMemberWeekendFreeBooking(selectedCourt, user?.role, selectedDateStartAt)
+  );
+  const visibleBookingSteps: readonly BookingStep[] = isFreeBooking
+    ? FREE_BOOKING_STEPS
+    : BOOKING_STEPS;
   const hasEnoughWalletBalance =
+    isFreeBooking ||
     paymentMethod !== 'CLUB_BALANCE' ||
     (bookingTotalValue !== null && walletBalance >= bookingTotalValue);
   const canSubmit =
@@ -200,18 +167,18 @@ export function NewBookingScreen() {
     hasEnoughWalletBalance &&
     !startBookingCheckoutMutation.isPending &&
     !isAvailabilityLoading &&
-    !courtDayBookingsQuery.isError &&
+    !bookingAvailability.isError &&
     selectedGuests.length <= maxGuestSlots;
-  const canProceedFromDate = Boolean(selectedCourt && selectedDate);
+  const canProceedFromDate = Boolean(selectedDate);
   const canProceedFromTime =
     Boolean(selectedCourt && selectedWindow) &&
     hasValidWindow &&
     !isAvailabilityLoading &&
-    !courtDayBookingsQuery.isError;
+    !bookingAvailability.isError;
   const canProceedFromLighting = Boolean(selectedCourt) && (!lightingRequested || canUseLighting);
 
   const continueDisabled = getContinueDisabledForStep(bookingStep, {
-    canProceedFromCourt: Boolean(selectedCourtId),
+    canProceedFromCourt: Boolean(selectedCourt),
     canProceedFromDate,
     canProceedFromGuests: selectedGuests.length <= maxGuestSlots,
     canProceedFromLighting,
@@ -223,6 +190,7 @@ export function NewBookingScreen() {
     bookingStep,
     bookingTotalLabel,
     isStartingCheckout: startBookingCheckoutMutation.isPending,
+    isFreeBooking,
     paymentMethod,
     selectedGuestsCount: selectedGuests.length,
   });
@@ -234,18 +202,23 @@ export function NewBookingScreen() {
     setSelectedGuests((currentGuests) => currentGuests.slice(0, maxGuestSlots));
   }, [maxGuestSlots, selectedGuests.length]);
   useEffect(() => {
-    if (invalidSelectedSlotKeys.length === 0) {
+    if (bookingAvailability.invalidSelectedSlotKeys.length === 0) {
       return;
     }
     setSelectedSlotKeys((currentKeys) =>
-      currentKeys.filter((key) => !invalidSelectedSlotKeys.includes(key))
+      currentKeys.filter((key) => !bookingAvailability.invalidSelectedSlotKeys.includes(key))
     );
-  }, [invalidSelectedSlotKeys]);
+  }, [bookingAvailability.invalidSelectedSlotKeys]);
   useEffect(() => {
     if (!canUseLighting && lightingRequested) {
       setLightingRequested(false);
     }
   }, [canUseLighting, lightingRequested]);
+  useEffect(() => {
+    if (isFreeBooking && bookingStep === 'payment') {
+      setBookingStep('summary');
+    }
+  }, [bookingStep, isFreeBooking]);
 
   function resetSlotSelection() {
     if (selectedSlotKeys.length > 0) {
@@ -336,7 +309,7 @@ export function NewBookingScreen() {
   }
 
   async function handleCreateBooking() {
-    if (paymentMethod === 'CLUB_BALANCE' && !hasEnoughWalletBalance) {
+    if (!isFreeBooking && paymentMethod === 'CLUB_BALANCE' && !hasEnoughWalletBalance) {
       setSubmissionError('Saldo do clube insuficiente para esta reserva.');
       setBookingStep('payment');
       return;
@@ -368,7 +341,7 @@ export function NewBookingScreen() {
           .filter((guest) => !guest.linkedUserId)
           .map((guest) => guest.email),
         lightingRequested,
-        paymentMethod,
+        paymentMethod: isFreeBooking ? undefined : paymentMethod,
         participantUserIds: selectedGuests
           .map((guest) => guest.linkedUserId)
           .filter(Boolean) as string[],
@@ -379,18 +352,18 @@ export function NewBookingScreen() {
       setSubmissionError(message);
       setIsPaymentConfirmOpen(false);
       if (error instanceof ApiClientError && error.statusCode === 409) {
-        void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
+        void Promise.all([bookingAvailability.refetch(), myBookingsQuery.refetch()]);
         setBookingStep('time');
       }
     }
   }
 
   function goToNextStep() {
-    if (bookingStep === 'court' && selectedCourtId) {
-      setBookingStep('date');
+    if (bookingStep === 'date' && canProceedFromDate) {
+      setBookingStep('court');
       return;
     }
-    if (bookingStep === 'date' && canProceedFromDate) {
+    if (bookingStep === 'court' && selectedCourt) {
       setBookingStep('time');
       return;
     }
@@ -403,7 +376,7 @@ export function NewBookingScreen() {
       return;
     }
     if (bookingStep === 'guests' && selectedGuests.length <= maxGuestSlots) {
-      setBookingStep('payment');
+      setBookingStep(isFreeBooking ? 'summary' : 'payment');
       return;
     }
     if (bookingStep === 'payment') {
@@ -422,13 +395,13 @@ export function NewBookingScreen() {
   }
 
   function goToPreviousStep() {
-    if (bookingStep === 'court') {
+    if (bookingStep === 'date') {
       router.back();
       return;
     }
-    const currentIndex = BOOKING_STEPS.indexOf(bookingStep);
+    const currentIndex = visibleBookingSteps.indexOf(bookingStep);
     if (currentIndex > 0) {
-      setBookingStep(BOOKING_STEPS[currentIndex - 1]);
+      setBookingStep(visibleBookingSteps[currentIndex - 1]);
     }
   }
 
@@ -452,9 +425,9 @@ export function NewBookingScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <NewBookingStepHeader
-          currentStep={getStepIndex(bookingStep)}
+          currentStep={visibleBookingSteps.indexOf(bookingStep) + 1}
           title={STEP_COPY[bookingStep].title}
-          totalSteps={TOTAL_STEPS}
+          totalSteps={visibleBookingSteps.length}
         />
 
         {selectedCourt ? (
@@ -463,6 +436,7 @@ export function NewBookingScreen() {
             lightingRequested={lightingRequested}
             rangeLabel={selectedRangeLabel || undefined}
             role={user?.role}
+            startAt={selectedDateStartAt}
             totalLabel={bookingTotalLabel}
           />
         ) : null}
@@ -489,7 +463,7 @@ export function NewBookingScreen() {
             availabilityError={availabilityError}
             isAvailabilityLoading={isAvailabilityLoading}
             onRetryAvailability={() => {
-              void Promise.all([courtDayBookingsQuery.refetch(), myBookingsQuery.refetch()]);
+              void Promise.all([bookingAvailability.refetch(), myBookingsQuery.refetch()]);
             }}
             onSelectSlot={handleSelectSlot}
             remainingDailyMinutes={remainingDailyMinutes}
@@ -501,6 +475,7 @@ export function NewBookingScreen() {
         {bookingStep === 'lighting' ? (
           <NewBookingLightingStep
             canUseLighting={canUseLighting}
+            isFreeBooking={isFreeBooking}
             lightingRequested={lightingRequested}
             onChangeLightingRequested={setLightingRequested}
             selectedCourt={selectedCourt}
@@ -533,6 +508,7 @@ export function NewBookingScreen() {
 
         {bookingStep === 'summary' ? (
           <NewBookingSummaryStep
+            isFreeBooking={isFreeBooking}
             lightingRequested={lightingRequested}
             paymentMethod={paymentMethod}
             selectedCourt={selectedCourt}
@@ -552,6 +528,7 @@ export function NewBookingScreen() {
         disabled={continueDisabled}
         isLoading={bookingStep === 'summary' && startBookingCheckoutMutation.isPending}
         label={continueLabel}
+        loadingLabel={isFreeBooking ? 'A confirmar reserva...' : 'A iniciar pagamento...'}
         onPress={() => {
           if (bookingStep === 'summary') {
             setIsPaymentConfirmOpen(true);
@@ -564,6 +541,7 @@ export function NewBookingScreen() {
 
       <NewBookingPaymentConfirmModal
         bookingTotalLabel={bookingTotalLabel}
+        isFreeBooking={isFreeBooking}
         isLoading={startBookingCheckoutMutation.isPending}
         isOpen={isPaymentConfirmOpen}
         onClose={() => setIsPaymentConfirmOpen(false)}
@@ -586,6 +564,7 @@ export function NewBookingScreen() {
         }}
         role={user?.role}
         selectedCourtId={selectedCourtId}
+        startAt={selectedDateStartAt}
         visible={isCourtSheetOpen}
       />
 

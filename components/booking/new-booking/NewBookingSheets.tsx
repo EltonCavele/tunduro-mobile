@@ -29,6 +29,7 @@ type NewBookingCourtSheetProps = {
   onSelectCourt: (court: Court) => void;
   role?: UserProfile['role'];
   selectedCourtId: string;
+  startAt: string;
   visible: boolean;
 };
 
@@ -40,6 +41,7 @@ export function NewBookingCourtSheet({
   onSelectCourt,
   role,
   selectedCourtId,
+  startAt,
   visible,
 }: NewBookingCourtSheetProps) {
   return (
@@ -71,6 +73,7 @@ export function NewBookingCourtSheet({
                 isSelected={item.id === selectedCourtId}
                 onPress={() => onSelectCourt(item)}
                 role={role}
+                startAt={startAt}
               />
             );
           }}

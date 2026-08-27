@@ -121,7 +121,7 @@ export function WalletTopUpSheet({
                 onResetError?.();
               }}
             />
-            <NewBookingInstructionRow
+            {/*<NewBookingInstructionRow
               icon={CreditCard}
               isSelected={paymentMethod === 'CARD'}
               label="Cartao Bancario"
@@ -130,7 +130,7 @@ export function WalletTopUpSheet({
                 onResetError?.();
               }}
               showDivider={false}
-            />
+            />*/}
           </View>
 
           {errorMessage ? (

@@ -67,7 +67,7 @@ export function UpcomingMatchCard({
 
   return (
     <View
-      className="mb-3 overflow-hidden rounded-[24px] border border-[#E5EAE4] bg-white p-4"
+      className="mb-3 overflow-hidden rounded-3xl border border-[#E5EAE4] bg-white p-4"
       style={{
         shadowColor: '#102017',
         shadowOffset: { width: 0, height: 4 },

@@ -16,6 +16,7 @@ export function useProfileQuery(options?: UseProfileQueryOptions) {
     queryKey: authQueryKeys.profile,
     queryFn: getProfile,
     enabled: (options?.enabled ?? true) && isHydrated && hasSession,
+    refetchOnMount: 'always',
     staleTime: 60_000,
   });
 }

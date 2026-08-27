@@ -11,7 +11,8 @@ export function useCourtsQuery() {
     queryKey: courtQueryKeys.list,
     queryFn: getAllCourts,
     enabled: isHydrated && hasSession,
-    staleTime: 5 * 60_000,
+    staleTime: 60_000,
+    refetchOnMount: 'always',
     select: (courts) =>
       courts
         .filter((court) => court.isActive)

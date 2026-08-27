@@ -1,10 +1,21 @@
 import { Text } from 'components/app/Text';
-import { Check, Clock3 } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
+
+import { COURT_CLOSURE_CATEGORY_LABELS } from 'lib/court.types';
 
 import type { SelectableTimeSlot } from './shared';
 
 function getSlotDescription(slot: SelectableTimeSlot) {
+  if (slot.closure) {
+    const categoryLabel = COURT_CLOSURE_CATEGORY_LABELS[slot.closure.category];
+    const reason = slot.closure.reason.trim();
+
+    return reason
+      ? `Campo fechado · ${categoryLabel}: ${reason}`
+      : `Campo fechado · ${categoryLabel}`;
+  }
+
   if (slot.isCourtBlocked) {
     return 'Campo ocupado';
   }
@@ -38,7 +49,7 @@ export function NewBookingTimeSlotRow({
     <View>
       <Pressable
         accessibilityRole="button"
-        className={`flex-row items-center py-5 ${isDisabled ? 'opacity-45' : ''}`}
+        className={`flex-row items-center py-5 ${isDisabled && !slot.closure ? 'opacity-45' : ''}`}
         disabled={isDisabled}
         onPress={onPress}>
         <View className="flex-1">

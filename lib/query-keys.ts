@@ -23,10 +23,15 @@ export const courtQueryKeys = {
   detail: (courtId: string) => ['courts', 'detail', courtId] as const,
   list: ['courts', 'list'] as const,
   bookings: ['courts', 'bookings'] as const,
+  closures: ['courts', 'closures'] as const,
   dayBookings: (courtId: string, dateKey: string) =>
     ['courts', 'bookings', courtId, dateKey] as const,
+  dayClosures: (courtId: string, dateKey: string) =>
+    ['courts', 'closures', courtId, dateKey] as const,
   weekBookings: (courtId: string, weekStartKey: string) =>
     ['courts', 'bookings', 'week', courtId, weekStartKey] as const,
+  weekClosures: (courtId: string, weekStartKey: string) =>
+    ['courts', 'closures', 'week', courtId, weekStartKey] as const,
 };
 
 export const userDirectoryQueryKeys = {

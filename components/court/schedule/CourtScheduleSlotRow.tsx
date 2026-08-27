@@ -33,7 +33,7 @@ function ReservationContent({
 
       <View className="ml-3 flex-1">
         <Text className="font-title text-[14px] text-white" numberOfLines={1}>
-          {reservation.displayTitle} 
+          {reservation.displayTitle}
         </Text>
         <Text className="mt-0.5 text-[12px] text-white/85">{reservation.timeRangeLabel}</Text>
       </View>
@@ -87,12 +87,41 @@ function AvailableContent({ isCurrentHour }: { isCurrentHour: boolean }) {
   );
 }
 
-function ClosedContent({ isCurrentHour }: { isCurrentHour: boolean }) {
+function ClosedContent({
+  isCurrentHour,
+  closure,
+  isClosureStart,
+}: {
+  isCurrentHour: boolean;
+  closure: CourtScheduleRow['closure'];
+  isClosureStart: boolean;
+}) {
+  if (closure) {
+    return (
+      <View
+        accessible
+        accessibilityLabel={`Campo fechado, ${closure.categoryLabel}, ${closure.reason}, ${closure.timeRangeLabel}`}
+        className="flex-1 flex-row items-center rounded-2xl bg-[#FFF2E8] px-4 py-3">
+        <Lock color="#B45C27" size={16} strokeWidth={2.2} />
+        <View className="ml-3 flex-1">
+          {closure.categoryLabel !== 'Outro motivo' && (
+            <Text className="font-title text-[13px] text-[#8A431E]">{closure.categoryLabel}</Text>
+          )}
+
+          <Text className="mt-0.5 text-[12px] leading-5 text-[#6F5141]" numberOfLines={2}>
+            {closure.reason}
+          </Text>
+          <Text className="mt-0.5 text-[11px] text-[#9A7059]">{closure.timeRangeLabel}</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 flex-row items-center rounded-2xl bg-[#F2F2F2] px-4 py-3">
       <Lock color="#A6A6A6" size={14} strokeWidth={2.2} />
       <Text className="ml-2 text-[13px] text-[#9A9A9A]">
-        {isCurrentHour ? 'Em curso' : 'Fechado'}
+        {isCurrentHour ? 'Em curso' : 'Expirado'}
       </Text>
     </View>
   );
@@ -126,12 +155,18 @@ export function CourtScheduleSlotRow({ row, onPressAvailable }: CourtScheduleSlo
       );
     }
 
-    return <ClosedContent isCurrentHour={row.isCurrentHour} />;
+    return (
+      <ClosedContent
+        closure={row.closure}
+        isClosureStart={row.isClosureStart}
+        isCurrentHour={row.isCurrentHour}
+      />
+    );
   };
 
   return (
     <View className="flex-row items-stretch px-4" style={{ minHeight: ROW_MIN_HEIGHT }}>
-      <View className="w-[52px] pt-1.5">
+      <View className="w-13 pt-1.5">
         <Text
           className={`text-[12px] ${row.isCurrentHour ? 'font-title text-[#3C5424]' : 'text-[#9A9A9A]'}`}>
           {row.hourLabel}

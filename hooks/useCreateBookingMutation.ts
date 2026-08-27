@@ -1,10 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 
-import { setActiveCheckoutSessionId } from 'lib/active-checkout-storage';
+import {
+  clearActiveCheckoutSessionId,
+  setActiveCheckoutSessionId,
+} from 'lib/active-checkout-storage';
 import { bookingQueryKeys, courtQueryKeys, walletQueryKeys } from 'lib/query-keys';
-import type { BookingCheckoutSession } from 'services/booking.service';
-import { startBookingCheckout } from 'services/booking.service';
+import {
+  BookingCheckoutSessionStatus,
+  startBookingCheckout,
+  type BookingCheckoutSession,
+} from 'services/booking.service';
 
 export function useStartBookingCheckoutMutation() {
   const queryClient = useQueryClient();
@@ -18,10 +24,12 @@ export function useStartBookingCheckoutMutation() {
         bookingQueryKeys.bookingCheckoutDetail(session.id),
         session
       );
-      await setActiveCheckoutSessionId(session.id);
 
       await queryClient.invalidateQueries({
         queryKey: courtQueryKeys.bookings,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: bookingQueryKeys.myReservations,
       });
       await queryClient.invalidateQueries({
         queryKey: walletQueryKeys.me,
@@ -29,6 +37,17 @@ export function useStartBookingCheckoutMutation() {
       await queryClient.invalidateQueries({
         queryKey: ['payments'],
       });
+
+      if (session.status === BookingCheckoutSessionStatus.COMPLETED && session.bookingId) {
+        await clearActiveCheckoutSessionId();
+        router.replace({
+          pathname: '/booking/[id]/success',
+          params: { id: session.bookingId },
+        });
+        return;
+      }
+
+      await setActiveCheckoutSessionId(session.id);
 
       router.replace({
         pathname: '/checkout/[sessionId]',

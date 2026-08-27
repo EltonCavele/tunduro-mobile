@@ -5,15 +5,22 @@ import { getBookingTotalPrice, type BookingPaymentMethod } from 'lib/booking-pri
 import type { Court } from 'lib/court.types';
 
 export const BOOKING_STEPS = [
-  'court',
   'date',
+  'court',
   'time',
   'lighting',
   'guests',
   'payment',
   'summary',
 ] as const;
-export const TOTAL_STEPS = BOOKING_STEPS.length;
+export const FREE_BOOKING_STEPS = [
+  'date',
+  'court',
+  'time',
+  'lighting',
+  'guests',
+  'summary',
+] as const;
 
 export type BookingStep = (typeof BOOKING_STEPS)[number];
 
@@ -75,10 +82,6 @@ export function translateCheckoutError(error: unknown) {
   return getErrorMessage(error, 'Nao foi possivel iniciar o checkout do pagamento.');
 }
 
-export function getStepIndex(step: BookingStep) {
-  return BOOKING_STEPS.indexOf(step) + 1;
-}
-
 export function getBookingTotalForWindow(
   selectedCourt: Court | null,
   selectedWindow: { startAt: string; endAt: string } | null,
@@ -96,12 +99,22 @@ export function getBookingTotalForWindow(
   }
 
   const totalHours = durationMinutes / 60;
-  return getBookingTotalPrice(selectedCourt, role, totalHours, lightingRequested);
+  return getBookingTotalPrice(
+    selectedCourt,
+    role,
+    totalHours,
+    lightingRequested,
+    selectedWindow.startAt
+  );
 }
 
 export function formatBookingTotalValue(amount: number | null, currency?: string) {
   if (amount === null) {
     return null;
+  }
+
+  if (amount === 0) {
+    return 'Grátis';
   }
 
   try {
@@ -151,10 +164,15 @@ export function getContinueLabelForStep(args: {
   bookingStep: BookingStep;
   bookingTotalLabel: string | null;
   isStartingCheckout: boolean;
+  isFreeBooking: boolean;
   paymentMethod: BookingPaymentMethod;
   selectedGuestsCount: number;
 }) {
   if (args.bookingStep === 'summary') {
+    if (args.isFreeBooking) {
+      return args.isStartingCheckout ? 'A confirmar reserva...' : 'Confirmar reserva';
+    }
+
     return args.isStartingCheckout
       ? 'A iniciar pagamento...'
       : args.paymentMethod === 'CLUB_BALANCE' && args.bookingTotalLabel

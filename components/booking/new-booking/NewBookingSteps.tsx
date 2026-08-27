@@ -102,7 +102,8 @@ export function NewBookingTimeStep({
           description="Ja atingiste o limite de 2 horas de reserva para esta data."
           title="Limite diario atingido"
         />
-      ) : selectableSlots.every((slot) => slot.isDisabled) ? (
+      ) : selectableSlots.every((slot) => slot.isDisabled) &&
+        selectableSlots.every((slot) => !slot.closure) ? (
         <NewBookingEmptyStateCard
           description="Nao existem horarios livres para esta quadra na data escolhida."
           title="Sem disponibilidade"
@@ -125,6 +126,7 @@ export function NewBookingTimeStep({
 
 type NewBookingLightingStepProps = {
   canUseLighting: boolean;
+  isFreeBooking: boolean;
   lightingRequested: boolean;
   onChangeLightingRequested: (value: boolean) => void;
   selectedCourt: Court | null;
@@ -132,6 +134,7 @@ type NewBookingLightingStepProps = {
 
 export function NewBookingLightingStep({
   canUseLighting,
+  isFreeBooking,
   lightingRequested,
   onChangeLightingRequested,
   selectedCourt,
@@ -157,7 +160,9 @@ export function NewBookingLightingStep({
       <NewBookingInstructionRow
         description={
           canUseLighting
-            ? `+${formatCourtPrice(selectedCourt.lightingPricePerHour, selectedCourt.currency)}/hora`
+            ? isFreeBooking
+              ? 'Incluída na reserva gratuita'
+              : `+${formatCourtPrice(selectedCourt.lightingPricePerHour, selectedCourt.currency)}/hora`
             : 'Este campo nao tem iluminacao.'
         }
         icon={Lightbulb}
@@ -248,7 +253,7 @@ export function NewBookingPaymentStep({
           }}
           showDivider={false}
         />
-        <NewBookingInstructionRow
+        {/*<NewBookingInstructionRow
           icon={CreditCard}
           isDisabled={false}
           isSelected={paymentMethod === 'CARD'}
@@ -258,7 +263,7 @@ export function NewBookingPaymentStep({
             setSubmissionError('');
           }}
           showDivider={false}
-        />
+        />*/}
         <NewBookingInstructionRow
           description={`Disponivel: ${formatCourtPrice(walletBalance, walletCurrency)}`}
           icon={Wallet}
@@ -285,6 +290,7 @@ export function NewBookingPaymentStep({
 }
 
 type NewBookingSummaryStepProps = {
+  isFreeBooking: boolean;
   lightingRequested: boolean;
   paymentMethod: BookingPaymentMethod;
   selectedCourt: Court | null;
@@ -297,6 +303,7 @@ type NewBookingSummaryStepProps = {
 };
 
 export function NewBookingSummaryStep({
+  isFreeBooking,
   lightingRequested,
   paymentMethod,
   selectedCourt,
@@ -325,18 +332,20 @@ export function NewBookingSummaryStep({
       <View className="mt-4  bg-white">
         <NewBookingInstructionRow
           description={
-            paymentMethod === 'CLUB_BALANCE'
-              ? `Saldo disponivel: ${formatCourtPrice(walletBalance, walletCurrency)}`
-              : 'Checkout online'
+            isFreeBooking
+              ? 'Benefício de sócio ao fim de semana'
+              : paymentMethod === 'CLUB_BALANCE'
+                ? `Saldo disponivel: ${formatCourtPrice(walletBalance, walletCurrency)}`
+                : 'Checkout online'
           }
           icon={
-            paymentMethod === 'CLUB_BALANCE'
+            isFreeBooking || paymentMethod === 'CLUB_BALANCE'
               ? Wallet
               : paymentMethod === 'CARD'
                 ? CreditCard
                 : Smartphone
           }
-          label={BOOKING_PAYMENT_METHOD_LABELS[paymentMethod]}
+          label={isFreeBooking ? 'Reserva gratuita' : BOOKING_PAYMENT_METHOD_LABELS[paymentMethod]}
           showDivider
         />
         <NewBookingInstructionRow

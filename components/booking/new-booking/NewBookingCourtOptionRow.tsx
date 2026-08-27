@@ -15,6 +15,7 @@ interface NewBookingCourtOptionRowProps {
   isSelected: boolean;
   onPress: () => void;
   role?: Role | null;
+  startAt: string;
 }
 
 export function NewBookingCourtOptionRow({
@@ -22,11 +23,12 @@ export function NewBookingCourtOptionRow({
   isSelected,
   onPress,
   role,
+  startAt,
 }: NewBookingCourtOptionRowProps) {
   const imageSource: ImageSourcePropType = court.images[0]?.url
     ? { uri: getCourtImageUrl(court.images[0].url) }
     : DEFAULT_COURT_IMAGE;
-  const hourlyPrice = getBookingHourlyPrice(court, role);
+  const hourlyPrice = getBookingHourlyPrice(court, role, false, startAt);
 
   return (
     <Pressable
@@ -43,7 +45,8 @@ export function NewBookingCourtOptionRow({
           {court.surface} • {court.type === 'INDOOR' ? 'Indoor' : 'Outdoor'}
         </Text>
         <Text className="mt-1 text-[14px] text-[#6D6D6D]">
-          {formatCourtPrice(hourlyPrice, court.currency)}/hora • {court.maxPlayers} jogadores
+          {hourlyPrice === 0 ? 'Grátis' : `${formatCourtPrice(hourlyPrice, court.currency)}/hora`} •{' '}
+          {court.maxPlayers} jogadores
         </Text>
       </View>
 

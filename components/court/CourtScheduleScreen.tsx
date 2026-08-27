@@ -1,7 +1,7 @@
 import { Text } from 'components/app/Text';
 import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react';
 import { useNavigation, useRouter } from 'expo-router';
-import { CircleAlert, Club, Info, Plus } from 'lucide-react-native';
+import { CircleAlert, Club, Plus } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 
 import { AppScreenLoader } from 'components/app/AppScreenLoader';
@@ -86,17 +86,18 @@ export function CourtScheduleScreen() {
     weekKeys,
     enabled: Boolean(selectedCourtId),
   });
-  const { getBookingsForDate, resolveName } = scheduleData;
+  const { getBookingsForDate, getClosuresForDate, resolveName } = scheduleData;
 
   const rows = useMemo<CourtScheduleRow[]>(
     () =>
       buildCourtScheduleRows(
         selectedDate,
         getBookingsForDate(selectedDate),
+        getClosuresForDate(selectedDate),
         resolveName,
         new Date()
       ),
-    [selectedDate, getBookingsForDate, resolveName]
+    [selectedDate, getBookingsForDate, getClosuresForDate, resolveName]
   );
 
   useLayoutEffect(() => {

@@ -153,33 +153,33 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
   const isOrganizer = Boolean(booking && user?.id && booking.organizerId === user.id);
   const canCancelBooking = Boolean(
     isOrganizer &&
-      booking &&
-      [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
+    booking &&
+    [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
   );
   const canRespondToInvitation = Boolean(
     currentPendingParticipant &&
-      booking &&
-      [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
+    booking &&
+    [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
   );
   const canPerformCheckIn = Boolean(
     booking &&
-      user?.id &&
-      booking.status === BookingStatus.CONFIRMED &&
-      !booking.checkedInAt &&
-      isUserParticipantOnBooking(booking, user.id)
+    user?.id &&
+    booking.status === BookingStatus.CONFIRMED &&
+    !booking.checkedInAt &&
+    isUserParticipantOnBooking(booking, user.id)
   );
   const isCheckInTime = hasBookingStarted;
   const canExtendBooking = Boolean(
     booking?.extension?.available &&
-      isAcceptedBookingMember(booking, user?.id) &&
-      booking.status === BookingStatus.CONFIRMED
+    isAcceptedBookingMember(booking, user?.id) &&
+    booking.status === BookingStatus.CONFIRMED
   );
   const showExtensionUnavailableHint = Boolean(
     booking &&
-      booking.extension &&
-      !booking.extension.available &&
-      isAcceptedBookingMember(booking, user?.id) &&
-      isNearBookingEnd(booking.endAt, nowMs)
+    booking.extension &&
+    !booking.extension.available &&
+    isAcceptedBookingMember(booking, user?.id) &&
+    isNearBookingEnd(booking.endAt, nowMs)
   );
   const isAcceptMutationPending =
     pendingInvitationAction === 'accept' && respondInvitationMutation.isPending;
@@ -234,7 +234,7 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
         bookingId: booking.id,
       });
     } catch (error) {
-      setActionError(getErrorMessage(error, 'Nao foi possivel iniciar o pagamento da extensao.'));
+      setActionError(getErrorMessage(error, 'Nao foi possivel prolongar a reserva.'));
     } finally {
       setPendingConfirmationAction(null);
     }
@@ -244,15 +244,21 @@ export function BookingDetailsSheet({ bookingId, onClose }: BookingDetailsSheetP
     pendingConfirmationAction === 'extend-booking'
       ? {
           confirmLabel: extendBookingMutation.isPending
-            ? 'A iniciar pagamento...'
+            ? booking?.extension?.amount === 0
+              ? 'A confirmar extensao...'
+              : 'A iniciar pagamento...'
             : 'Confirmar extensao',
           description: booking?.extension?.available
-            ? `Vais pagar ${formatCurrencyValue(
-                booking.extension.amount ?? 0,
-                booking.currency
-              )} para prolongar a reserva ate ${
-                formatExtensionEndLabel(booking.extension.newEndAt) || 'a nova hora'
-              }. Vamos abrir o pagamento para confirmar.`
+            ? booking.extension.amount === 0
+              ? `A extensao gratuita vai prolongar a reserva ate ${
+                  formatExtensionEndLabel(booking.extension.newEndAt) || 'a nova hora'
+                }. Benefício de sócio ao fim de semana.`
+              : `Vais pagar ${formatCurrencyValue(
+                  booking.extension.amount ?? 0,
+                  booking.currency
+                )} para prolongar a reserva ate ${
+                  formatExtensionEndLabel(booking.extension.newEndAt) || 'a nova hora'
+                }. Vamos abrir o pagamento para confirmar.`
             : 'A extensao ja nao esta disponivel para esta reserva.',
           isLoading: extendBookingMutation.isPending,
           onConfirm: () => {

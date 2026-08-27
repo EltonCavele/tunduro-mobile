@@ -1,5 +1,13 @@
 export type CourtType = 'INDOOR' | 'OUTDOOR';
 
+export type CourtClosureCategory = 'EVENT' | 'MAINTENANCE' | 'OTHER';
+
+export const COURT_CLOSURE_CATEGORY_LABELS: Record<CourtClosureCategory, string> = {
+  EVENT: 'Evento',
+  MAINTENANCE: 'Manutenção',
+  OTHER: 'Outro motivo',
+};
+
 export interface CourtImage {
   id: string;
   url: string;
@@ -17,6 +25,7 @@ export interface Court {
   rules: string | null;
   pricePerHour: number;
   memberPricePerHour: number;
+  memberWeekendFree: boolean;
   lightingPricePerHour: number;
   currency: string;
   maxPlayers: number;
@@ -50,4 +59,14 @@ export interface CourtBooking {
   organizer?: CourtBookingOrganizer | null;
   participantCount?: number | null;
   guestCount?: number | null;
+}
+
+export interface CourtClosure {
+  id: string;
+  courtId?: string;
+  startAt: string;
+  endAt: string;
+  category: CourtClosureCategory;
+  reason: string;
+  createdAt?: string;
 }

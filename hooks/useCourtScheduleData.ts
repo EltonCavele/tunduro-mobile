@@ -2,9 +2,15 @@ import { useCallback, useMemo } from 'react';
 
 import { useBookingUsersQuery } from 'hooks/useBookingUsersQuery';
 import { useCourtWeekBookingsQuery } from 'hooks/useCourtWeekBookingsQuery';
-import { getClubDateKey, isBlockingBookingStatus } from 'lib/booking-reservation';
+import { useCourtWeekClosuresQuery } from 'hooks/useCourtWeekClosuresQuery';
+import {
+  getClubDateKey,
+  getClubDayRange,
+  hasTimeOverlap,
+  isBlockingBookingStatus,
+} from 'lib/booking-reservation';
 import { formatReserverName, type CourtScheduleNameResolver } from 'lib/court-schedule';
-import type { CourtBooking } from 'lib/court.types';
+import type { CourtBooking, CourtClosure } from 'lib/court.types';
 
 interface UseCourtScheduleDataOptions {
   courtId?: string | null;
@@ -26,7 +32,13 @@ export function useCourtScheduleData({ courtId, weekKeys, enabled }: UseCourtSch
     weekStartKey,
     enabled: Boolean(weekStartKey) && (enabled ?? true),
   });
+  const closuresQuery = useCourtWeekClosuresQuery({
+    courtId,
+    weekStartKey,
+    enabled: Boolean(weekStartKey) && (enabled ?? true),
+  });
   const bookings = useMemo(() => bookingsQuery.data ?? [], [bookingsQuery.data]);
+  const closures = useMemo(() => closuresQuery.data ?? [], [closuresQuery.data]);
 
   const bookingsByDate = useMemo(() => {
     const grouped = new Map<string, CourtBooking[]>();
@@ -44,6 +56,23 @@ export function useCourtScheduleData({ courtId, weekKeys, enabled }: UseCourtSch
 
     return grouped;
   }, [bookings]);
+
+  const closuresByDate = useMemo(() => {
+    const grouped = new Map<string, CourtClosure[]>();
+
+    weekKeys.forEach((dateKey) => {
+      const { endAt, startAt } = getClubDayRange(dateKey);
+      const matchingClosures = closures.filter((closure) =>
+        hasTimeOverlap(startAt, endAt, closure.startAt, closure.endAt)
+      );
+
+      if (matchingClosures.length > 0) {
+        grouped.set(dateKey, matchingClosures);
+      }
+    });
+
+    return grouped;
+  }, [closures, weekKeys]);
 
   const datesWithReservations = useMemo(() => {
     const dates = new Set<string>();
@@ -103,15 +132,20 @@ export function useCourtScheduleData({ courtId, weekKeys, enabled }: UseCourtSch
     (dateKey: string) => bookingsByDate.get(dateKey) ?? [],
     [bookingsByDate]
   );
+  const getClosuresForDate = useCallback(
+    (dateKey: string) => closuresByDate.get(dateKey) ?? [],
+    [closuresByDate]
+  );
 
   return {
     getBookingsForDate,
+    getClosuresForDate,
     datesWithReservations,
     resolveName,
-    isPending: bookingsQuery.isPending,
-    isError: bookingsQuery.isError,
-    error: bookingsQuery.error,
-    isRefetching: bookingsQuery.isRefetching,
-    refetch: bookingsQuery.refetch,
+    isPending: bookingsQuery.isPending || closuresQuery.isPending,
+    isError: bookingsQuery.isError || closuresQuery.isError,
+    error: bookingsQuery.error ?? closuresQuery.error,
+    isRefetching: bookingsQuery.isRefetching || closuresQuery.isRefetching,
+    refetch: () => Promise.all([bookingsQuery.refetch(), closuresQuery.refetch()]),
   };
 }

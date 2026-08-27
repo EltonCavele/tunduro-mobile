@@ -1,7 +1,7 @@
 import type { ApiPaginatedData } from 'lib/api.types';
 import { api, unwrapResponse } from 'lib/api';
 import { getClubDayRange } from 'lib/booking-reservation';
-import type { Court, CourtBooking } from 'lib/court.types';
+import type { Court, CourtBooking, CourtClosure } from 'lib/court.types';
 
 interface CourtListParams {
   page?: number;
@@ -93,4 +93,18 @@ export function getCourtDayBookings(courtId: string, dateKey: string) {
   const { endAt, startAt } = getClubDayRange(dateKey);
 
   return getCourtBookingsBetween(courtId, startAt, endAt);
+}
+
+export function getCourtClosuresBetween(courtId: string, startAt: string, endAt: string) {
+  return unwrapResponse<{ closures: CourtClosure[] }>(
+    api.get(`/v1/courts/${courtId}/closures`, {
+      params: { endAt, startAt },
+    })
+  ).then((response) => response.closures);
+}
+
+export function getCourtDayClosures(courtId: string, dateKey: string) {
+  const { endAt, startAt } = getClubDayRange(dateKey);
+
+  return getCourtClosuresBetween(courtId, startAt, endAt);
 }

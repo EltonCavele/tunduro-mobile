@@ -11,6 +11,7 @@ interface NewBookingPriceHighlightProps {
   lightingRequested?: boolean;
   rangeLabel?: string;
   role?: Role | null;
+  startAt?: string;
   totalLabel?: string | null;
 }
 
@@ -19,10 +20,11 @@ export function NewBookingPriceHighlight({
   lightingRequested = false,
   rangeLabel,
   role,
+  startAt,
   totalLabel,
 }: NewBookingPriceHighlightProps) {
-  const hourlyPrice = getBookingHourlyPrice(court, role, lightingRequested);
-  const hourlyLabel = formatCourtPrice(hourlyPrice, court.currency);
+  const hourlyPrice = getBookingHourlyPrice(court, role, lightingRequested, startAt);
+  const hourlyLabel = hourlyPrice === 0 ? 'Grátis' : formatCourtPrice(hourlyPrice, court.currency);
   const hasTotal = Boolean(totalLabel);
 
   return (

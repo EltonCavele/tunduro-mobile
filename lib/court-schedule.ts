@@ -10,7 +10,12 @@ import {
   hasTimeOverlap,
   isBlockingBookingStatus,
 } from 'lib/booking-reservation';
-import type { CourtBooking, CourtBookingOrganizer } from 'lib/court.types';
+import {
+  COURT_CLOSURE_CATEGORY_LABELS,
+  type CourtBooking,
+  type CourtBookingOrganizer,
+  type CourtClosure,
+} from 'lib/court.types';
 
 export type CourtScheduleSlotState = 'reserved' | 'available' | 'closed';
 
@@ -29,6 +34,13 @@ export interface CourtScheduleReservation {
   guestCount: number;
 }
 
+export interface CourtScheduleClosure {
+  id: string;
+  categoryLabel: string;
+  reason: string;
+  timeRangeLabel: string;
+}
+
 export interface CourtScheduleRow {
   hour: number;
   hourLabel: string;
@@ -36,8 +48,11 @@ export interface CourtScheduleRow {
   state: CourtScheduleSlotState;
   isCurrentHour: boolean;
   reservation: CourtScheduleReservation | null;
+  closure: CourtScheduleClosure | null;
   /** First visible hour occupied by the reservation — render the full card here. */
   isReservationStart: boolean;
+  /** First visible hour occupied by the closure — render its reason here. */
+  isClosureStart: boolean;
 }
 
 /** Resolves a CourtBooking to a display name, or null when unknown. */
@@ -101,11 +116,11 @@ export function formatReserverName(person: CourtBookingOrganizer | UserProfile) 
   const lastName = person.lastName?.trim() ?? '';
 
   if (lastName && firstName) {
-    return `${lastName.toUpperCase()} ${firstName}`;
+    return `${firstName} ${lastName}`;
   }
 
   if (lastName) {
-    return lastName.toUpperCase();
+    return lastName;
   }
 
   if (firstName) {
@@ -178,6 +193,7 @@ export function formatGuestCountLabel(guestCount: number) {
 export function buildCourtScheduleRows(
   dateKey: string,
   bookings: CourtBooking[],
+  closures: CourtClosure[],
   resolveName: CourtScheduleNameResolver,
   now: Date
 ): CourtScheduleRow[] {
@@ -188,6 +204,7 @@ export function buildCourtScheduleRows(
   const earliestBookableMs = nowMs + MIN_BOOKING_LEAD_MINUTES * 60 * 1000;
   const blockingBookings = bookings.filter((booking) => isBlockingBookingStatus(booking.status));
   const renderedBookingIds = new Set<string>();
+  const renderedClosureIds = new Set<string>();
   const rows: CourtScheduleRow[] = [];
 
   for (let hour = SLOT_START_HOUR; hour < SLOT_END_HOUR; hour += 1) {
@@ -198,23 +215,42 @@ export function buildCourtScheduleRows(
     const booking = blockingBookings.find((item) =>
       hasTimeOverlap(slotStartAt, slotEndAt, item.startAt, item.endAt)
     );
+    const closure = closures.find((item) =>
+      hasTimeOverlap(slotStartAt, slotEndAt, item.startAt, item.endAt)
+    );
     const isCurrentHour = isToday && nowMs >= slotStartMs && nowMs < slotEndMs;
 
     let reservation: CourtScheduleReservation | null = null;
+    let closureMeta: CourtScheduleClosure | null = null;
     let isReservationStart = false;
+    let isClosureStart = false;
 
-    if (booking) {
+    if (closure) {
+      const startLabel = getClubTimeLabel(closure.startAt);
+      const endLabel = getClubTimeLabel(closure.endAt);
+
+      closureMeta = {
+        id: closure.id,
+        categoryLabel: COURT_CLOSURE_CATEGORY_LABELS[closure.category],
+        reason: closure.reason,
+        timeRangeLabel: `${startLabel} - ${endLabel}`,
+      };
+      isClosureStart = !renderedClosureIds.has(closure.id);
+      renderedClosureIds.add(closure.id);
+    } else if (booking) {
       reservation = buildReservationMeta(booking, resolveName);
       isReservationStart = !renderedBookingIds.has(booking.id);
       renderedBookingIds.add(booking.id);
     }
 
     const isBookable = !isPastDay && slotStartMs >= earliestBookableMs;
-    const state: CourtScheduleSlotState = booking
-      ? 'reserved'
-      : isBookable
-        ? 'available'
-        : 'closed';
+    const state: CourtScheduleSlotState = closure
+      ? 'closed'
+      : booking
+        ? 'reserved'
+        : isBookable
+          ? 'available'
+          : 'closed';
 
     rows.push({
       hour,
@@ -223,7 +259,9 @@ export function buildCourtScheduleRows(
       state,
       isCurrentHour,
       reservation,
+      closure: closureMeta,
       isReservationStart,
+      isClosureStart,
     });
   }
 

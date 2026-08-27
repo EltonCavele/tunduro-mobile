@@ -147,7 +147,7 @@ function ExtendButton({
       isDisabled={isLoading}
       onPress={onPress}>
       <Button.Label className="font-button text-[14px] text-white">
-        {isLoading ? 'A iniciar pagamento...' : 'Prolongar +1 hora'}
+        {isLoading ? 'A prolongar...' : 'Prolongar +1 hora'}
       </Button.Label>
     </Button>
   );

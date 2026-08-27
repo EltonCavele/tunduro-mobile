@@ -24,7 +24,7 @@ function EmptyUpcomingMatch() {
       </View>
       <Text className="text-[15px] font-bold text-[#121512]">Ainda não tens reservas</Text>
       <Text className="mt-1 text-center text-[13px] leading-5 text-[#6B746D]">
-        Marca a tua primeira quadra e começa a jogar.
+        Marca o teu primeiro jogo de Ténis e começa a jogar.
       </Text>
 
       <Pressable
@@ -33,9 +33,7 @@ function EmptyUpcomingMatch() {
         onPress={() => router.push('/bookings/new')}
         className="mt-4 flex-row items-center gap-2 rounded-full bg-primary px-5 py-3">
         <Plus size={18} stroke="#171717" strokeWidth={2.4} />
-        <Text className="font-button text-[14px] text-[#171717]">
-          Marcar a minha primeira reserva
-        </Text>
+        <Text className="font-button text-[14px] text-[#171717]">Reservar campo</Text>
       </Pressable>
     </View>
   );
@@ -102,7 +100,7 @@ export function HomeScreen() {
         <View className="mb-6">
           <Text className="text-[28px] leading-9 text-[#202020]">Olá, {firstName}! 👋</Text>
           <Text className="mt-1 text-[14px] text-[#7A7A7A]">
-            Bem-vindo ao Clube de Ténis Tunduru.
+            Bem-vindo ao Clube de Ténis Maputo.
           </Text>
         </View>
 
@@ -113,7 +111,7 @@ export function HomeScreen() {
           onPress={() => router.push('/bookings/new')}
           className="mb-8 flex-row items-center justify-between rounded-[28px] bg-primary p-5">
           <View className="flex-1 pr-4">
-            <Text className="font-title text-[19px] text-[#171717]">Marcar uma quadra</Text>
+            <Text className="font-title text-[19px] text-[#171717]">Marca já o teu jogo!</Text>
             <Text className="mt-1 text-[13px] leading-5 text-[#3F4F19]">
               Escolhe o dia e a hora e convida quem quiseres.
             </Text>
@@ -124,7 +122,7 @@ export function HomeScreen() {
         </Pressable>
 
         <View className="mb-4 flex-row items-center justify-between">
-          <Text className="text-[18px] text-[#232323]">Próximas partidas</Text>
+          <Text className="text-[18px] text-[#232323]">Próximas reservas</Text>
         </View>
 
         {isLoadingBookings ? (
